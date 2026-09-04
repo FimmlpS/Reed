@@ -1,0 +1,14 @@
+[remap]
+
+importer="spine.skel"
+type="SpineSkeletonFileResource"
+uid="uid://dvhe8v6dcllq4"
+path="res://.godot/imported/build_char_1020_reed2.skel-904e3cd5c9c19023a4feaa57e79cb88a.spskel"
+
+[deps]
+
+source_file="res://Reed/images/char/default/build/build_char_1020_reed2.skel"
+dest_files=["res://.godot/imported/build_char_1020_reed2.skel-904e3cd5c9c19023a4feaa57e79cb88a.spskel"]
+
+[params]
+

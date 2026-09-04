@@ -1,0 +1,10 @@
+[gd_scene load_steps=2 format=3 uid="uid://d32jhm18x7vwu"]
+
+[ext_resource type="SpineSkeletonDataResource" uid="uid://blrev4txph36o" path="res://Reed/images/char/default/build/reed_default_build.tres" id="1_ulcr3"]
+
+[node name="ReedMerchant" type="SpineSprite"]
+skeleton_data_res = ExtResource("1_ulcr3")
+preview_skin = "Default"
+preview_animation = "relaxed_loop"
+preview_frame = false
+preview_time = 0.0

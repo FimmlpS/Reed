@@ -1,0 +1,16 @@
+[remap]
+
+importer="spine.atlas"
+type="SpineAtlasResource"
+uid="uid://c1tfoynxqvaue"
+path="res://.godot/imported/char_1020_reed2.atlas-47d8a8cf670c1f352aeee16bc4be075a.spatlas"
+
+[deps]
+
+source_file="res://Reed/images/char/default/front/char_1020_reed2.atlas"
+dest_files=["res://.godot/imported/char_1020_reed2.atlas-47d8a8cf670c1f352aeee16bc4be075a.spatlas"]
+
+[params]
+
+normal_map_prefix="n"
+specular_map_prefix="s"

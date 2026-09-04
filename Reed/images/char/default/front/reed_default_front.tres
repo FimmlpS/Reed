@@ -1,0 +1,8 @@
+[gd_resource type="SpineSkeletonDataResource" load_steps=3 format=3 uid="uid://8d7pv0h8n5rs"]
+
+[ext_resource type="SpineAtlasResource" uid="uid://c1tfoynxqvaue" path="res://Reed/images/char/default/front/char_1020_reed2.atlas" id="1_653ca"]
+[ext_resource type="SpineSkeletonFileResource" uid="uid://belqf8q1uxvkj" path="res://Reed/images/char/default/front/char_1020_reed2.skel" id="2_wwaxg"]
+
+[resource]
+atlas_res = ExtResource("1_653ca")
+skeleton_file_res = ExtResource("2_wwaxg")

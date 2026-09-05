@@ -1,0 +1,22 @@
+{
+	"REED-STRIKE.title":"打击",
+	"REED-STRIKE.description":"造成{Damage:diff()}点伤害。",
+
+	"REED-DEFEND.title":"防御",
+	"REED-DEFEND.description":"获得{Block:diff()}点[gold]格挡[/gold]。",
+
+
+	"BASIC-COMMON":"",
+
+
+	"COMMON-UNCOMMON":"",
+
+
+	"UNCOMMON-RARE":"",
+
+
+	"RARE-ANCIENT":"",
+
+
+	"ANCIENT-SPECIAL":""
+}

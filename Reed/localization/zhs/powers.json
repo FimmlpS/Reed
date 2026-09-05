@@ -1,0 +1,5 @@
+{
+    "REED-TRAUMA_POWER.title":"创伤",
+    "REED-TRAUMA_POWER.description":"受到来自[gold]攻击[/gold]的伤害提升[blue]25[/blue]%（至多100％）。成为攻击牌目标后移除此效果。",
+    "REED-TRAUMA_POWER.smartDescription":"受到来自[gold]攻击[/gold]的伤害提升[blue]{Amount}*25[/blue]%（至多100％）。成为攻击牌目标后移除此效果（每名玩家给予的创伤效果独立）。"
+}

@@ -4,6 +4,7 @@ using MegaCrit.Sts2.Core.Animation;
 using MegaCrit.Sts2.Core.Bindings.MegaSpine;
 using MegaCrit.Sts2.Core.Entities.Characters;
 using MegaCrit.Sts2.Core.Models;
+using MegaCrit.Sts2.Core.Models.Relics;
 using Reed.Scripts.Cards.Attack;
 using Reed.Scripts.Cards.Skill;
 using Reed.Scripts.Pools;
@@ -85,7 +86,7 @@ public class Reed : PlaceholderCharacterModel
 
     public override IReadOnlyList<RelicModel> StartingRelics => [
         //ModelDb.Relic<NaturalInclusion>(),
-        //ModelDb.Relic<WoodEngrave>()
+        ModelDb.Relic<BurningBlood>()
     ];
 
     public override List<string> GetArchitectAttackVfx()

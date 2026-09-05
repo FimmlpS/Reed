@@ -1,0 +1,11 @@
+{
+    "REED-DETERMINATION_POTION.title":"决意药水",
+    "REED-DETERMINATION_POTION.description":"从你的[gold]消耗牌堆[/gold]中选择一张放入你的手牌。",
+    "REED-DETERMINATION_POTION.selectionScreenPrompt": "选择一张牌放入你的手牌。",
+
+    "REED-DARK_SNOW_POTION.title":"黯黑融雪",
+    "REED-DARK_SNOW_POTION.description":"获得{CollapsePower}层[gold]坍缩[/gold]。若其层数不低于你的生命上限，获得2种[gold]范式[/gold]。",
+
+    "REED-WASHY_TRUFFLE_POTION.title":"洗弓松露",
+    "REED-WASHY_TRUFFLE_POTION.description":"抽[blue]{Cards}[/blue]张牌。为你的所有手牌添加[gold]连射[/gold]。"
+}

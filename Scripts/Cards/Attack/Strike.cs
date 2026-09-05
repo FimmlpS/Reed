@@ -1,5 +1,6 @@
 using BaseLib.Utils;
 using Reed.Scripts.Pools;
+using Reed.Scripts.Resistance;
 using MegaCrit.Sts2.Core.Commands;
 using MegaCrit.Sts2.Core.Entities.Cards;
 using MegaCrit.Sts2.Core.GameActions.Multiplayer;
@@ -27,6 +28,12 @@ public class Strike : AbstractReedCard
     protected override async Task OnPlay(PlayerChoiceContext choiceContext, CardPlay cardPlay)
     {
         await DamageCmd.Attack(DynamicVars.Damage.BaseValue)
+        .FromCard(this, cardPlay)
+        .Targeting(cardPlay.Target)
+        .Execute(choiceContext);
+
+        // 打出伤害后附带灼烧 1（对抗性造成 1 点伤害）。
+        await ReedBurnCmd.Burn(1)
         .FromCard(this, cardPlay)
         .Targeting(cardPlay.Target)
         .Execute(choiceContext);

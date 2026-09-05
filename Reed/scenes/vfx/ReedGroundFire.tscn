@@ -1,0 +1,154 @@
+[gd_scene load_steps=19 format=3 uid="uid://dgr66uf8v07bv"]
+
+[ext_resource type="Texture2D" uid="uid://b7thoupef0fpj" path="res://Reed/images/vfx/fire/ash_particle.png" id="1_ah2sk"]
+[ext_resource type="Script" uid="uid://bw1a8xqlm14ts" path="res://Scripts/Nodes/NReedGroundFireVfx.cs" id="1_c3ilj"]
+[ext_resource type="Texture2D" uid="uid://bfuumjrnckvru" path="res://Reed/images/vfx/fire/fire_flame_sprites.png" id="2_c3ilj"]
+[ext_resource type="Texture2D" uid="uid://bpaq6e61fs622" path="res://Reed/images/vfx/fire/flame_gradient_mask.png" id="3_ole5k"]
+[ext_resource type="PackedScene" uid="uid://dg33fv7t6288v" path="res://Reed/scenes/vfx/ReedStepFire.tscn" id="4_8gx18"]
+
+[sub_resource type="Curve" id="Curve_sdyaf"]
+_data = [Vector2(0, 0), 0.0, 5.81838, 0, 0, Vector2(0.501047, 0.998105), -1.16168e-06, -1.16168e-06, 0, 0, Vector2(1, 0), -5.23103, 0.0, 0, 0]
+point_count = 3
+
+[sub_resource type="CurveTexture" id="CurveTexture_11ec5"]
+width = 128
+curve = SubResource("Curve_sdyaf")
+
+[sub_resource type="Gradient" id="Gradient_ejpkh"]
+offsets = PackedFloat32Array(0.625, 0.71087)
+colors = PackedColorArray(0.05, 0.05, 0.05, 1, 1, 1, 1, 1)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_o3agk"]
+gradient = SubResource("Gradient_ejpkh")
+
+[sub_resource type="Curve" id="Curve_rqiue"]
+_data = [Vector2(0, 1), 0.0, 0.0, 0, 0, Vector2(0.99999, 0.253902), 0.0, 0.0, 0, 0, Vector2(1, 0), 0.0, 0.0, 0, 0]
+point_count = 3
+
+[sub_resource type="CurveTexture" id="CurveTexture_lgjq2"]
+width = 128
+curve = SubResource("Curve_rqiue")
+
+[sub_resource type="Curve" id="Curve_58c0k"]
+_data = [Vector2(0, 1), 0.0, 0.0, 0, 0, Vector2(1, 0.0733236), -2.94131, 0.0, 0, 0]
+point_count = 2
+
+[sub_resource type="CurveTexture" id="CurveTexture_1a1ar"]
+curve = SubResource("Curve_58c0k")
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_1yqed"]
+particle_flag_disable_z = true
+emission_shape_scale = Vector3(128, 128, 1)
+emission_shape = 6
+emission_ring_axis = Vector3(0, 0, 1)
+emission_ring_height = 1.0
+emission_ring_radius = 1.0
+emission_ring_inner_radius = 0.0
+emission_ring_cone_angle = 90.0
+angle_min = -180.0
+angle_max = 180.0
+direction = Vector3(1, -1, 0)
+spread = 180.0
+initial_velocity_min = 25.0
+initial_velocity_max = 100.0
+angular_velocity_min = -10.0
+angular_velocity_max = 9.99998
+radial_velocity_min = -100.0
+radial_velocity_max = 100.0
+radial_velocity_curve = SubResource("CurveTexture_lgjq2")
+gravity = Vector3(0, -98, 0)
+scale_min = 0.35
+scale_max = 0.7
+scale_curve = SubResource("CurveTexture_1a1ar")
+color = Color(1, 0.766667, 0, 1)
+color_ramp = SubResource("GradientTexture1D_o3agk")
+alpha_curve = SubResource("CurveTexture_11ec5")
+hue_variation_min = -0.08
+hue_variation_max = 0.08
+turbulence_enabled = true
+turbulence_noise_strength = 10.0
+turbulence_influence_min = 0.0
+turbulence_initial_displacement_min = 0.100001
+turbulence_initial_displacement_max = 0.100001
+
+[sub_resource type="CanvasItemMaterial" id="CanvasItemMaterial_56nu1"]
+blend_mode = 1
+particles_animation = true
+particles_anim_h_frames = 2
+particles_anim_v_frames = 2
+particles_anim_loop = false
+
+[sub_resource type="Curve" id="Curve_j85yv"]
+_data = [Vector2(0, 1), 0.0, 0.0, 0, 0, Vector2(0.803247, 0), -2.64426, 0.0, 0, 0]
+point_count = 2
+
+[sub_resource type="CurveTexture" id="CurveTexture_qg8fg"]
+width = 32
+curve = SubResource("Curve_j85yv")
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_we8qq"]
+lifetime_randomness = 0.8
+particle_flag_disable_z = true
+emission_shape_offset = Vector3(0, 12, 0)
+emission_shape_scale = Vector3(192, 220, 1)
+emission_shape = 6
+emission_ring_axis = Vector3(0, 0, 1)
+emission_ring_height = 1.0
+emission_ring_radius = 1.0
+emission_ring_inner_radius = 0.0
+emission_ring_cone_angle = 90.0
+angle_min = -180.0
+angle_max = 180.0
+direction = Vector3(0, -1, 0)
+spread = 0.0
+initial_velocity_min = 100.0
+initial_velocity_max = 200.0
+gravity = Vector3(0, -300, 0)
+scale_max = 4.0
+color = Color(1, 0.693333, 0.08, 1)
+alpha_curve = SubResource("CurveTexture_qg8fg")
+hue_variation_min = -0.05
+hue_variation_max = 0.02
+anim_offset_max = 1.0
+
+[node name="ReedGroundFire" type="Node2D"]
+modulate = Color(1, 1, 1, 0.8235294)
+script = ExtResource("1_c3ilj")
+
+[node name="Ember" type="GPUParticles2D" parent="."]
+position = Vector2(-2, -162)
+emitting = false
+amount = 16
+texture = ExtResource("1_ah2sk")
+lifetime = 2.0
+one_shot = true
+speed_scale = 2.0
+explosiveness = 0.5
+randomness = 0.8
+fixed_fps = 60
+process_material = SubResource("ParticleProcessMaterial_1yqed")
+
+[node name="FlameSprites" type="GPUParticles2D" parent="."]
+material = SubResource("CanvasItemMaterial_56nu1")
+position = Vector2(0, -201)
+amount = 2
+texture = ExtResource("2_c3ilj")
+lifetime = 0.3
+explosiveness = 0.5
+randomness = 0.5
+visibility_rect = Rect2(-256, -256, 512, 512)
+process_material = SubResource("ParticleProcessMaterial_we8qq")
+
+[node name="MainFire" type="Sprite2D" parent="."]
+unique_name_in_owner = true
+modulate = Color(1, 1, 1, 0.752941)
+clip_children = 1
+position = Vector2(24, -15)
+scale = Vector2(4, 4)
+skew = -0.0872665
+texture = ExtResource("3_ole5k")
+offset = Vector2(3, -57.25)
+
+[node name="ReedStepFire" parent="MainFire" instance=ExtResource("4_8gx18")]
+position = Vector2(-1, 24.75)
+scale = Vector2(0.3, 0.3)

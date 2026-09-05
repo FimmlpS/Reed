@@ -1,0 +1,17 @@
+{
+  "REED-REED.aromaPrinciple": "[sine][blue]todo[/blue][/sine]",
+  "REED-REED.banter.alive.endTurnPing": "……",
+  "REED-REED.banter.dead.endTurnPing": "……",
+  "REED-REED.cardsModifierDescription": "苇草的卡牌现在会出现在奖励和商店中。",
+  "REED-REED.cardsModifierTitle": "苇草卡牌",
+  "REED-REED.description": "todo",
+  "REED-REED.eventDeathPrevention": "……",
+  "REED-REED.goldMonologue": "[sine]金币，身外之物[/sine]",
+  "REED-REED.possessiveAdjective": "她的",
+  "REED-REED.pronounObject": "她",
+  "REED-REED.pronounPossessive": "她的",
+  "REED-REED.pronounSubject": "她",
+  "REED-REED.title": "苇草",
+  "REED-REED.titleObject": "苇草",
+  "REED-REED.unlockText": "用[pink]{Prerequisite}[/pink]进行一局游戏来解锁这个角色。"
+}

@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://cuw6x00iep8v3"
-path="res://.godot/imported/FlowerOfDragon.png-4851794b6ce71a3fb06734219b568bb2.ctex"
+uid="uid://bfuumjrnckvru"
+path="res://.godot/imported/fire_flame_sprites.png-57c4a67d3b3c1469c0cffc26583944e3.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Reed/images/relics/FlowerOfDragon.png"
-dest_files=["res://.godot/imported/FlowerOfDragon.png-4851794b6ce71a3fb06734219b568bb2.ctex"]
+source_file="res://Reed/images/vfx/fire/fire_flame_sprites.png"
+dest_files=["res://.godot/imported/fire_flame_sprites.png-57c4a67d3b3c1469c0cffc26583944e3.ctex"]
 
 [params]
 

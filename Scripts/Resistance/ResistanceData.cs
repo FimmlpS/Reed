@@ -1,3 +1,6 @@
+using System.Collections.Generic;
+using MegaCrit.Sts2.Core.Models;
+
 namespace Reed.Scripts.Resistance;
 
 /// <summary>
@@ -25,4 +28,16 @@ public sealed class ResistanceData
 
     /// <summary>燃烧时循环喷火的驱动器。</summary>
     internal BurningFireDriver? Fire;
+
+    /// <summary>
+    /// 火花牌：按火花 owner（Player.NetId）分组，每人一组。抗性条是全员共有的，但火花牌是
+    /// 每个玩家各自绑定的 → 同一生物可被多名玩家各绑一组（多人模式）。
+    /// </summary>
+    internal readonly Dictionary<ulong, List<CardModel>> Sparks = new();
+
+    /// <summary>
+    /// 每组 owner 的火花上限（缺省用 ResistanceSystem.DefaultSparkMax）。想单独调某个生物/某玩家的
+    /// 上限时通过 ResistanceSystem.SetSparkMax(c, owner, max) 写入，供规则/卡牌动态扩容或收紧。
+    /// </summary>
+    internal readonly Dictionary<ulong, int> SparkMaxes = new();
 }

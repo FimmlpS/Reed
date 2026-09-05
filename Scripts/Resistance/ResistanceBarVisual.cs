@@ -48,6 +48,9 @@ internal sealed class ResistanceBarVisual
 
     public readonly Control Root;
 
+    /// <summary>火花牌 UI 驱动器（同一生物的计数圆/卡行，随本条几何重排而重新锚定）。</summary>
+    internal SparkHudDriver? Spark;
+
     private readonly NHealthBar _healthBar;
     private Control? _frame;           // 血条静态装饰的深拷贝（外层胶囊背板，垫底）
     private Control? _rim;             // 顶层空心描边（复用原版 BlockOutline 的 stroke 纹理，画在内容之上 = 最靠前的边框）
@@ -179,6 +182,9 @@ internal sealed class ResistanceBarVisual
         // 尺寸/布局变化后，把已绘制的宽度按比例重放（不回放动画）。
         _w = -1f;
         UpdateValues(animate: false);
+
+        // 火花牌 UI 挂在抗性条同一条几何上：条每次重排 → 火花计数圆与卡行跟着重新锚定。
+        Spark?.RefreshAnchor();
     }
 
     /// <summary>建立血条静态装饰拷贝（首次）或跟随血条尺寸伸缩。找不到可用静态装饰时忽略，仅显示空槽+填充。</summary>

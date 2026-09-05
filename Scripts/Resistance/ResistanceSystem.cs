@@ -1,11 +1,18 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using BaseLib.Utils;
 using Godot;
 using MegaCrit.Sts2.Core.Combat;
+using MegaCrit.Sts2.Core.Context;
 using MegaCrit.Sts2.Core.Entities.Creatures;
+using MegaCrit.Sts2.Core.Entities.Players;
+using MegaCrit.Sts2.Core.Models;
+using MegaCrit.Sts2.Core.Models.Cards;
 using MegaCrit.Sts2.Core.Nodes.Combat;
+using MegaCrit.Sts2.Core.Nodes.Rooms;
+using Reed.Scripts.Cards.Attack;
 using ReedCharacter = Reed.Scripts.Characters.Reed;
 
 namespace Reed.Scripts.Resistance;
@@ -65,11 +72,13 @@ public static class ResistanceSystem
         {
             GetData(creature).Bar?.SetShown(true);
         }
+        //TrySeedDemoSpark(state);
     }
 
     private static void OnCombatEnded()
     {
         ForceShowAll = false;
+        _sparkDemoSeeded = false;
     }
 
     // ============ 数据访问 ============
@@ -92,6 +101,214 @@ public static class ResistanceSystem
     public static bool IsBurning(Creature c) => GetData(c).Burning;
     public static bool IsFull(Creature c) => GetData(c).Current >= GetData(c).Max;
     public static bool HasChangedThisBattle(Creature c) => GetData(c).Changed;
+
+    // ============ 火花牌（每敌人绑定若干张；按 owner=玩家 NetId 区分，每人独立一组） ============
+
+    /// <summary>每个（生物 × owner）可绑定的火花牌上限。</summary>
+    public const int DefaultSparkMax = 3;
+
+    /// <summary>任何火花发生增删变化时广播（参数为该生物）；UI 驱动器据此重建。</summary>
+    public static event Action<Creature>? SparksChanged;
+
+    /// <summary>给某生物（owner 视角）成功塞入一张火花牌后广播（用于“添加”表现：计数圆闪烁 + Attach 特效）。</summary>
+    public static event Action<Creature, Player, CardModel>? SparkAdded;
+
+    /// <summary>从某生物（owner 视角）成功移除一张火花牌后广播（用于“移除”表现）。</summary>
+    public static event Action<Creature, Player, CardModel>? SparkRemoved;
+
+    /// <summary>
+    /// 计数圆数字的自定义取值器（留好扩展接口）。默认为空 → 圆里显示“本地玩家的火花数量”。
+    /// 将来想显示例如火花总伤害、牌堆数等，只需在此给函数即可（函数参数为生物）。
+    /// </summary>
+    public static Func<Creature, int>? SparkBadgeValueProvider;
+
+    /// <summary>读取某（生物 × owner）火花上限；没单独设过则返回默认 DefaultSparkMax。</summary>
+    public static int GetSparkMax(Creature c, Player owner)
+    {
+        if (c == null || owner == null)
+        {
+            return DefaultSparkMax;
+        }
+        ResistanceData d = GetData(c);
+        return d.SparkMaxes.TryGetValue(owner.NetId, out int max) ? max : DefaultSparkMax;
+    }
+
+    /// <summary>
+    /// 设置某（生物 × owner）火花上限（可动态扩容/收紧；小于 0 视为 0）。设为 0 等价于移除自定义值。
+    /// 收紧上限不会清掉已存在的火花牌，只是拒绝继续添加。
+    /// </summary>
+    public static void SetSparkMax(Creature c, Player owner, int max)
+    {
+        if (c == null || owner == null)
+        {
+            return;
+        }
+        ResistanceData d = GetData(c);
+        int v = Math.Max(0, max);
+        if (v == 0)
+        {
+            d.SparkMaxes.Remove(owner.NetId);
+        }
+        else
+        {
+            d.SparkMaxes[owner.NetId] = v;
+        }
+    }
+
+    /// <summary>给某生物的火花组（owner 视角）塞入一张火花牌；超出（该 owner 自定义/默认）上限或重复返回 false。</summary>
+    public static bool GiveSpark(Creature c, Player owner, CardModel spark)
+    {
+        if (c == null || owner == null || spark == null)
+        {
+            return false;
+        }
+        ResistanceData d = GetData(c);
+        if (!d.Sparks.TryGetValue(owner.NetId, out List<CardModel>? list))
+        {
+            list = new List<CardModel>();
+            d.Sparks[owner.NetId] = list;
+        }
+        int max = GetSparkMax(c, owner);
+        if (list.Count >= max || list.Contains(spark))
+        {
+            return false;
+        }
+        list.Add(spark);
+        SparksChanged?.Invoke(c);
+        SparkAdded?.Invoke(c, owner, spark);
+        return true;
+    }
+
+    /// <summary>移除某张火花牌；不存在返回 false。</summary>
+    public static bool RemoveSpark(Creature c, Player owner, CardModel spark)
+    {
+        if (c == null || owner == null || spark == null)
+        {
+            return false;
+        }
+        ResistanceData d = GetData(c);
+        if (!d.Sparks.TryGetValue(owner.NetId, out List<CardModel>? list) || !list.Remove(spark))
+        {
+            return false;
+        }
+        SparksChanged?.Invoke(c);
+        SparkRemoved?.Invoke(c, owner, spark);
+        return true;
+    }
+
+    /// <summary>清空某 owner 在该生物上的全部火花牌；原本就没有则返回 false（不发事件）。</summary>
+    public static bool ClearSparks(Creature c, Player owner)
+    {
+        if (c == null || owner == null)
+        {
+            return false;
+        }
+        ResistanceData d = GetData(c);
+        if (!d.Sparks.Remove(owner.NetId))
+        {
+            return false;
+        }
+        SparksChanged?.Invoke(c);
+        return true;
+    }
+
+    /// <summary>读取某生物（owner 视角）的火花牌列表（只读引用）。</summary>
+    public static IReadOnlyList<CardModel> SparksOf(Creature c, Player owner)
+    {
+        if (c == null || owner == null)
+        {
+            return Array.Empty<CardModel>();
+        }
+        ResistanceData d = GetData(c);
+        return d.Sparks.TryGetValue(owner.NetId, out List<CardModel>? list) ? list : Array.Empty<CardModel>();
+    }
+
+    public static int CountSparks(Creature c, Player owner)
+        => SparksOf(c, owner).Count;
+
+    public static bool CanAddSpark(Creature c, Player owner)
+        => CountSparks(c, owner) < GetSparkMax(c, owner);
+
+    // ============ 火花牌 测试种子（给第一只怪物放若干张本地玩家的“打击”） ============
+
+    private const bool EnableDemoSparkSeed = true;
+    private static bool _sparkDemoSeeded;
+
+    /// <summary>演示：等战斗界面就绪后再给第一张火花（留出建条/订阅时间）。</summary>
+    private const float DemoFirstSparkDelay = 0.9f;
+    /// <summary>演示：连续添加火花之间的间隔（方便逐张看清圆闪烁 + Attach 特效）。</summary>
+    private const float DemoSparkGap = 0.7f;
+
+    /// <summary>
+    /// 每场战斗只执行一次：把本地玩家自己手里的若干张“打击”作为火花牌挂到第一只怪物上，
+    /// 用来肉眼验证计数圆、悬停卡行、出现动画、以及 GiveSpark 的圆闪烁 + Attach 特效
+    /// （SparksChanged → SparkAdded 事件时序）。规则落地后可整段删除（或置 EnableDemoSparkSeed=false）。
+    /// </summary>
+    private static void TrySeedDemoSpark(CombatState state)
+    {
+        if (!EnableDemoSparkSeed || _sparkDemoSeeded)
+        {
+            return;
+        }
+        _sparkDemoSeeded = true;
+        Player? me = LocalContext.GetMe(state);
+        Creature? enemy = state.Creatures.FirstOrDefault(c => c.IsMonster);
+        if (me == null || enemy == null)
+        {
+            return;
+        }
+        AttemptSeedLater(me, enemy, 0);
+    }
+
+    /// <summary>延迟到起手牌发齐后再真正放火花（CombatSetUp 若早于发牌则逐帧重试，最多 ~30 帧）。</summary>
+    private static void AttemptSeedLater(Player me, Creature enemy, int attempt)
+    {
+        if (attempt > 30 || me.PlayerCombatState == null)
+        {
+            return;
+        }
+        List<CardModel> strikes = [];
+        for(int i = 0; i < 3; i++)
+        {
+            strikes.Add(me.Creature.CombatState?.CreateCard<Strike>(me));
+        }
+        if (strikes.Count > 0)
+        {
+            ScheduleDemoAdds(me, enemy, strikes);
+            return;
+        }
+        Callable.From(() => AttemptSeedLater(me, enemy, attempt + 1)).CallDeferred();
+    }
+
+    /// <summary>
+    /// 用 SceneTreeTimer 依次延时 GiveSpark，保证每次添加都发生在主线程、且抗性条已建好
+    /// （SparkHudDriver 已订阅 SparkAdded）——否则看不到圆闪烁与 Attach 特效。
+    /// </summary>
+    private static void ScheduleDemoAdds(Player me, Creature enemy, IReadOnlyList<CardModel> strikes)
+    {
+        SceneTree? tree = NCombatRoom.Instance?.GetTree();
+        if (tree == null)
+        {
+            return;
+        }
+        int i = 0;
+        void Step()
+        {
+            if (i >= strikes.Count)
+            {
+                return;
+            }
+            GiveSpark(enemy, me, strikes[i]);
+            i++;
+            if (i < strikes.Count)
+            {
+                SceneTreeTimer timer = tree.CreateTimer(DemoSparkGap);
+                timer.Timeout += Step;
+            }
+        }
+        SceneTreeTimer starter = tree.CreateTimer(DemoFirstSparkDelay);
+        starter.Timeout += Step;
+    }
 
     // ============ 数值修改 API ============
 
@@ -236,6 +453,7 @@ public static class ResistanceSystem
 
         ResistanceBarVisual bar = ResistanceBarVisual.Create(display, healthBar, creature);
         d.Bar = bar;
+        bar.Spark = SparkHudDriver.Attach(display, bar, creature);
         SyncVisuals(creature, d);
     }
 
@@ -285,6 +503,7 @@ public static class ResistanceSystem
         // 条离开场景（生物死亡/战斗结束移除节点）时解绑，避免长期持有。
         bar.Root.TreeExited += () =>
         {
+            bar.Spark?.Detach();
             creature.Died -= OnCreatureDied;
             creature.Revived -= OnCreatureRevived;
             _visualsByRoot.Remove(bar.Root);

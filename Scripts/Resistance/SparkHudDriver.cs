@@ -574,7 +574,7 @@ internal sealed class SparkHudDriver
         LocString desc = new("static_hover_tips", "REED-SPARK.description");
         desc.Add("SparkCount", (decimal)count);
         HoverTip tip = new(title, desc);
-        _tipSet = NHoverTipSet.CreateAndShow(_circle, tip);
+        _tipSet = NHoverTipSet.CreateAndShow(_circle, tip, HoverTipAlignment.Right);
     }
 
     private void HideSparkTip()

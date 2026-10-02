@@ -1,0 +1,556 @@
+{
+  "Strike_Reed": {
+    "NAME": "打击",
+    "DESCRIPTION": "造成 !D! 点伤害。"
+  },
+  "Defend_Reed": {
+    "NAME": "防御",
+    "DESCRIPTION": "获得 !B! 点 格挡 。"
+  },
+  "Scorch_Reed": {
+    "NAME": "炙灼",
+    "DESCRIPTION": "造成 !D! 点伤害3次。 NL reed:灼烧 !M! 。"
+  },
+  "FireFlower_Reed": {
+    "NAME": "火花",
+    "DESCRIPTION": "向目标 reed:附着 一张 reed:火花·普通 。 NL 将 !M! 张 *焰影 拿到手中。"
+  },
+
+  "Thorn_Reed": {
+    "NAME": "刺痛DONE",
+    "DESCRIPTION": "造成 !D! 点伤害。 NL 若目标生命不低于一半，提升 !M! 点伤害。"
+  },
+  "Bonfire_Reed": {
+    "NAME": "篝火DONE",
+    "DESCRIPTION": "获得 !B! 点 格挡 。 NL 向一名敌人 reed:附着 一张 reed:火花·映耀 。"
+  },
+  "Ashes_Reed":{
+    "NAME": "余烬DONE",
+    "DESCRIPTION": "造成 !D! 点伤害。 NL reed:灼烧 !M! 。 NL reed:执念 ：额外灼烧2。"
+  },
+  "Poem_Reed": {
+    "NAME": "诗歌DONE",
+    "DESCRIPTION": "消耗1张手牌，获得其耗能 !B! 倍的 格挡 。"
+  },
+  "Background_Reed": {
+    "NAME": "身世",
+    "DESCRIPTION": "抽 !M! 张牌。 NL 增加此牌1点耗能。 NL 对上一回合 reed:追忆 ： reed:追忆牌 。"
+  },
+  "Deep_Reed": {
+    "NAME": "深邃",
+    "DESCRIPTION": "对所有敌人使用。 NL 灼烧状态：治愈 !M! 点 reed:抗性 。 NL 否则 reed:灼烧 1。"
+  },
+  "EternalSun_Reed": {
+    "NAME": "永念旭阳",
+    "DESCRIPTION": " reed:逐光 。 NL 造成 !D! 点伤害。"
+  },
+  "Overlook_Reed": {
+    "NAME": "远眺",
+    "DESCRIPTION": "将 *防御 记录到下一回合。 NL 对下一回合 reed:追忆 ：任意牌。",
+    "UPGRADE_DESCRIPTION": "将 *防御+ 记录到下一回合。 NL 对下一回合 reed:追忆 ：任意牌。"
+  },
+  "Patrol_Reed": {
+    "NAME": "巡迹DONE",
+    "DESCRIPTION": " 固有 ， 消耗 。 NL 获得 !B! 点格挡。 NL reed:附着 !M! 张 reed:火花·普通 。"
+  },
+  "Forge_Reed": {
+    "NAME": "炉炼",
+    "DESCRIPTION": "造成 !D! 点伤害。 NL reed:附着 一张 reed:火花·普通 。 NL 增加此牌1点耗能。"
+  },
+  "StormRoad_Reed": {
+    "NAME": "风暴前路",
+    "DESCRIPTION": " 消耗 。 NL 向一名敌人所有空位各 reed:附着 一张 reed:火花·巡标 。",
+    "UPGRADE_DESCRIPTION": " 消耗 。 NL reed:引爆 1张 reed:火花牌 并向目标所有空位各 reed:附着 一张 reed:火花·巡标 。"
+  },
+  "WayBack_Reed": {
+    "NAME": "归处",
+    "DESCRIPTION": " reed:附着 一张 reed:火花·巡标 。 NL 打出牌后，本回合此牌的耗能减1。",
+    "UPGRADE_DESCRIPTION": "获得 [E] 。 NL reed:附着 一张 reed:火花·巡标 。 NL 打出牌后，本回合此牌的耗能减1。"
+  },
+  "Farewell_Reed": {
+    "NAME": "赠别",
+    "DESCRIPTION": " reed:固化 4。 NL 造成 !D! 点伤害。 NL 消耗 。"
+  },
+  "Regret_Reed": {
+    "NAME": "缺憾",
+    "DESCRIPTION": "获得 !B! 点 格挡 。 NL 打出 reed:追忆牌 后，将此牌从弃牌堆返回手中。"
+  },
+  "CandleNight_Reed": {
+    "NAME": "烛夜",
+    "DESCRIPTION": "获得 !B! 点 格挡 !M! 次。 NL 获得1点 reed:心结 。"
+  },
+  "Squama_Reed": {
+    "NAME": "逆鳞焰",
+    "DESCRIPTION": " reed:深池 。 NL 造成 !D! 点伤害。 NL reed:执念 ：改为 !M! 点伤害。"
+  },
+  "TimeFire_Reed": {
+    "NAME": "时之炎",
+    "DESCRIPTION": " 保留 。 NL 造成 !D! 点伤害。 NL 保留：增加1点耗能并翻倍攻击值。"
+  },
+  "BraveShine_Reed": {
+    "NAME": "永耀DONE",
+    "DESCRIPTION": " reed:逐光 。 NL 提升所有 *焰光 !M! 点伤害。"
+  },
+  "ToTheDeath_Reed": {
+    "NAME": "予逝者",
+    "DESCRIPTION": "对上一回合 reed:追忆 ：技能牌。 NL 若 消耗 过至少5张牌，改为任意牌。"
+  },
+
+  "HerShadow_Reed": {
+    "NAME": "她的影子DONE",
+    "DESCRIPTION": " 消耗 。 NL 对所有敌人 reed:灼烧 !M! 。 NL 将 !M! 张 *焰影 拿到手中。"
+  },
+  "WitherBlood_Reed": {
+    "NAME": "她的火焰",
+    "DESCRIPTION": "每当你 消耗 一张牌，对随机敌人 reed:灼烧 !M! 。"
+  },
+  "LastWish_Reed": {
+    "NAME": "遗愿焰火",
+    "DESCRIPTION": " 保留 。 NL 进入 reed:生灵 。",
+    "UPGRADE_DESCRIPTION": " 保留 。 NL 选择进入 reed:生灵 或 reed:死灵 。",
+    "EXTENDED_DESCRIPTION": [
+      "reed:生灵 。",
+      "reed:死灵 。"
+    ]
+  },
+  "CurseHeal_Reed": {
+    "NAME": "咒愈",
+    "DESCRIPTION": "当一张 reed:火花牌 爆发后，获得 !M! 点 格挡 。"
+  },
+  "Spread_Reed": {
+    "NAME": "蔓延",
+    "DESCRIPTION": " reed:引爆 一张 reed:火花牌 。 NL 作用于所有敌人。",
+    "UPGRADE_DESCRIPTION": "以150％伤害量 reed:引爆 一张 reed:火花牌 。 NL 作用于所有敌人。"
+  },
+  "BurnMe_Reed": {
+    "NAME": "照我以火",
+    "DESCRIPTION": "造成 !D! 点伤害。 NL 对上一回合 reed:追忆 ：攻击牌。"
+  },
+  "BornFlower_Reed": {
+    "NAME": "枯焰生花",
+    "DESCRIPTION": "获得 !B! 点 格挡 。 NL 对上一回合 reed:追忆 ：技能牌。"
+  },
+  "HeartKnot_Reed": {
+    "NAME": "心结",
+    "DESCRIPTION": "当一张牌 reed:自动结算 ，或被 reed:追忆 后，获得 !M! 点 格挡 。"
+  },
+  "FindLight_Reed": {
+    "NAME": "找到光明",
+    "DESCRIPTION": "选择2个 reed:回忆 中的回合，交换所有牌。 NL 消耗 ，对上一回合 reed:追忆 ：非能力牌。 NL reed:“我们终会找到光明” "
+  },
+  "Conscious_Reed": {
+    "NAME": "识意",
+    "DESCRIPTION": "若敌人的意图是攻击，降低其 !M! 点 力量 。 NL reed:执念 ：改为选择所有敌人。"
+  },
+  "TowardLife_Reed": {
+    "NAME": "奔向……",
+    "DESCRIPTION": " reed:深池 ， reed:逐光 。 NL 抽 !M! 张牌。"
+  },
+  "WithYou_Reed": {
+    "NAME": "与你同在",
+    "DESCRIPTION": "获得 !B! 点格挡。 NL reed:回忆 中每有一张牌，提升 !M! 点 格挡 。"
+  },
+  "Ashless_Reed": {
+    "NAME": "不烬",
+    "DESCRIPTION": "造成 !D! 点伤害6次。 NL 进入 reed:回忆 后，提升 !M! 点伤害。"
+  },
+  "EmperorTravel_Reed": {
+    "NAME": "列王行迹",
+    "DESCRIPTION": " 消耗 。 NL 向 reed:回忆 中最后有攻击牌记录的回合进行 reed:追忆 ：攻击牌。",
+    "UPGRADE_DESCRIPTION": "向 reed:回忆 中最后有攻击牌记录的回合进行 reed:追忆 ：攻击牌。"
+  },
+  "Crack_Reed": {
+    "NAME": "裂解",
+    "DESCRIPTION": "造成 !D! 点伤害。 NL 抽 !M! 张牌。 NL reed:愿景 !M! 。"
+  },
+  "Ruins_Reed": {
+    "NAME": "残垣",
+    "DESCRIPTION": " reed:深池 。 NL 获得 [E] 。 NL reed:愿景 !M! 。"
+  },
+  "WriteHistory_Reed": {
+    "NAME": "书写历史",
+    "DESCRIPTION": "将任意张手牌丢弃并记录在 reed:现在 的上一回合。 NL 每张获得 !B! 点格挡。"
+  },
+  "HeartPeace_Reed": {
+    "NAME": "心彻",
+    "DESCRIPTION": "你每次攻击后，对目标 reed:灼烧 1。"
+  },
+  "FallApart_Reed": {
+    "NAME": "分崩离析",
+    "DESCRIPTION": " reed:深池 。 NL 所有敌人攻击造成的伤害降低 !M! 点，效果每回合减少1层。"
+  },
+  "FromHistory_Reed": {
+    "NAME": "从历史中来",
+    "DESCRIPTION": "每次 reed:追忆 后，在被追忆的回合记录1张随机非 reed:追忆牌 。"
+  },
+  "RiceAwn_Reed": {
+    "NAME": "稻芒",
+    "DESCRIPTION": "回合结束后，每有4点 格挡 ，下一回合获得 !M! 点 格挡 。",
+    "UPGRADE_DESCRIPTION": " 固有 。 NL 回合结束后，每有4点 格挡 ，下一回合获得 !M! 点 格挡 。"
+  },
+  "Misfortune_Reed": {
+    "NAME": "弥殃",
+    "DESCRIPTION": "进入 reed:生灵 。 NL reed:灼烧 ：目标全部抗性。 NL 每点随机造成 !D! 点伤害。"
+  },
+  "DeadCrown_Reed": {
+    "NAME": "枯枝与桂冠",
+    "DESCRIPTION": " 消耗 。 NL 给予所有单位 !M! 层 虚弱 。 NL reed:愿景 3。",
+    "UPGRADE_DESCRIPTION": " 消耗 。 NL 给予所有敌人 !M! 层 虚弱 。 NL reed:愿景 3。"
+  },
+  "Wordless_Reed": {
+    "NAME": "无言对峙",
+    "DESCRIPTION": " reed:深池 。 NL 下 !M! 次打出牌后，对上一回合 reed:追忆 ：非能力牌。"
+  },
+  "DullAndMute_Reed": {
+    "NAME": "怩哑",
+    "DESCRIPTION": " 消耗 。 NL 获得 !B! 点 格挡 。 NL 将格挡值+ !M! 的复制 reed:固化 在 reed:现在 的下一回合。"
+  },
+  "IWin_Reed": {
+    "NAME": "“是我赢了”",
+    "DESCRIPTION": " reed:追忆 但不打出前6张 reed:回忆 中的牌，每张随机造成 !D! 点伤害。",
+    "EXTENDED_DESCRIPTION": [
+      " NL （造成 !M! 次伤害）"
+    ]
+  },
+  "AliveDraw_Reed": {
+    "NAME": "栩栩光景",
+    "DESCRIPTION": " reed:深池 。 NL reed:附着 一张 reed:火花·灼痕 。",
+    "UPGRADE_DESCRIPTION": " reed:深池 。 NL reed:附着 一张 reed:火花·烈焰 。"
+  },
+  "MeltCalamity_Reed": {
+    "NAME": "熔劫",
+    "DESCRIPTION": "目标每有1张 reed:火花牌 ，造成 !D! 点伤害 。 NL reed:进阶 牌额外计数1。"
+  },
+  "NeverHere_Reed": {
+    "NAME": "不曾来过",
+    "DESCRIPTION": " reed:深池 。 NL reed:追忆 !M! 张 reed:回忆 中最早的深池牌。"
+  },
+  "UnyieldFlag_Reed": {
+    "NAME": "不屈旗帜",
+    "DESCRIPTION": " 消耗 。 NL 将所有手牌标记为 reed:深池 。 NL 获得 !M! 点 力量 。"
+  },
+  "LivingElegy_Reed": {
+    "NAME": "生灵挽歌",
+    "DESCRIPTION": " reed:深池 。 NL 从弃牌堆随机获得 !M! 张牌，使其打出前耗能变为0。"
+  },
+  "DarkWish_Reed": {
+    "NAME": "黯愿",
+    "DESCRIPTION": "每回合打出前X张可记录牌时，将其 reed:愿景 1。 NL 对上一回合 reed:追忆 ：能力牌。",
+    "UPGRADE_DESCRIPTION": "每回合打出前X+1张可记录牌时，将其 reed:愿景 1。 NL 对上一回合 reed:追忆 ：能力牌。"
+  },
+  "EnderWalker_Reed": {
+    "NAME": "行此末路",
+    "DESCRIPTION": " 消耗 。 NL 获得 !B! 点 格挡 。 NL 若在 reed:回忆 中，其他牌名被追忆后， reed:追忆 此牌。"
+  },
+  "DuskSolo_Reed": {
+    "NAME": "黄昏独奏",
+    "DESCRIPTION": " reed:附着 一张 reed:火花·映耀 。 NL 将一张 *灼伤 放入手中。",
+    "UPGRADE_DESCRIPTION": " reed:附着 一张 reed:火花·灿烂 。 NL 将一张 *灼伤 放入手中。"
+  },
+  "LightFlow_Reed": {
+    "NAME": "光流",
+    "DESCRIPTION": "对第一个回合 reed:追忆 ：非能力牌。",
+    "UPGRADE_DESCRIPTION": "对第一个有记录的回合 reed:追忆 ：非能力牌。"
+  },
+  "ACorner_Reed": {
+    "NAME": "一隅",
+    "DESCRIPTION": "抽 !M! 张牌 。 NL 直到下次抽到 *一隅 前，你每打出3张牌就抽1张牌。",
+    "UPGRADE_DESCRIPTION": "直到下次抽到 *一隅 前，你每打出3张牌就抽1张牌。若期间打出过至少10张牌，获得 [E] 。"
+  },
+  "WishAndCurse_Reed": {
+    "NAME": "祝福与诅咒",
+    "DESCRIPTION": "向 reed:现在 及相邻回合分别记录一张随机 reed:深池 牌。 NL 对上一回合 reed:追忆 ：非能力牌。",
+    "UPGRADE_DESCRIPTION": "保留 。 NL 向 reed:现在 及相邻回合分别记录一张随机 reed:深池 牌。 NL 对上一回合 reed:追忆 ：非能力牌。"
+  },
+  "ForeverHeart_Reed": {
+    "NAME": "焰心永存",
+    "DESCRIPTION": "重复对随机敌人造成 !D! 点伤害，直至所有敌人都被攻击过。"
+  },
+  "NaturalHistory_Reed": {
+    "NAME": "博物",
+    "DESCRIPTION": "你每记录或 reed:追忆 10张牌，抽1张牌。",
+    "UPGRADE_DESCRIPTION": "固有 。 NL 你每记录或 reed:追忆 10张牌，抽1张牌。"
+  },
+  "AsTorch_Reed": {
+    "NAME": "如炬",
+    "DESCRIPTION": "reed:深池 。 NL 使一名敌人下次进入灼烧状态时， reed:火花牌 额外爆发 !M! 次。"
+  },
+  "DyingFire_Reed": {
+    "NAME": "将熄的火DONE",
+    "DESCRIPTION": "消耗 。 NL 造成 !D! 点伤害。 NL 使目标的 reed:抗性 上限降低1点（不低于1）。"
+  },
+
+  "LivingFire_Reed": {
+    "NAME": "生灵火花",
+    "DESCRIPTION": " 消耗 。 NL 进入 reed:生灵 。 NL 向所有敌人附着一张 reed:火花·灼痕 并 reed:灼烧 !M! 。",
+    "EXTENDED_DESCRIPTION": [
+      " 消耗 。 NL 进入 reed:生灵 。 NL 向所有敌人附着一张 reed:火花·终末 并 reed:灼烧 !M! 。 NL 向手中放入 *死火 。"
+    ]
+  },
+  "Ireland_Reed": {
+    "NAME": "“塔拉”",
+    "DESCRIPTION": "选择一张 reed:火花牌 以 reed:进阶 。",
+    "UPGRADE_DESCRIPTION": "选择一张 reed:火花牌 以 reed:进阶 。 NL 若目标不处于灼烧状态，进入 reed:死灵 。"
+  },
+  "DragonBlood_Reed": {
+    "NAME": "龙血",
+    "DESCRIPTION": " reed:固化 3。 NL 对所有敌人造成 !D! 点伤害，未进入过灼烧状态的敌人伤害减半。"
+  },
+  "FacePast_Reed": {
+    "NAME": "面对过往",
+    "DESCRIPTION": " 消耗 。 NL 依次对前X个回合的非 reed:追忆牌 进行 reed:追忆 。",
+    "UPGRADE_DESCRIPTION": " 消耗 。 NL 依次对前X+1个回合的非 reed:追忆牌 进行 reed:追忆 。"
+  },
+  "TurbidFlameForm_Reed": {
+    "NAME": "浊燃形态",
+    "DESCRIPTION": "每回合抽牌后，将 !M! 张 *焰影 拿到手中。"
+  },
+  "StepAndStep_Reed": {
+    "NAME": "“向前走吧”",
+    "DESCRIPTION": "回合开始后，对第1回合 reed:追忆 ：非能力牌。 NL 然后回合数加1。",
+    "UPGRADE_DESCRIPTION": " 保留 。 NL 回合开始后，对第1回合 reed:追忆 ：非能力牌。 NL 然后回合数加1。"
+  },
+  "ChaseFire_Reed": {
+    "NAME": "逐火",
+    "DESCRIPTION": "造成1点 reed:灼烧 时，使目标所有 reed:火花牌 提升 !M! 点伤害。 NL 将火花牌位提升至4。",
+    "UPGRADE_DESCRIPTION": " 固有 。 NL 造成1点 reed:灼烧 时，使目标所有 reed:火花牌 提升 !M! 点伤害。 NL 将火花牌位提升至4。"
+  },
+  "HeroEpic_Reed": {
+    "NAME": "英雄史诗",
+    "DESCRIPTION": " 消耗 。 NL 将弃牌堆洗入抽牌堆。 NL reed:执念 ：选择一个回合， reed:追忆 所有非 reed:追忆牌 。"
+  },
+  "SameBreath_Reed": {
+    "NAME": "DONE",
+    "DESCRIPTION": " 消耗 。 NL 将3张 reed:不灭 的 *焰光 拿到手中。"
+  },
+  "Clash_Reed": {
+    "NAME": "交锋",
+    "DESCRIPTION": "其他手牌中每有1种类型，造成 !D! 点伤害并 reed:灼烧 1。",
+    "EXTENDED_DESCRIPTION": [
+      " NL （有 !M! 种类型）"
+    ]
+  },
+  "SpeakToEarth_Reed": {
+    "NAME": "向大地诉说",
+    "DESCRIPTION": " 固有 ， 消耗 。 NL 选择抽牌堆至多 !M! 张牌，移除并分别 reed:固化 于 reed:现在 的下等量个回合。"
+  },
+  "TurbidBurn_Reed": {
+    "NAME": "浊燃形态",
+    "DESCRIPTION": " 虚无 。 NL 打出非状态牌后，将一张 *焰影 拿到手中。",
+    "UPGRADE_DESCRIPTION": "打出非状态牌后，将一张 *焰影 拿到手中。"
+  },
+  "DeadFire_Reed": {
+    "NAME": "死火",
+    "DESCRIPTION": " reed:深池 。 NL 以2倍伤害 reed:引爆 所有敌人的火花牌，将这些牌随机 reed:附着 给敌人。"
+  },
+  "OurInheritance_Reed": {
+    "NAME": "我们的传承",
+    "DESCRIPTION": "回合开始后 消耗 手中所有 reed:不可记录 的牌并抽等量牌，获得等量 [E] 。",
+    "UPGRADE_DESCRIPTION": "每回合首次手牌数满后，消耗所有 reed:不可记录 的牌并抽等量牌，获得等量 [E] 。"
+  },
+  "LoneLight_Reed": {
+    "NAME": "孤独的光辉",
+    "DESCRIPTION": "将所有手牌标记为 reed:逐光 。 NL 提高所有 *焰光 !M! 点伤害。"
+  },
+  "HeartClear_Reed": {
+    "NAME": "心焯",
+    "DESCRIPTION": "造成 !D! 点伤害。 NL 若在 reed:回忆 中，其他牌名被 reed:追忆 后，追忆此牌。",
+    "UPGRADE_DESCRIPTION": "造成 !D! 点伤害。 NL 若在 reed:回忆 中，其他牌名被 reed:追忆 后，追忆此牌。"
+  },
+  "Throughout_Reed": {
+    "NAME": "始终",
+    "DESCRIPTION": " 消耗 。 NL 选择一张手牌，将它记录在 reed:回忆 的每个回合中。",
+    "UPGRADE_DESCRIPTION": " 保留 ， 消耗 。 NL 选择一张手牌，将它记录在 reed:回忆 的每个回合中。"
+  },
+  "LatentDetection_Reed": {
+    "NAME": "潜意",
+    "DESCRIPTION": "造成 !D! 点伤害。 NL 将一张 *识意 记录在 reed:现在 。",
+    "UPGRADE_DESCRIPTION": "造成 !D! 点伤害。 NL 将一张 *识意+ 记录在 reed:现在 。"
+  },
+  "AsNightEnds_Reed": {
+    "NAME": "夜尽之时",
+    "DESCRIPTION": "消耗 。 NL 使目标下次进入灼烧状态时， reed:火花牌 额外爆发X次。 NL 对其 reed:灼烧 X。",
+    "UPGRADE_DESCRIPTION": "使目标下次进入灼烧状态时， reed:火花牌 额外爆发X次。 NL 对其 reed:灼烧 X。"
+  },
+  "OverColdNight_Reed": {
+    "NAME": "涉过寒夜",
+    "DESCRIPTION": "治愈一名敌人的所有 reed:抗性 ，每治愈1点就获得 !B! 点 格挡 。"
+  },
+
+
+  "FlameShadow_Reed": {
+    "NAME": "焰影",
+    "DESCRIPTION": " 虚无 ， 消耗 。 NL reed:灼烧 1 。 NL 丢弃 时将此牌 消耗 。"
+  },
+  "FlameLight_Reed": {
+    "NAME": "焰光",
+    "DESCRIPTION": " 不能被打出 。 NL 回合结束时，对所有敌人造成 !M! 点伤害并消耗。 NL 丢弃 时将此牌 消耗 。",
+    "EXTENDED_DESCRIPTION": [
+      " reed:不灭 。 NL "
+    ]
+  },
+  "Time_Reed": {
+    "NAME": "时间",
+    "DESCRIPTION": "呈现在你 reed:回忆 中的时间印记。",
+    "EXTENDED_DESCRIPTION": [
+      " NL 回合数：",
+      " reed:过去 。",
+      " reed:现在 。",
+      " reed:未来 。",
+      " NL 总牌数： !M! "
+    ]
+  },
+  "Found_Reed": {
+    "NAME": "识破伪装",
+    "DESCRIPTION": "唤醒 *“终点” 。 NL 当相邻的手牌被打出时耗能-1。 NL 消耗 。"
+  },
+  "OldFire_Reed": {
+    "NAME": "旧日之火",
+    "DESCRIPTION": "消耗 。 NL 选择一项执行： NL 受到 !M! 点伤害； NL 失去2点 力量 ； NL 失去2点 敏捷 。",
+    "EXTENDED_DESCRIPTION": [
+      "受到 !M! 点伤害。",
+      "失去2点 力量 。",
+      "失去2点 敏捷 。"
+    ]
+  },
+
+  "NormalFlower_Reed": {
+    "NAME": "火花·普通",
+    "DESCRIPTION": "爆发：受到 !M! 点伤害。",
+    "EXTENDED_DESCRIPTION": [
+      " reed:生灵 NL ",
+      " reed:死灵 NL ",
+      "爆发：受到 !M! 点伤害，给予你4点格挡。",
+      "爆发：受到 !M! 点伤害。"
+    ]
+  },
+  "ShineFlower_Reed": {
+    "NAME": "火花·映耀",
+    "DESCRIPTION": "爆发：受到 !M! 点伤害，使你抽1张牌。",
+    "EXTENDED_DESCRIPTION": [
+      " reed:生灵 NL ",
+      " reed:死灵 NL ",
+      "爆发：受到 !M! 点伤害，使你抽2张牌。",
+      "爆发：受到 !M! 点伤害2次，使你抽1张牌。"
+    ]
+  },
+  "BurnMarkFlower_Reed": {
+    "NAME": "火花·灼痕",
+    "DESCRIPTION": "爆发：受到 !M! 点伤害。 NL 持续：造成的攻击伤害降低25％，受到的攻击伤害提高25％。",
+    "EXTENDED_DESCRIPTION": [
+      " reed:生灵 NL ",
+      " reed:死灵 NL ",
+      "爆发：受到 !M! 点伤害。 NL 持续：造成的攻击伤害降低40％，受到的攻击伤害提高25％。",
+      "爆发：受到 !M! 点伤害。 NL 持续：造成的攻击伤害降低25％，受到的攻击伤害提高40％。"
+    ]
+  },
+  "PatrolFlower_Reed": {
+    "NAME": "火花·巡标",
+    "DESCRIPTION": "爆发：受到 !M! 点伤害，随机从弃牌堆获得1张牌。",
+    "EXTENDED_DESCRIPTION": [
+      " reed:生灵 NL ",
+      " reed:死灵 NL ",
+      "爆发：受到 !M! 点伤害，随机从弃牌堆获得2张牌。",
+      "爆发：受到 !M! 点伤害2次，随机从弃牌堆获得1张牌。"
+    ]
+  },
+  "EndFlower_Reed": {
+    "NAME": "火花·终末",
+    "DESCRIPTION": " reed:进阶 ：普通。 NL 爆发：受到 !M! 点伤害。",
+    "EXTENDED_DESCRIPTION": [
+      " reed:进阶 ：普通， reed:生灵 NL ",
+      " reed:进阶 ：普通， reed:死灵 NL ",
+      "爆发：受到 !M! 点伤害，给予你16点格挡。",
+      "爆发：受到 !M! 点伤害。 NL 受到的伤害加成变为4倍。"
+    ]
+  },
+  "SplendidFlower_Reed": {
+    "NAME": "火花·灿烂",
+    "DESCRIPTION": " reed:进阶 ：映耀。 NL 爆发：受到 !M! 点伤害，使你抽2张牌，获得1点能量。",
+    "EXTENDED_DESCRIPTION": [
+      " reed:进阶 ：映耀， reed:生灵 NL ",
+      " reed:进阶 ：映耀， reed:死灵 NL ",
+      "爆发：受到 !M! 点伤害，使你抽3张牌，获得1点能量。",
+      "爆发：受到 !M! 点伤害，使你抽2张牌，获得2点能量。"
+    ]
+  },
+  "BlazeFlower_Reed": {
+    "NAME": "火花·烈焰",
+    "DESCRIPTION": " reed:进阶 ：灼痕。 NL 爆发：受到 !M! 点伤害。 NL 持续：造成的攻击伤害降低40％，受到的攻击伤害提高40％。",
+    "EXTENDED_DESCRIPTION": [
+      " reed:进阶 ：灼痕， reed:生灵 NL ",
+      " reed:进阶 ：灼痕， reed:死灵 NL ",
+      "爆发：受到 !M! 点伤害。 NL 持续：造成的攻击伤害降低60％，受到的攻击伤害提高40％。",
+      "爆发：受到 !M! 点伤害。 NL 持续：造成的攻击伤害降低40％，受到的攻击伤害提高60％。"
+    ]
+  },
+  "FlagFlower_Reed": {
+    "NAME": "火花·旗帜",
+    "DESCRIPTION": " reed:进阶 ：巡标。 NL 爆发：受到 !M! 点伤害，随机从弃牌堆获得2张牌，获得1点能量。",
+    "EXTENDED_DESCRIPTION": [
+      " reed:进阶 ：巡标， reed:生灵 NL ",
+      " reed:进阶 ：巡标， reed:死灵 NL ",
+      "爆发：受到 !M! 点伤害，随机从弃牌堆获得3张牌，获得1点能量。",
+      "爆发：受到 !M! 点伤害，随机从弃牌堆获得2张牌，获得2点能量。"
+    ]
+  },
+
+  "TriumphalOde_Reed": {
+    "NAME": "史诗：凯旋颂",
+    "DESCRIPTION": "*附录 ：你没有格挡。 NL reed:传颂 ：获得 !M! 点 格挡 。"
+  },
+  "DerRing_Reed": {
+    "NAME": "史诗：湖中至宝",
+    "DESCRIPTION": "*附录 ：失去 !B! 次生命。 NL reed:传颂 ：获得 !M! 金币。"
+  },
+  "HundredDays_Reed": {
+    "NAME": "史诗：一百零一日",
+    "DESCRIPTION": "回合开始时，增加5点数值。 NL *附录 ：有敌人的生命值不大于 !M! 。 NL reed:传颂 ：击倒它们。"
+  },
+  "DreamWonderland_Reed": {
+    "NAME": "史诗：梦中奇缘",
+    "DESCRIPTION": "*附录 ： reed:追忆 !B! 次。 NL reed:传颂 ：获得 !M! 层 无实体 。",
+    "EXTENDED_DESCRIPTION": [
+      "仅限苇草"
+    ]
+  },
+  "DeerAndDoe_Reed": {
+    "NAME": "史诗：霜牡与雪牝",
+    "DESCRIPTION": "*附录 ：造成 !B! 点伤害。 NL reed:传颂 ：获得 !M! 点 力量 和 !M! 点 敏捷 。"
+  },
+  "LightOfHeria_Reed": {
+    "NAME": "史诗：赫里亚之辉",
+    "DESCRIPTION": "回合开始时随机 reed:灼烧 !M! 。 NL *附录 ：灼烧 !B! 点。 NL reed:传颂 ：向所有敌人 reed:附着 reed:火花·灼痕 。",
+    "EXTENDED_DESCRIPTION": [
+      "仅限苇草"
+    ]
+  },
+  "MotherWolf_Reed": {
+    "NAME": "史诗：七丘的狼母",
+    "DESCRIPTION": "*附录 ：打出 !B! 张牌。 NL reed:传颂 ：获得 !M! 点 格挡 和1层残影。"
+  },
+  "TheDawn_Reed": {
+    "NAME": "史诗：初晓",
+    "DESCRIPTION": "回合开始时，失去1点生命，抽1张牌。 NL *附录 ：手牌数大于5。 NL reed:传颂 ：回复 !M! 点生命。"
+  },
+  "GoldenBird_Reed": {
+    "NAME": "史诗：金羽兽",
+    "DESCRIPTION": "回合开始时，失去1点生命，获得8点 格挡 。 NL *附录 ：格挡≥40。 NL reed:传颂 ：回复 !M! 点生命。"
+  },
+  "WildGold_Reed": {
+    "NAME": "史诗：狂野之金",
+    "DESCRIPTION": "*附录 ：消耗 !B! 张牌。 NL reed:传颂 ：将 !M! 张随机牌置入抽牌堆，使它们本场战斗耗能为0。"
+  },
+  "TheLullaby_Reed": {
+    "NAME": "史诗：摇篮曲",
+    "DESCRIPTION": "*附录 ：本回合之内打出3种类型的牌。 NL reed:传颂 ：对随机有记录的回合 reed:追忆 ：任意牌。",
+    "UPGRADE_DESCRIPTION": "*附录 ：打出3种类型的牌。 NL reed:传颂 ：对随机有记录的回合 reed:追忆 ：任意牌。",
+    "EXTENDED_DESCRIPTION": [
+      "不是苇草也能追忆，而且你不会以为这些随笔句要翻译吧"
+    ]
+  },
+  "TheCarnival_Reed": {
+    "NAME": "史诗：欢欣鼓舞",
+    "DESCRIPTION": "*附录 ：本回合未打出过攻击牌。 reed:传颂 ：对随机敌人造成 !M! 点伤害。"
+  }
+}

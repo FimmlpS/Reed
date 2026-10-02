@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://civymbeqrbcpx"
-path="res://.godot/imported/fire_flower.png-0cd60b2703d817e1f2db279fcc649bbc.ctex"
+uid="uid://daq5ueaacuui4"
+path="res://.godot/imported/burn_mark_flower.png-d49f6814c8008e7b971f88d62e9c54f9.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Reed/images/cards/fire_flower.png"
-dest_files=["res://.godot/imported/fire_flower.png-0cd60b2703d817e1f2db279fcc649bbc.ctex"]
+source_file="res://Reed/images/cards/burn_mark_flower.png"
+dest_files=["res://.godot/imported/burn_mark_flower.png-d49f6814c8008e7b971f88d62e9c54f9.ctex"]
 
 [params]
 

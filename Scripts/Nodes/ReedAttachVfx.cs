@@ -1,6 +1,7 @@
 using System;
 using System.Threading.Tasks;
 using Godot;
+using MegaCrit.Sts2.Core.Audio.Debug;
 using MegaCrit.Sts2.Core.Commands;
 using MegaCrit.Sts2.Core.Entities.Cards;
 using MegaCrit.Sts2.Core.Entities.Creatures;
@@ -117,6 +118,7 @@ public static class ReedAttachVfx
     /// <summary>放大到位（scale=maxScale）后：把卡片交给原版耗尽特效并在原地播放。</summary>
     private static void Finish(Control root, NCard card, Control container)
     {
+        SfxCmd.Play(TmpSfx.GetPath(TmpSfx.cardSelect));
         // 耗尽根的目标落点：弹出卡内容原点 - 缩放残留 = root 原点 + card.Position。
         // 此刻 card 仍是 root 的子节点，该值可同步取出，不必等帧、也不依赖任何测量。
         Vector2 targetRoot = root.GlobalPosition + card.Position;

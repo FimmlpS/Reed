@@ -1,5 +1,6 @@
-using System.Collections.Generic;
+using MegaCrit.Sts2.Core.Entities.Creatures;
 using MegaCrit.Sts2.Core.Models;
+using MegaCrit.Sts2.Core.Rooms;
 
 namespace Reed.Scripts.Resistance;
 
@@ -10,6 +11,22 @@ namespace Reed.Scripts.Resistance;
 public sealed class ResistanceData
 {
     public const int DefaultMax = 4;
+
+    public ResistanceData(Creature _creature)
+    {
+        Owner = _creature;
+        RoomType type = Owner.CombatState?.RunState.CurrentRoom?.RoomType??RoomType.Unassigned;
+        if(type == RoomType.Elite)
+        {
+            Max+=1;
+        }
+        else if(type == RoomType.Boss)
+        {
+            Max+=2;
+        }
+    }
+
+    public Creature Owner;
 
     /// <summary>抗性上限。</summary>
     public int Max { get; internal set; } = DefaultMax;

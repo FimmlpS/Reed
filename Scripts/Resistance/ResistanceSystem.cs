@@ -8,6 +8,7 @@ using MegaCrit.Sts2.Core.Combat;
 using MegaCrit.Sts2.Core.Context;
 using MegaCrit.Sts2.Core.Entities.Creatures;
 using MegaCrit.Sts2.Core.Entities.Players;
+using MegaCrit.Sts2.Core.GameActions.Multiplayer;
 using MegaCrit.Sts2.Core.Models;
 using MegaCrit.Sts2.Core.Models.Cards;
 using MegaCrit.Sts2.Core.Nodes.Combat;
@@ -91,7 +92,7 @@ public static class ResistanceSystem
         {
             return d;
         }
-        d = new ResistanceData();
+        d = new ResistanceData(creature);
         _data[creature] = d;
         return d;
     }
@@ -231,7 +232,7 @@ public static class ResistanceSystem
 
     // ============ 火花牌 测试种子（给第一只怪物放若干张本地玩家的“打击”） ============
 
-    private const bool EnableDemoSparkSeed = true;
+    private const bool EnableDemoSparkSeed = false;
     private static bool _sparkDemoSeeded;
 
     /// <summary>演示：等战斗界面就绪后再给第一张火花（留出建条/订阅时间）。</summary>
@@ -313,7 +314,7 @@ public static class ResistanceSystem
     // ============ 数值修改 API ============
 
     /// <summary>扣抗性（最低 0）。不自动触发燃烧状态——按需调用 EnterBurning。</summary>
-    public static void Reduce(Creature c, int amount)
+    public static async Task Reduce(Creature c, int amount)
     {
         if (amount <= 0)
         {
@@ -329,12 +330,12 @@ public static class ResistanceSystem
         AfterMutation(c, d);
         if (d.Current == 0)
         {
-            EnterBurning(c);
+            await EnterBurning(c);
         }
     }
 
     /// <summary>恢复抗性（最高回满 max）。按需调用 ExitBurning。</summary>
-    public static void Restore(Creature c, int amount)
+    public static async Task Restore(Creature c, int amount)
     {
         if (amount <= 0)
         {
@@ -350,12 +351,12 @@ public static class ResistanceSystem
         AfterMutation(c, d);
         if (d.Current == d.Max)
         {
-            ExitBurning(c);
+            await ExitBurning(c);
         }
     }
 
     /// <summary>直接设定当前抗性（自动收敛到 0..max）。</summary>
-    public static void SetCurrent(Creature c, int value)
+    public static async Task SetCurrent(Creature c, int value)
     {
         ResistanceData d = GetData(c);
         int nv = Math.Clamp(value, 0, d.Max);
@@ -365,12 +366,40 @@ public static class ResistanceSystem
         }
         d.Current = nv;
         AfterMutation(c, d);
+        await JudgeBurning(c);
+    }
+
+    public static async Task JudgeBurning(Creature c)
+    {
+        ResistanceData d = GetData(c);
+        if (d.Current == d.Max)
+        {
+            await ExitBurning(c);
+        }
+        else if(d.Current == 0)
+        {
+            await EnterBurning(c);
+        }
+    }
+
+    /// <summary>修改抗性上限（最少为1点）</summary>
+    public static async Task ChangeMax(Creature c, int offset)
+    {
+        ResistanceData d = GetData(c);
+        int finalMax = Math.Max(1,d.Max+offset);
+        d.Max = finalMax;
+        if (d.Current > d.Max)
+        {
+            d.Current = d.Max;
+        }
+        AfterMutation(c, d);
+        await JudgeBurning(c);
     }
 
     // ============ 两个状态切换函数（规则2/3：蓝 ↔ 紫 + 燃烧特效）============
 
     /// <summary>进入燃烧状态：条变紫，生物播放常驻火焰（原版特效循环铺放）。</summary>
-    public static void EnterBurning(Creature c)
+    public static async Task EnterBurning(Creature c)
     {
         ResistanceData d = GetData(c);
         if (d.Burning)
@@ -379,10 +408,11 @@ public static class ResistanceSystem
         }
         d.Burning = true;
         SyncVisuals(c, d);
+        await ReedAttachCmd.Burnt(new ThrowingPlayerChoiceContext(),c);
     }
 
     /// <summary>退出燃烧状态：条回蓝，停止火焰。</summary>
-    public static void ExitBurning(Creature c)
+    public static async Task ExitBurning(Creature c)
     {
         ResistanceData d = GetData(c);
         if (!d.Burning)
@@ -563,9 +593,10 @@ public static class CreatureResistanceExtensions
     public static bool IsBurningResistance(this Creature c) => ResistanceSystem.IsBurning(c);
     public static bool IsResistanceFull(this Creature c) => ResistanceSystem.IsFull(c);
 
-    public static void DamageResistance(this Creature c, int amount) => ResistanceSystem.Reduce(c, amount);
-    public static void RestoreResistance(this Creature c, int amount) => ResistanceSystem.Restore(c, amount);
-    public static void SetResistance(this Creature c, int value) => ResistanceSystem.SetCurrent(c, value);
+    public static async Task DamageResistance(this Creature c, int amount) => await ResistanceSystem.Reduce(c, amount);
+    public static async Task RestoreResistance(this Creature c, int amount) => await ResistanceSystem.Restore(c, amount);
+    public static async Task SetResistance(this Creature c, int value) => await ResistanceSystem.SetCurrent(c, value);
+    public static async Task ChangeMaxResistance(this Creature c, int offset) => await ResistanceSystem.ChangeMax(c, offset);
 
     /// <summary>状态切换：进入燃烧。</summary>
     public static void EnterBurningState(this Creature c) => ResistanceSystem.EnterBurning(c);

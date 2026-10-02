@@ -27,6 +27,10 @@ public partial class NReedGroundFireVfx : Node2D
 
     private VfxColor _vfxColor;
 
+    private Creature _creatureBelonged;
+
+    public Creature CreatureBelonged => _creatureBelonged;
+
     public static IEnumerable<string> AssetPaths => [_scenePath];
 
     private bool _noTriggerTwice = false;
@@ -45,6 +49,7 @@ public partial class NReedGroundFireVfx : Node2D
         }
 
         NReedGroundFireVfx nGroundFireVfx = PreloadManager.Cache.GetScene(_scenePath).Instantiate<NReedGroundFireVfx>(PackedScene.GenEditState.Disabled);
+        nGroundFireVfx._creatureBelonged = target;
         nGroundFireVfx._vfxColor = color;
         nGroundFireVfx.GlobalPosition = creatureNode.GetBottomOfHitbox();
         return nGroundFireVfx;

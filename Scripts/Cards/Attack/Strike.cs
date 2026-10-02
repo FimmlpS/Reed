@@ -31,13 +31,6 @@ public class Strike : AbstractReedCard
         .FromCard(this, cardPlay)
         .Targeting(cardPlay.Target)
         .Execute(choiceContext);
-
-        // 打出伤害后附带灼烧 1（对抗性造成 1 点伤害）。
-        await ReedBurnCmd.Burn(1)
-        .FromCard(this, cardPlay)
-        .Targeting(cardPlay.Target)
-        .Execute(choiceContext);
-    
     }
 
     protected override void OnUpgrade()

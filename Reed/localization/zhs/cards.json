@@ -5,18 +5,71 @@
 	"REED-DEFEND.title":"防御",
 	"REED-DEFEND.description":"获得{Block:diff()}点[gold]格挡[/gold]。",
 
+	"REED-SCORCH.title":"炙灼",
+	"REED-SCORCH.description":"造成{Damage:diff()}点伤害{Repeat:diff()}次。\n[gold]灼烧[/gold]{Reed_Burn:diff()}。",
+
+	"REED-IGNITE_FIRE.title":"火种",
+	"REED-IGNITE_FIRE.description":"[gold]附着[/gold]一张[gold]基础[/gold]火花。",
 
 	"BASIC-COMMON":"",
 
+	"REED-TODO.title":"",
+	"REED-TODO.description":"",
+
+	"REED-BONFIRE.title":"篝火",
+	"REED-BONFIRE.description":"获得{Block:diff()}点[gold]格挡[/gold]。\n[gold]附着[/gold]一张[gold]映耀[/gold]火花。",
+
+	"REED-POEM.title":"诗歌",
+	"REED-POEM.description":"[gold]消耗[/gold]一张手牌，获得其耗能{Block:diff()}倍的[gold]格挡[/gold]。",
+
+	"REED-PATROL.title":"巡迹",
+	"REED-PATROL.description":"[gold]附着[/gold]{IfUpgraded:show:X+1|X}张[gold]普通[/gold]火花。",
+
+	"REED-THORN.title":"刺痛",
+	"REED-THORN.description":"造成{CalculatedDamage:diff()}点伤害。\n对[red]燃烧状态[/red]的敌人提升{ExtraDamage:diff()}点伤害。",
+
+	"REED-ASHES.title":"余烬",
+	"REED-ASHES.description":"造成{Damage:diff()}点伤害。\n[gold]灼烧[/gold]{Reed_Burn:diff()}。",
 
 	"COMMON-UNCOMMON":"",
 
+	"REED-HER_SHADOW.title":"她的影子",
+	"REED-HER_SHADOW.description":"对所有敌人[gold]灼烧[/gold]{Reed_Burn:diff()}。\n将{Cards:diff()}张[gold]焰影[/gold]放入手牌。",
+
+	"REED-BRAVE_SHINE.title":"永耀",
+	"REED-BRAVE_SHINE.description":"将{Cards:diff()}张[gold]焰光[/gold]放入手牌。\n你的[gold]焰光[/gold]提升{LightPower:diff()}点伤害。",
+
+	"REED-AS_TORCH.title":"如炬",
+	"REED-AS_TORCH.description":"使一名敌人下次进入[red]燃烧状态[/red]时，[gold]火花牌[/gold]额外爆发{AsTorchPower:diff()}次。",
 
 	"UNCOMMON-RARE":"",
 
+	"REED-DYING_FIRE.title":"将熄的火",
+	"REED-DYING_FIRE.description":"造成{Damage:diff()}点伤害。\n降低{Repeat:diff()}点[gold]抗性[/gold]上限。",
+
+	"REED-SAME_BREATH.title":"枯荣共息",
+	"REED-SAME_BREATH.description":"将{Cards:diff()}张[gold]焰光[/gold]加入手牌，为它们添加[gold]不灭[/gold]。",
 
 	"RARE-ANCIENT":"",
 
 
-	"ANCIENT-SPECIAL":""
+	"ANCIENT-SPECIAL":"",
+
+	"REED-FLAME_SHADOW.title":"焰影",
+	"REED-FLAME_SHADOW.description":"[gold]灼烧[/gold]{Reed_Burn:diff()}。\n离开手牌后[gold]消耗[/gold]。",
+
+	"REED-FLAME_LIGHT.title":"焰光",
+	"REED-FLAME_LIGHT.description":"对所有敌人造成{Damage:diff()}点伤害。\n离开手牌后[gold]消耗[/gold]。",
+
+	"REED-NORMAL_FLOWER.title":"[火花]基础",
+	"REED-NORMAL_FLOWER.description":"[gold]爆发[/gold]：受到{Damage:diff()}点伤害。",
+
+	"REED-END_FLOWER.title":"[火花]终末",
+	"REED-END_FLOWER.description":"[gold]爆发[/gold]：受到{Damage:diff()}点伤害。",
+
+	"REED-SHINE_FLOWER.title":"[火花]映耀",
+	"REED-SHINE_FLOWER.description":"[gold]爆发[/gold]：受到{Damage:diff()}点伤害，令来源抽{Cards:diff()}张牌。",
+
+	"REED-SPLENDID_FLOWER.title":"[火花]灿烂",
+	"REED-SPLENDID_FLOWER.description":"[gold]爆发[/gold]：受到{Damage:diff()}点伤害，令来源抽{Cards:diff()}张牌并获得{energyPrefix:energyIcons(1)}"
 }

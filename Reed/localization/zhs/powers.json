@@ -1,5 +1,9 @@
 {
-    "REED-TRAUMA_POWER.title":"创伤",
-    "REED-TRAUMA_POWER.description":"受到来自[gold]攻击[/gold]的伤害提升[blue]25[/blue]%（至多100％）。成为攻击牌目标后移除此效果。",
-    "REED-TRAUMA_POWER.smartDescription":"受到来自[gold]攻击[/gold]的伤害提升[blue]{Amount}*25[/blue]%（至多100％）。成为攻击牌目标后移除此效果（每名玩家给予的创伤效果独立）。"
+    "REED-LIGHT_POWER.title":"光度",
+    "REED-LIGHT_POWER.description":"你的[gold]焰光[/gold]提升1点伤害。",
+    "REED-LIGHT_POWER.smartDescription":"你的[gold]焰光[/gold]提升{Amount}点伤害。",
+
+    "REED-AS_TORCH_POWER.title":"如矩",
+    "REED-AS_TORCH_POWER.description":"下次进入[red]燃烧状态[/red]时，[gold]火花牌[/gold]额外爆发1次。",
+    "REED-AS_TORCH_POWER.smartDescription":"下次进入[red]燃烧状态[/red]时，[gold]火花牌[/gold]额外爆发{Amount}次。"
 }

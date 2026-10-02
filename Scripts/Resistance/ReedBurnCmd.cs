@@ -15,7 +15,8 @@ namespace Reed.Scripts.Resistance;
 public static class ReedBurnCmd
 {
     /// <summary>灼烧 N：构造一次对目标抗性造成 N 点伤害的命令。</summary>
-    public static ReedBurnBuilder Burn(int amount) => new(amount);
+    public static ReedBurnBuilder Burn(int amount) => new(amount,true);
+    public static ReedBurnBuilder Heal(int amount) => new(amount,false);
 }
 
 /// <summary>“灼烧”命令的流式构建器（形态同 AttackCommand：目标可后置、Execute 前随时补）。</summary>
@@ -23,11 +24,13 @@ public sealed class ReedBurnBuilder
 {
     private readonly int _amount;
     private CardPlay? _cardPlay;
-    private Creature? _target;
+    private List<Creature> _target = [];
+    private bool _isBurn;
 
-    internal ReedBurnBuilder(int amount)
+    internal ReedBurnBuilder(int amount, bool isBurn)
     {
         _amount = amount;
+        _isBurn = isBurn;
     }
 
     /// <summary>来源卡与本次出牌（保留以对齐其他 Cmd 形态；卡牌来源暂不参与结算）。</summary>
@@ -40,20 +43,37 @@ public sealed class ReedBurnBuilder
     /// <summary>指定承受灼烧的目标生物。</summary>
     public ReedBurnBuilder Targeting(Creature target)
     {
-        _target = target;
+        _target.Add(target);
         return this;
     }
 
-    /// <summary>结算灼烧。优先使用显式目标，未指定时退回 cardPlay.Target；目标已死亡则跳过。</summary>
-    public Task Execute(PlayerChoiceContext? choiceContext)
+    public ReedBurnBuilder Targeting(List<Creature> target)
     {
-        Creature? target = _target ?? _cardPlay?.Target;
-        if (target == null || target.CurrentHp <= 0)
+        _target.AddRange(target);
+        return this;
+    }
+
+    /// <summary>结算灼烧/治疗抗性。优先使用显式目标，未指定时退回 cardPlay.Target；目标已死亡则跳过。</summary>
+    public async Task Execute(PlayerChoiceContext? choiceContext)
+    {
+        if (_target.Count() == 0)
         {
-            return Task.CompletedTask; // 无目标/目标已倒下：不打
+            return; // 无目标/目标已倒下：不打
         }
 
-        ResistanceSystem.Reduce(target, _amount);
-        return Task.CompletedTask;
+        foreach(Creature creature in _target)
+        {
+            if (creature.IsAlive)
+            {
+                if (_isBurn)
+                {
+                    await ResistanceSystem.Reduce(creature, _amount);
+                }
+                else
+                {
+                    await ResistanceSystem.Restore(creature, _amount);
+                }
+            }
+        }
     }
 }

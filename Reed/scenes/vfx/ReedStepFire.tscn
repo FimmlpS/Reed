@@ -1,6 +1,6 @@
 [gd_scene load_steps=19 format=3 uid="uid://dg33fv7t6288v"]
 
-[ext_resource type="Material" path="res://Reed/images/vfx/fire/canvas_item_material_additive_shared.tres" id="1_ukaq4"]
+[ext_resource type="Material" uid="uid://c4ycqv0gdxvmr" path="res://Reed/images/vfx/fire/canvas_item_material_additive_shared.tres" id="1_ukaq4"]
 [ext_resource type="Shader" uid="uid://bbjeb6jjl1x61" path="res://Reed/images/vfx/fire/vfx_stepped_shader_fire_add.tres" id="2_wd1w1"]
 [ext_resource type="Texture2D" uid="uid://d0hrvkmim7xei" path="res://Reed/images/vfx/fire/triangle_noise_tile.png" id="3_msn4e"]
 [ext_resource type="Texture2D" uid="uid://doe818r2tlept" path="res://Reed/images/vfx/fire/zigzag_fire_distortion.png" id="4_27iov"]
@@ -154,12 +154,14 @@ scale = Vector2(1.14924, 1.14924)
 texture = ExtResource("7_yxfsd")
 
 [node name="SteppedFireAdd" type="Sprite2D" parent="."]
+self_modulate = Color(1, 1, 1, 0.627451)
 material = SubResource("ShaderMaterial_uk2t4")
 position = Vector2(-17, -223)
 scale = Vector2(1.11663, 1.07664)
 texture = ExtResource("7_yxfsd")
 
 [node name="SteppedFireAdd1" type="Sprite2D" parent="."]
+self_modulate = Color(1, 1, 1, 0.627451)
 material = SubResource("ShaderMaterial_yfq86")
 position = Vector2(-12, -179)
 scale = Vector2(0.823203, 0.863206)

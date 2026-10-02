@@ -61,7 +61,7 @@ internal sealed class BurningFireDriver
         Control? control = _creature.GetVfxContainer();
         foreach(Node node in control?.GetChildren()??[])
         {
-            if(node is NReedGroundFireVfx rVfx)
+            if(node is NReedGroundFireVfx rVfx && rVfx.CreatureBelonged == _creature)
             {
                 rVfx.FinishBurning();
             }

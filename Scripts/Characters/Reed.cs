@@ -2,12 +2,17 @@ using BaseLib.Abstracts;
 using Godot;
 using MegaCrit.Sts2.Core.Animation;
 using MegaCrit.Sts2.Core.Bindings.MegaSpine;
+using MegaCrit.Sts2.Core.Entities.Cards;
 using MegaCrit.Sts2.Core.Entities.Characters;
+using MegaCrit.Sts2.Core.Entities.Creatures;
+using MegaCrit.Sts2.Core.GameActions.Multiplayer;
 using MegaCrit.Sts2.Core.Models;
 using MegaCrit.Sts2.Core.Models.Relics;
 using Reed.Scripts.Cards.Attack;
 using Reed.Scripts.Cards.Skill;
 using Reed.Scripts.Pools;
+using Reed.Scripts.Relics;
+using Reed.Scripts.Resistance;
 
 namespace Reed.Scripts.Characters;
 
@@ -80,13 +85,12 @@ public class Reed : PlaceholderCharacterModel
         ModelDb.Card<Defend>(),
         ModelDb.Card<Defend>(),
         //ModelDb.Card<Defend>(),
-        //ModelDb.Card<Hunt>(),
-        //ModelDb.Card<SharpAsTooth>()
+        ModelDb.Card<Scorch>(),
+        ModelDb.Card<IgniteFire>()
     ];
 
     public override IReadOnlyList<RelicModel> StartingRelics => [
-        //ModelDb.Relic<NaturalInclusion>(),
-        ModelDb.Relic<BurningBlood>()
+        ModelDb.Relic<FlowerOfDragon>()
     ];
 
     public override List<string> GetArchitectAttackVfx()
@@ -106,4 +110,5 @@ public class Reed : PlaceholderCharacterModel
             null,false
         );
     }
+
 }

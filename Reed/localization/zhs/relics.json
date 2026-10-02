@@ -1,5 +1,5 @@
 {
     "REED-FLOWER_OF_DRAGON.title":"龙英",
-    "REED-FLOWER_OF_DRAGON.description":"todo",
+    "REED-FLOWER_OF_DRAGON.description":"所有敌人初始[gold]附着[/gold]一张[gold]基础[/gold]火花。你每回合首次攻击时，对目标[gold]灼烧[/gold]{Reed_Burn:diff()}。",
     "REED-FLOWER_OF_DRAGON.flavor":""
 }

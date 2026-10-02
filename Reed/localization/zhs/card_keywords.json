@@ -1,4 +1,19 @@
 {
-    "REED-BURN.title":"永恒追逐",
-    "REED-BURN.description":"在你回合开始时，将这张牌从[gold]消耗牌堆[/gold]放回你的手牌。"
+    "REED-BURN.title":"灼烧",
+    "REED-BURN.description":"对生物的抗性造成伤害。抗性清零时会进入[red]燃烧状态[/red]。",
+
+    "REED-RESISTANCE.title":"抗性",
+    "REED-RESISTANCE.description":"清零时会进入[red]燃烧状态[/red]。",
+
+    "REED-BURNING.title":"燃烧状态",
+    "REED-BURNING.description":"[red]持续燃烧[/red]\n玩家每打出一张牌就恢复1点抗性，恢复满后退出此状态。",
+
+    "REED-ATTACH.title":"附着",
+    "REED-ATTACH.description":"将一张牌与一名生物绑定。超出上限时须先选择一张已绑定的牌[gold]引爆[/gold]。",
+
+    "REED-FIRE_FLOWER.title":"火花",
+    "REED-FIRE_FLOWER.description":"附着的生物进入[red]燃烧状态[/red]时，触发[gold]爆发[/gold]效果。",
+
+    "REED-UNYIELDING.title":"不灭",
+    "REED-UNYIELDING.description":"这张牌被消耗后，复制到你的手牌。"
 }

@@ -33,10 +33,14 @@ public class Poem : AbstractReedCard
     protected override async Task OnPlay(PlayerChoiceContext choiceContext, CardPlay cardPlay)
     {
         CardModel exhausted = (await CardSelectCmd.FromHand(choiceContext, Owner, new CardSelectorPrefs(CardSelectorPrefs.ExhaustSelectionPrompt,1,1),null,this)).FirstOrDefault();
-        if (exhausted != null && exhausted.EnergyCost.GetAmountToSpend()>0)
+        if (exhausted != null)
         {
-            int amt = exhausted.EnergyCost.GetAmountToSpend();
-            await CreatureCmd.GainBlock(Owner.Creature, DynamicVars.Block.BaseValue * amt,ValueProp.Move, cardPlay);
+            if (exhausted.EnergyCost.GetAmountToSpend() > 0)
+            {
+                int amt = exhausted.EnergyCost.GetAmountToSpend();
+                await CreatureCmd.GainBlock(Owner.Creature, DynamicVars.Block.BaseValue * amt,ValueProp.Move, cardPlay);
+            }
+            await CardCmd.Exhaust(choiceContext, exhausted);
         }
     }
 

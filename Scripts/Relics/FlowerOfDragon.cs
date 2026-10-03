@@ -95,6 +95,7 @@ public class FlowerOfDragon : AbstractReedRelic
         WasUsedThisTurn = true;
         Status = RelicStatus.Normal;
         await ReedBurnCmd.Burn(DynamicVars.Burn().IntValue)
+        .FromCreature(Owner.Creature)
         .Targeting(target)
         .Execute(choiceContext);
 

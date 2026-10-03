@@ -1,4 +1,5 @@
 using MegaCrit.Sts2.Core.Commands;
+using MegaCrit.Sts2.Core.Entities.Creatures;
 using MegaCrit.Sts2.Core.Entities.Powers;
 using MegaCrit.Sts2.Core.GameActions.Multiplayer;
 using MegaCrit.Sts2.Core.Models;
@@ -12,14 +13,19 @@ public class AsTorchPower : AbstractReedPower, IFireFlowerSubscriber
 
     public override PowerStackType StackType => PowerStackType.Counter;
 
-    FireBurnt IFireFlowerSubscriber.ModifyBurnt(CardModel fireFlower, FireBurnt fireBurnt)
+    FireBurnt IFireFlowerSubscriber.ModifyBurnt(CardModel fireFlower, FireBurnt fireBurnt, bool triggerByBurning)
     {
+        if(fireBurnt.Target != Owner || !triggerByBurning)
+        {
+            return fireBurnt;
+        }
         FireBurnt b = new FireBurnt(fireBurnt).ModifyTimes(Amount);
         return b;
     }
 
-    async Task IFireFlowerSubscriber.AfterModifyBurnt(PlayerChoiceContext playerChoiceContext, CardModel fireFlower, FireBurnt fireBurnt)
+    async Task IFireFlowerSubscriber.AfterAllBurnt(PlayerChoiceContext playerChoiceContext, Creature c, bool triggerByBurning)
     {
-        await PowerCmd.Remove(this);
+        if(triggerByBurning)
+            await PowerCmd.ModifyAmount(playerChoiceContext, this, -Amount, Owner, null);
     }
 }

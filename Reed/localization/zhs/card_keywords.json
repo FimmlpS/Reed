@@ -15,5 +15,8 @@
     "REED-FIRE_FLOWER.description":"附着的生物进入[red]燃烧状态[/red]时，触发[gold]爆发[/gold]效果。",
 
     "REED-UNYIELDING.title":"不灭",
-    "REED-UNYIELDING.description":"这张牌被消耗后，复制到你的手牌。"
+    "REED-UNYIELDING.description":"这张牌被消耗后，复制到你的手牌。",
+
+    "REED-IGNITE.title":"引爆",
+    "REED-IGNITE.description":"触发爆发效果，然后将其移除。"
 }

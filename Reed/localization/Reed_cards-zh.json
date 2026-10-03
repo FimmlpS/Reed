@@ -54,7 +54,7 @@
     "DESCRIPTION": " 固有 ， 消耗 。 NL 获得 !B! 点格挡。 NL reed:附着 !M! 张 reed:火花·普通 。"
   },
   "Forge_Reed": {
-    "NAME": "炉炼",
+    "NAME": "炉炼DONE",
     "DESCRIPTION": "造成 !D! 点伤害。 NL reed:附着 一张 reed:火花·普通 。 NL 增加此牌1点耗能。"
   },
   "StormRoad_Reed": {
@@ -101,7 +101,7 @@
     "DESCRIPTION": " 消耗 。 NL 对所有敌人 reed:灼烧 !M! 。 NL 将 !M! 张 *焰影 拿到手中。"
   },
   "WitherBlood_Reed": {
-    "NAME": "她的火焰",
+    "NAME": "她的火焰DONE",
     "DESCRIPTION": "每当你 消耗 一张牌，对随机敌人 reed:灼烧 !M! 。"
   },
   "LastWish_Reed": {
@@ -114,11 +114,11 @@
     ]
   },
   "CurseHeal_Reed": {
-    "NAME": "咒愈",
+    "NAME": "咒愈DONE",
     "DESCRIPTION": "当一张 reed:火花牌 爆发后，获得 !M! 点 格挡 。"
   },
   "Spread_Reed": {
-    "NAME": "蔓延",
+    "NAME": "蔓延DONE",
     "DESCRIPTION": " reed:引爆 一张 reed:火花牌 。 NL 作用于所有敌人。",
     "UPGRADE_DESCRIPTION": "以150％伤害量 reed:引爆 一张 reed:火花牌 。 NL 作用于所有敌人。"
   },
@@ -272,7 +272,7 @@
     "UPGRADE_DESCRIPTION": "固有 。 NL 你每记录或 reed:追忆 10张牌，抽1张牌。"
   },
   "AsTorch_Reed": {
-    "NAME": "如炬",
+    "NAME": "如炬DONE",
     "DESCRIPTION": "reed:深池 。 NL 使一名敌人下次进入灼烧状态时， reed:火花牌 额外爆发 !M! 次。"
   },
   "DyingFire_Reed": {
@@ -320,7 +320,7 @@
     "DESCRIPTION": " 消耗 。 NL 将弃牌堆洗入抽牌堆。 NL reed:执念 ：选择一个回合， reed:追忆 所有非 reed:追忆牌 。"
   },
   "SameBreath_Reed": {
-    "NAME": "DONE",
+    "NAME": "枯荣共息DONE",
     "DESCRIPTION": " 消耗 。 NL 将3张 reed:不灭 的 *焰光 拿到手中。"
   },
   "Clash_Reed": {

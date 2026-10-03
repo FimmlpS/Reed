@@ -26,6 +26,7 @@ public sealed class ReedBurnBuilder
     private CardPlay? _cardPlay;
     private List<Creature> _target = [];
     private bool _isBurn;
+    private Creature _source;
 
     internal ReedBurnBuilder(int amount, bool isBurn)
     {
@@ -33,10 +34,18 @@ public sealed class ReedBurnBuilder
         _isBurn = isBurn;
     }
 
+    /// <summary>直接来源。</summary>
+    public ReedBurnBuilder FromCreature(Creature source)
+    {
+        _source = source;
+        return this;
+    }
+
     /// <summary>来源卡与本次出牌（保留以对齐其他 Cmd 形态；卡牌来源暂不参与结算）。</summary>
     public ReedBurnBuilder FromCard(CardModel card, CardPlay? cardPlay)
     {
         _cardPlay = cardPlay;
+        _source = card.Owner.Creature;
         return this;
     }
 
@@ -56,13 +65,25 @@ public sealed class ReedBurnBuilder
     /// <summary>结算灼烧/治疗抗性。优先使用显式目标，未指定时退回 cardPlay.Target；目标已死亡则跳过。</summary>
     public async Task Execute(PlayerChoiceContext? choiceContext)
     {
-        if (_target.Count() == 0)
+        // 来源不得为空，目标不得为0
+        if (_source==null || _target.Count() == 0)
         {
-            return; // 无目标/目标已倒下：不打
+            return;
         }
-
+        if(choiceContext == null)
+        {
+            choiceContext = new ThrowingPlayerChoiceContext();
+        }
         foreach(Creature creature in _target)
         {
+            foreach(AbstractModel model in creature.CombatState?.IterateHookListeners() ?? [])
+            {
+                if(model is IFireFlowerSubscriber sub)
+                {
+                    if(_isBurn)
+                        await sub.BeforeBurn(choiceContext, creature, _source, _amount);
+                }
+            }
             if (creature.IsAlive)
             {
                 if (_isBurn)
@@ -72,6 +93,14 @@ public sealed class ReedBurnBuilder
                 else
                 {
                     await ResistanceSystem.Restore(creature, _amount);
+                }
+            }
+            foreach(AbstractModel model in creature.CombatState?.IterateHookListeners() ?? [])
+            {
+                if(model is IFireFlowerSubscriber sub)
+                {
+                    if(_isBurn)
+                        await sub.AfterBurn(choiceContext, creature, _source, _amount);
                 }
             }
         }

@@ -57,7 +57,7 @@ public class FlameLight : AbstractReedCard
             }
         }
         SfxCmd.Play("event:/sfx/characters/attack_fire");
-        await CreatureCmd.Damage(choiceContext,GetPossibleTargets(),DynamicVars.Damage,Owner.Creature);
+        await CreatureCmd.Damage(choiceContext,GetPossibleTargets(),DynamicVars.Damage,Owner.Creature,this,null);
     }
 
     private IReadOnlyList<Creature> GetPossibleTargets()

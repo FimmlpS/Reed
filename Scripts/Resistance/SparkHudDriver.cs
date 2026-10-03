@@ -29,7 +29,7 @@ namespace Reed.Scripts.Resistance;
 /// 出现/消失特效：出现=快速渐显（0.16s）；消失=参考卡牌“虚无”消散的观感做淡出+上浮（火焰色调染色
 /// 会盖住卡牌本体，暂不做，留注释位置便于日后换用原版虚无/气绝的淡出材质）。
 /// </summary>
-internal sealed class SparkHudDriver
+internal sealed partial class SparkHudDriver
 {
     public const string NodeName = "ReedSparkHud";
 
@@ -64,7 +64,7 @@ internal sealed class SparkHudDriver
     private readonly ResistanceBarVisual _bar;
     private readonly Creature _creature;
 
-    private readonly Control _overlay;     // 塞在 display 最上层（最后一个子节点）
+    private readonly FrameFollowControl _overlay; // 塞在生物根上（%Intents 之后，画在意图之上）；每帧跟随抗性条移动
     private readonly Panel _circle;
     private readonly Label _number;
     private readonly Control _cardLayer;   // 所有火花牌 NCard 的父节点，整层显隐/渐显
@@ -104,11 +104,13 @@ internal sealed class SparkHudDriver
         _bar = bar;
         _creature = creature;
 
-        _overlay = new Control
+        _overlay = new FrameFollowControl
         {
             Name = NodeName,
             MouseFilter = Control.MouseFilterEnum.Ignore, // 空白处不拦鼠标
+            OnFrame = OnOverlayFrame,
         };
+        _overlay.SetProcess(true); // 每帧跟随抗性条（见 OnOverlayFrame 注释）
 
         // —— 计数圆 ——
         _circleStyle = new StyleBoxFlat
@@ -204,6 +206,21 @@ internal sealed class SparkHudDriver
 
         // 2) 卡行：以抗性条几何为基准（其宽=生物宽 → 中心=生物中心），排在上方。
         LayoutCards(barPos, barW, view);
+    }
+
+    /// <summary>
+    /// 每帧驱动一次重排：抗性条/血条在战斗开场有“渐显 + offset 增大（下移）”的补间动画，期间任何
+    /// layout 钩子都不会逐帧触发；若火花 UI（计数圆 / 卡行）此刻出现，就会停在动画开始时的旧位置，
+    /// 之后固定在条上一点。这里每帧按条的“最新 GlobalPosition/Size”重排一次，圆与卡行便始终贴着条走
+    ///（条静止时重排结果不变，开销仅几次向量运算，可忽略）。
+    /// </summary>
+    private void OnOverlayFrame()
+    {
+        if (_detached || !ValidBar())
+        {
+            return;
+        }
+        RefreshAnchor();
     }
 
     /// <summary>某生物火花数据变化时由系统回调（匹配则重建）。</summary>
@@ -570,9 +587,11 @@ internal sealed class SparkHudDriver
             return;
         }
         int count = LocalSparkCount();
+        int max = LocalSparkMax();
         LocString title = new("static_hover_tips", "REED-SPARK.title");
         LocString desc = new("static_hover_tips", "REED-SPARK.description");
         desc.Add("SparkCount", (decimal)count);
+        desc.Add("SparkMax", (decimal)max);
         HoverTip tip = new(title, desc);
         _tipSet = NHoverTipSet.CreateAndShow(_circle, tip, HoverTipAlignment.Right);
     }
@@ -627,6 +646,12 @@ internal sealed class SparkHudDriver
             return;
         }
         _detached = true;
+
+        _overlay.OnFrame = null; // 先摘掉每帧回调，避免 Detach 后 _Process 再排一次
+        if (GodotObject.IsInstanceValid(_overlay))
+        {
+            _overlay.SetProcess(false);
+        }
 
         ResistanceSystem.SparksChanged -= OnSparksChanged;
         ResistanceSystem.SparkAdded -= OnSparkAdded;
@@ -701,7 +726,13 @@ internal sealed class SparkHudDriver
         return me == null ? 0 : ResistanceSystem.CountSparks(_creature, me);
     }
 
-    private NCard? FindCardByModel(CardModel model)
+    private int LocalSparkMax()
+    {
+        Player? me = LocalContext.GetMe(_creature.CombatState);
+        return me == null ? ResistanceSystem.DefaultSparkMax : ResistanceSystem.GetSparkMax(_creature, me);
+    }
+
+    public NCard? FindCardByModel(CardModel model)
     {
         foreach (NCard card in _cards)
         {
@@ -723,5 +754,19 @@ internal sealed class SparkHudDriver
             }
         }
         return false;
+    }
+
+    /// <summary>
+    /// 带“每帧回调”的覆盖层控件。Godot 的 <c>_Process</c> 只能在 Node 子类里重写，故把 _overlay
+    /// 包成 Node 子类，用它每帧回调 <see cref="OnOverlayFrame"/>，让火花 UI 跟着抗性条移动。
+    /// </summary>
+    private sealed partial class FrameFollowControl : Control
+    {
+        public Action? OnFrame;
+
+        public override void _Process(double delta)
+        {
+            OnFrame?.Invoke();
+        }
     }
 }

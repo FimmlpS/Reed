@@ -9,10 +9,14 @@ using MegaCrit.Sts2.Core.Context;
 using MegaCrit.Sts2.Core.Entities.Creatures;
 using MegaCrit.Sts2.Core.Entities.Players;
 using MegaCrit.Sts2.Core.GameActions.Multiplayer;
+using MegaCrit.Sts2.Core.Helpers;
 using MegaCrit.Sts2.Core.Models;
 using MegaCrit.Sts2.Core.Models.Cards;
+using MegaCrit.Sts2.Core.Nodes;
+using MegaCrit.Sts2.Core.Nodes.Cards;
 using MegaCrit.Sts2.Core.Nodes.Combat;
 using MegaCrit.Sts2.Core.Nodes.Rooms;
+using MegaCrit.Sts2.Core.Nodes.Vfx;
 using Reed.Scripts.Cards.Attack;
 using ReedCharacter = Reed.Scripts.Characters.Reed;
 
@@ -131,7 +135,15 @@ public static class ResistanceSystem
             return DefaultSparkMax;
         }
         ResistanceData d = GetData(c);
-        return d.SparkMaxes.TryGetValue(owner.NetId, out int max) ? max : DefaultSparkMax;
+        int extra = 0;
+        foreach(AbstractModel model in c.CombatState?.IterateHookListeners() ?? [])
+        {
+            if(model is IFireFlowerSubscriber sub)
+            {
+                extra = sub.ModifySparkMax(c, owner, extra);
+            }
+        }
+        return extra + (d.SparkMaxes.TryGetValue(owner.NetId, out int max) ? max : DefaultSparkMax);
     }
 
     /// <summary>
@@ -313,14 +325,27 @@ public static class ResistanceSystem
 
     // ============ 数值修改 API ============
 
-    /// <summary>扣抗性（最低 0）。不自动触发燃烧状态——按需调用 EnterBurning。</summary>
+    /// <summary>扣抗性（最低 0）。仅当非灼烧状态才会执行。</summary>
     public static async Task Reduce(Creature c, int amount)
     {
-        if (amount <= 0)
+        if (amount <= 0 || c.IsBurningResistance())
         {
             return;
         }
         ResistanceData d = GetData(c);
+        Node vfxContainer = c.GetVfxContainer();
+        NDamageNumVfx nDamageNumVfx = NDamageNumVfx.Create(c, amount);
+        if (nDamageNumVfx != null)
+        {
+            if (vfxContainer != null)
+            {
+                vfxContainer.AddChildSafely(nDamageNumVfx);
+            }
+            else
+            {
+                NRun.Instance.GlobalUi.AddChildSafely(nDamageNumVfx);
+            }
+        }
         int nv = Math.Max(0, d.Current - amount);
         if (nv == d.Current)
         {
@@ -342,6 +367,19 @@ public static class ResistanceSystem
             return;
         }
         ResistanceData d = GetData(c);
+        Node vfxContainer = c.GetVfxContainer();
+        NHealNumVfx nDamageNumVfx = NHealNumVfx.Create(c, amount);
+        if (nDamageNumVfx != null)
+        {
+            if (vfxContainer != null)
+            {
+                vfxContainer.AddChildSafely(nDamageNumVfx);
+            }
+            else
+            {
+                NRun.Instance.GlobalUi.AddChildSafely(nDamageNumVfx);
+            }
+        }
         int nv = Math.Min(d.Max, d.Current + amount);
         if (nv == d.Current)
         {
@@ -408,7 +446,7 @@ public static class ResistanceSystem
         }
         d.Burning = true;
         SyncVisuals(c, d);
-        await ReedAttachCmd.Burnt(new ThrowingPlayerChoiceContext(),c);
+        await ReedAttachCmd.Burnt(new ThrowingPlayerChoiceContext(),c,triggerByBurning:true);
     }
 
     /// <summary>退出燃烧状态：条回蓝，停止火焰。</summary>

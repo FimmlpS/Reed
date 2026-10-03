@@ -22,12 +22,14 @@ public class FireBurnt
         _times = fireBurnt.Times;
     }
 
+    /// <summary>伤害倍率，乘算</summary>
     public FireBurnt ModifyBlv(decimal blv)
     {
-        _blv += blv;
+        _blv *= blv;
         return this;
     }
 
+    /// <summary>爆发次数，加算</summary>
     public FireBurnt ModifyTimes(int times)
     {
         _times += times;

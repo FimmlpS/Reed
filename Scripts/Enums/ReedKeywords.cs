@@ -28,4 +28,8 @@ public class ReedKeywords
     [CustomEnum("UNYIELDING")]
     [KeywordProperties(AutoKeywordPosition.Before)]
     public static CardKeyword Unyielding;
+
+    [CustomEnum("IGNITE")]
+    [KeywordProperties(AutoKeywordPosition.None)]
+    public static CardKeyword Ignite;
 }

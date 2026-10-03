@@ -5,5 +5,17 @@
 
     "REED-AS_TORCH_POWER.title":"如矩",
     "REED-AS_TORCH_POWER.description":"下次进入[red]燃烧状态[/red]时，[gold]火花牌[/gold]额外爆发1次。",
-    "REED-AS_TORCH_POWER.smartDescription":"下次进入[red]燃烧状态[/red]时，[gold]火花牌[/gold]额外爆发{Amount}次。"
+    "REED-AS_TORCH_POWER.smartDescription":"下次进入[red]燃烧状态[/red]时，[gold]火花牌[/gold]额外爆发{Amount}次。",
+
+    "REED-HER_FLAME_POWER.title":"她的火焰",
+	"REED-HER_FLAME_POWER.description":"每当你[gold]消耗[/gold]一张牌，对随机敌人[gold]灼烧[/gold]1，优先选择未燃烧的敌人。",
+    "REED-HER_FLAME_POWER.smartDescription":"每当你[gold]消耗[/gold]一张牌，对随机敌人[gold]灼烧[/gold]{Amount}，优先选择未燃烧的敌人。",
+
+    "REED-CURSE_HEAL_POWER.title":"咒愈",
+	"REED-CURSE_HEAL_POWER.description":"当你的牌造成伤害时，获得伤害量25％的[gold]格挡[/gold]。",
+    "REED-CURSE_HEAL_POWER.smartDescription":"当你的牌造成伤害时，获得伤害量{Amount}*25％的[gold]格挡[/gold]。",
+
+    "REED-CHASE_FIRE_POWER.title":"逐火",
+	"REED-CHASE_FIRE_POWER.description":"将火花牌上限提升至4。\n你[gold]灼烧[/gold]处于[red]燃烧状态[/red]的敌人时，使其所有火花牌提升等量伤害。",
+    "REED-CHASE_FIRE_POWER.smartDescription":"将火花牌上限提升至4。\n你[gold]灼烧[/gold]处于[red]燃烧状态[/red]的敌人时，使其所有火花牌提升{Amount}*等量伤害。"
 }

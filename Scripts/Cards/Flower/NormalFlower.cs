@@ -31,10 +31,7 @@ public class NormalFlower : AbstractReedCard, IFireFlower
     {
         for(int i = 0; i < fireBurnt.Times; i++)
         {
-            await DamageCmd.Attack(DynamicVars.Damage.BaseValue * fireBurnt.Blv)
-            .FromCard(this,null)
-            .Targeting(fireBurnt.Target)
-            .Execute(playerChoiceContext);
+            await CreatureCmd.Damage(playerChoiceContext,fireBurnt.Target,DynamicVars.Damage.BaseValue * fireBurnt.Blv,ValueProp.Unpowered,Owner.Creature,this,null);
         }
     }
 

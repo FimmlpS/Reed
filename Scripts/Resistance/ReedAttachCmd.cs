@@ -10,6 +10,7 @@ using MegaCrit.Sts2.Core.Entities.Creatures;
 using MegaCrit.Sts2.Core.Entities.Players;
 using MegaCrit.Sts2.Core.GameActions.Multiplayer;
 using MegaCrit.Sts2.Core.Localization;
+using MegaCrit.Sts2.Core.Localization.DynamicVars;
 using MegaCrit.Sts2.Core.Models;
 using Reed.Scripts.Nodes;
 using MegaCrit.Sts2.Core.Models.Cards;
@@ -26,6 +27,8 @@ namespace Reed.Scripts.Resistance;
 ///      （触发各自 <see cref="IFireFlower.OnRemoved"/> 并 <see cref="ResistanceSystem.RemoveSpark"/>，
 ///      卡行消散动画随事件播放），再【改为 attach 一张进阶后的卡】。因为每合并一次目标上的火花净减少一张，
 ///      循环必然终止，因此可支持 A→B→C 链式进阶，直到不再触发。
+///      <br/>进阶时结算“额外伤害继承”：三张参与合体的牌里，凡伤害被养到高于模板（ModelDb 同 Id 规范卡）
+///      的部分都会被累加，写进进阶后的那张牌（见 <see cref="ExcessDamageOf"/>），加成不白费。
 /// </para>
 /// <para>
 ///   2) 上限判断：若该火花组已满，循环 await <see cref="CardSelectCmd.FromSimpleGrid"/> 让玩家从
@@ -100,6 +103,15 @@ public static class ReedAttachCmd
                 break;
             }
 
+            // 结算“额外伤害继承”：参与本次合体的三张牌（目标上已有的 N 张 + 即将 attach 的这张）里，
+            // 凡是伤害 BaseValue 高于其模板（ModelDb 里同 Id 的规范卡）的，把高出的部分全部累加起来，
+            // 一并加到进阶后的那张牌上（谁被 ChaseFirePower 之类养出来的伤害都不会白费）。
+            decimal carried = ExcessDamageOf(toAttach);
+            foreach (CardModel existing in sameId)
+            {
+                carried += ExcessDamageOf(existing);
+            }
+
             // 把这 N 张已有火花取下（触发各自的 OnRemoved + RemoveSpark → 卡行消散动画）。
             // “即将 attach”的那一张还从未挂上去，无需 RemoveSpark，直接随本次不 attach 而作废。
             foreach (CardModel existing in sameId)
@@ -118,6 +130,7 @@ public static class ReedAttachCmd
             {
                 break; // 非战斗等极端情况无法实例化：终止进阶
             }
+            AddDamage(upper, carried); // 继承来的额外伤害写进进阶卡（同样计入下一轮链式进阶的基准）
             toAttach = upper;
         }
 
@@ -149,24 +162,38 @@ public static class ReedAttachCmd
         }
     }
 
-    public static async Task Burnt(PlayerChoiceContext? choiceContext, Creature target)
+    public static async Task Burnt(PlayerChoiceContext? choiceContext, Creature target, decimal blv = 1m, int times = 1, bool triggerByBurning = false)
     {
+        if(choiceContext == null)
+        {
+            choiceContext = new ThrowingPlayerChoiceContext();
+        }
         foreach(Player owner in target.CombatState?.Players??[])
         {
-            await Burnt(choiceContext, owner, target);
+            await Burnt(choiceContext, owner, target, blv, times, triggerByBurning);
+        }
+        foreach(AbstractModel model in target.CombatState?.IterateHookListeners() ?? [])
+        {
+            if(model is IFireFlowerSubscriber sub)
+            {
+                await sub.AfterAllBurnt(choiceContext, target, triggerByBurning);
+            }
         }
     }
 
-    public static async Task Burnt(PlayerChoiceContext? choiceContext, Player owner, Creature target)
+    public static async Task Burnt(PlayerChoiceContext? choiceContext, Player owner, Creature target, decimal blv = 1m, int times = 1, bool triggerByBurning = false)
     {
+        if(choiceContext == null)
+        {
+            choiceContext = new ThrowingPlayerChoiceContext();
+        }
         foreach(CardModel card in ResistanceSystem.SparksOf(target, owner))
         {
-            await Burnt(choiceContext, card, target);
+            await Burnt(choiceContext, card, target, blv, times, triggerByBurning);
         }
-        
     }
 
-    public static async Task Burnt(PlayerChoiceContext? choiceContext, CardModel card, Creature target)
+    public static async Task Burnt(PlayerChoiceContext? choiceContext, CardModel card, Creature target, decimal blv = 1m, int times = 1, bool triggerByBurning = false)
     {
         if(choiceContext == null)
         {
@@ -175,13 +202,13 @@ public static class ReedAttachCmd
         if(card is IFireFlower flower)
         {
             ReedAttachVfx.Play(target, card);
-            FireBurnt burnt = new FireBurnt(target);
+            FireBurnt burnt = new FireBurnt(target, blv, times);
             List<IFireFlowerSubscriber> modifiers = new List<IFireFlowerSubscriber>();
-            foreach(AbstractModel model in card.CombatState?.IterateHookListeners() ?? [])
+            foreach(AbstractModel model in target.CombatState?.IterateHookListeners() ?? [])
             {
                 if(model is IFireFlowerSubscriber sub)
                 {
-                    FireBurnt tmpBurnt = sub.ModifyBurnt(card, burnt);
+                    FireBurnt tmpBurnt = sub.ModifyBurnt(card, burnt, triggerByBurning);
                     if(tmpBurnt != burnt)
                     {
                         modifiers.Add(sub);
@@ -191,10 +218,10 @@ public static class ReedAttachCmd
             }
             foreach(IFireFlowerSubscriber sub in modifiers)
             {
-                await sub.AfterModifyBurnt(choiceContext, card, burnt);
+                await sub.AfterModifyBurnt(choiceContext, card, burnt, triggerByBurning);
             }
             await flower.OnBurnt(choiceContext, burnt); // 引爆：火花自带的“燃烧/迸发”效果
-            foreach(AbstractModel model in card.CombatState?.IterateHookListeners() ?? [])
+            foreach(AbstractModel model in target.CombatState?.IterateHookListeners() ?? [])
             {
                 if(model is IFireFlowerSubscriber sub)
                 {
@@ -206,6 +233,122 @@ public static class ReedAttachCmd
         {
             
         }
+    }
+
+    /// <summary>
+    /// 直接把目标生物（<paramref name="owner"/> 名下）身上的【一张】火花牌替换成它的进阶形态
+    /// （<see cref="IFireFlower.GetUpperCard"/>），不要求“攒够 3 张”才合体。典型用途：某些效果让单张
+    /// 火花原地“开花”。额外伤害同样会继承（见 <see cref="ExcessDamageOf"/>）。
+    /// 流程：取上级卡 → 物化副本 → 继承伤害 → 取下旧卡（OnRemoved + RemoveSpark）→ 挂上新卡
+    /// （GiveSpark + OnAttached，计数圆闪烁 / Attach 特效照常播放）。先取后挂，因此不会撞上限。
+    /// </summary>
+    /// <returns>进阶后的那张新火花；不可进阶/未找到该火花时返回 null。</returns>
+    public static async Task<CardModel?> UpgradeSpark(PlayerChoiceContext? choiceContext, Creature target, CardModel spark)
+    {
+        if (spark == null || target == null || target.CurrentHp <= 0)
+        {
+            return null;
+        }
+
+        Player? owner = ResolveSparkOwner(choiceContext, spark, target);
+        if (owner == null)
+        {
+            GD.PushWarning("[ReedAttachCmd] 无法判定火花牌的归属玩家，进阶被跳过。");
+            return null;
+        }
+
+        // 必须确实是挂在该目标身上、且属于该玩家的那颗火花：优先引用相等，退而求其次按 Id（调用方传了规范卡时）。
+        CardModel? attached = ResistanceSystem.SparksOf(target, owner).FirstOrDefault(
+            s => ReferenceEquals(s, spark) || (!spark.IsMutable && s.Id == spark.Id));
+        if (attached == null)
+        {
+            GD.PushWarning($"[ReedAttachCmd] 目标身上没有找到这张火花 {spark.Id}，进阶被跳过。");
+            return null;
+        }
+        if (attached is not IFireFlower fire)
+        {
+            return null; // 这张火花没有进阶形态
+        }
+        CardModel? upperTemplate = fire.GetUpperCard();
+        if (upperTemplate == null)
+        {
+            return null;
+        }
+
+        CardModel? upper = MaterializeSpark(upperTemplate, owner, target);
+        if (upper == null)
+        {
+            return null;
+        }
+        AddDamage(upper, ExcessDamageOf(attached)); // 继承旧卡被养出来的额外伤害
+
+        // 取下旧卡（OnRemoved + RemoveSpark → 卡行消散动画），再挂上新卡（GiveSpark → 计数圆闪烁 + Attach 特效）。
+        await fire.OnRemoved(choiceContext!, target);
+        ResistanceSystem.RemoveSpark(target, owner, attached);
+        if (!ResistanceSystem.GiveSpark(target, owner, upper))
+        {
+            return null;
+        }
+        if (upper is IFireFlower upgraded)
+        {
+            await upgraded.OnAttached(choiceContext!, target);
+        }
+        return upper;
+    }
+
+    // ============ 额外伤害继承 ============
+
+    /// <summary>
+    /// 火花牌可能承载“伤害”的动态变量名，优先级与 <c>ChaseFirePower.BeforeBurn</c> 一致：
+    /// 结算伤害的卡优先用 CalculatedDamage，其次是常规 Damage，最后是 OstyDamage。
+    /// </summary>
+    private static readonly string[] DamageVarKeys = { "CalculatedDamage", "Damage", "OstyDamage" };
+
+    /// <summary>取出这张卡“实际用来结算伤害”的那个动态变量；三种都没有则返回 null。</summary>
+    private static DynamicVar? FindDamageVar(CardModel card)
+    {
+        foreach (string key in DamageVarKeys)
+        {
+            if (card.DynamicVars.TryGetValue(key, out DynamicVar? v) && v != null)
+            {
+                return v;
+            }
+        }
+        return null;
+    }
+
+    /// <summary>
+    /// 这张火花比其“模板伤害”高出来的部分。模板 = <c>ModelDb</c> 里同 Id 的规范卡（即
+    /// <c>ModelDb.Card&lt;T&gt;()</c> 那张）的伤害 <c>BaseValue</c>；不高于模板时返回 0。
+    /// 这样 ChaseFirePower 等效果的加成在合体/进阶时不会丢失。
+    /// </summary>
+    private static decimal ExcessDamageOf(CardModel card)
+    {
+        DynamicVar? own = FindDamageVar(card);
+        if (own == null)
+        {
+            return 0m;
+        }
+        CardModel? template = ModelDb.GetByIdOrNull<CardModel>(card.Id);
+        DynamicVar? baseVar = template == null ? null : FindDamageVar(template);
+        decimal delta = own.BaseValue - (baseVar?.BaseValue ?? 0m);
+        return delta > 0m ? delta : 0m;
+    }
+
+    /// <summary>把继承来的额外伤害加到目标卡上（加到该卡实际使用的那个伤害变量）。</summary>
+    private static bool AddDamage(CardModel card, decimal extra)
+    {
+        if (extra <= 0m)
+        {
+            return false;
+        }
+        DynamicVar? v = FindDamageVar(card);
+        if (v == null)
+        {
+            return false;
+        }
+        v.BaseValue += extra;
+        return true;
     }
 
     /// <summary>
@@ -265,7 +408,7 @@ public static class ReedAttachCmd
     }
 
     /// <summary>让玩家从目标上已 attach 的火花里选一张引爆（只选 1 张）。选择屏无法弹出时取最后一张作默认。</summary>
-    private static async Task<CardModel?> PickOneToBurst(PlayerChoiceContext? choiceContext, Creature target, Player owner)
+    public static async Task<CardModel?> PickOneToBurst(PlayerChoiceContext? choiceContext, Creature target, Player owner)
     {
         IReadOnlyList<CardModel> sparks = ResistanceSystem.SparksOf(target, owner);
         if (sparks.Count == 0)

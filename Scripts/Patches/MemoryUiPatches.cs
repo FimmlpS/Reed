@@ -103,6 +103,12 @@ internal sealed partial class MemoryPileButton : Control
     private int _shownCount = -1;
 
     /// <summary>
+    /// 当前战斗界面上的回忆按钮。追忆预览（<see cref="Memory.MemoryPreviewOverlay"/>）拿它定位
+    /// 「扇形环绕的圆心」——按钮不在场（不在战斗界面）时预览会退回被悬浮卡牌自身的位置。
+    /// </summary>
+    internal static MemoryPileButton? Instance { get; private set; }
+
+    /// <summary>
     /// 摆放：X 照抄**抽牌堆**（<c>combat_piles_container.tscn</c> 里它锚在左下角，offset 15~95），
     /// Y 照抄消耗牌堆并整体上移一格（offset -370 ~ -290）。
     ///
@@ -150,6 +156,8 @@ internal sealed partial class MemoryPileButton : Control
 
     public override void _Ready()
     {
+        Instance = this;
+
         _icon = new TextureRect
         {
             Name = "Icon",
@@ -170,6 +178,7 @@ internal sealed partial class MemoryPileButton : Control
         SetProcessUnhandledKeyInput(true);
 
         MemorySystem.MemoryChanged += OnMemoryChanged;
+        MemorySystem.Remembered += OnRemembered;
         MouseEntered += OnHoverStart;
         MouseExited += OnHoverEnd;
 
@@ -178,7 +187,12 @@ internal sealed partial class MemoryPileButton : Control
 
     public override void _ExitTree()
     {
+        if (ReferenceEquals(Instance, this))
+        {
+            Instance = null;
+        }
         MemorySystem.MemoryChanged -= OnMemoryChanged;
+        MemorySystem.Remembered -= OnRemembered;
         MouseEntered -= OnHoverStart;
         MouseExited -= OnHoverEnd;
         HideTip();
@@ -254,6 +268,26 @@ internal sealed partial class MemoryPileButton : Control
             return;
         }
         RefreshCount();
+    }
+
+    /// <summary>
+    /// 有牌被记进回忆：让它飞向本按钮（复刻原版「卡牌拖着轨迹飞进牌堆」的特效，见
+    /// <see cref="MemoryFlyVfx"/>）。
+    ///
+    /// <para>挂在**同步的** <see cref="MemorySystem.Remembered"/> 而不是
+    /// <see cref="MemorySystem.RememberedAsync"/>：这是纯表现，必须即发即忘 —— 那个事件会被 await，
+    /// 挂上去等于让回忆动画把出牌拖住。按钮只在战斗界面存在，而回忆只在战斗中记录，时机天然对得上；
+    /// 按钮又是特效的终点，起点存在与否它都最先知道。</para>
+    /// </summary>
+    private void OnRemembered(Player player, RememberedCard entry)
+    {
+        // 按钮显示的是本地玩家的回忆，飞卡也只飞本地玩家的：联机时队友打出的牌不该飞向我的图标。
+        Player? owner = ResolvePlayer();
+        if (owner != null && owner.NetId != player.NetId)
+        {
+            return;
+        }
+        MemoryFlyVfx.Play(player, entry);
     }
 
     /// <summary>还没拿到 <see cref="Bind"/> 的玩家时自己兜底找一次（出牌界面重建 / 读档进战斗都可能错过注入）。</summary>

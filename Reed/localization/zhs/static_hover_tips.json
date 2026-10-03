@@ -3,10 +3,12 @@
     "REED-ENHANCE.description":"如果你的[gold]坍缩[/gold]不低于当前生命值的：\n0％，获得[gold]虚无[/gold]\n50％，攻击和格挡值+2\n100％，升级\n200％，[purple]附魔：华彩[/purple]",
 
     "REED-RECALL.select.title":"追忆一张牌",
+    "REED-RECALL.select.round.title":"从[blue]第 {Round} 回合[/blue]的回忆中追忆一张牌",
     "REED-RECALL.pile.title":"回忆",
-    "REED-RECALL.pile.description":"本场战斗里你[gold]手动打出[/gold]过的牌。\n按回合归档，仅供查看。",
+    "REED-RECALL.pile.description":"本场战斗里你[gold]手动打出[/gold]过的牌。",
     "REED-RECALL.pile.hotkey":"快捷键：{Hotkey}",
     "REED-RECALL.pile.empty":"这场战斗还没有留下任何回忆。",
+    "REED-RECALL.pile.info":"回忆：本场战斗中你[gold]手动打出[/gold]过的牌，按回合归档。\n[gold]（点击卡牌可放大查看，点右侧刻度可跳到该回合）[/gold]",
     "REED-RECALL.round.header":"第 {Round} 回合",
     "REED-RECALL.sort.desc":"时间逆序",
     "REED-RECALL.sort.asc":"时间顺序",

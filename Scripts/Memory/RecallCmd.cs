@@ -67,6 +67,35 @@ public sealed class RecallCmd
     /// <summary>追忆选择屏的默认标题（key 见 Reed/localization/zhs/static_hover_tips.json）。</summary>
     private static LocString DefaultPrompt => new LocString("static_hover_tips", "REED-RECALL.select.title");
 
+    /// <summary>
+    /// 选择屏标题：默认带上「正在追忆第几回合」（玩家在选之前就知道这一屏给的是哪一回合的回忆）。
+    /// 带回合数的文案 key 若还没进 pck（没重导），就退回老的、不带回合数的 key —— 宁可少一句话，
+    /// 也不能让缺文案把整次追忆搞崩。
+    /// </summary>
+    private LocString PromptFor(int round)
+    {
+        if (_prompt != null)
+        {
+            return _prompt; // 卡牌自己指定了标题：尊重它
+        }
+
+        LocString? prompt = null;
+        try
+        {
+            prompt = LocString.GetIfExists("static_hover_tips", "REED-RECALL.select.round.title");
+        }
+        catch (Exception e)
+        {
+            GD.PushWarning($"[RecallCmd] 读取追忆标题失败：{e.Message}");
+        }
+        if (prompt == null)
+        {
+            return DefaultPrompt;
+        }
+        prompt.Add("Round", round);
+        return prompt;
+    }
+
     /// <summary>开始构造一次追忆。</summary>
     public static RecallCmd Recall(PlayerChoiceContext? choiceContext, Player player) => new(choiceContext, player);
 
@@ -163,8 +192,29 @@ public sealed class RecallCmd
         List<CardModel> cards = entries.Select(e => e.Card).ToList();
 
         // 只选 1 张；候选恰好 1 张时 FromSimpleGrid 会直接选中、免弹屏。
-        CardSelectorPrefs prefs = new CardSelectorPrefs(_prompt ?? DefaultPrompt, 1);
-        IEnumerable<CardModel> picked = await CardSelectCmd.FromSimpleGrid(context, cards, _player, prefs);
+        CardSelectorPrefs prefs = new CardSelectorPrefs(PromptFor(round), 1);
+        // 与 FromSimpleGrid 内部「是否真的要弹选择屏」同一条判断 —— 只有真弹屏期间才算「正在追忆」，
+        // 于是回忆界面（此间可打开）能把这一回合标成蓝色。
+        bool showsSelector = prefs.RequireManualConfirmation || cards.Count > prefs.MinSelect;
+        if (showsSelector)
+        {
+            RecallFocus.Begin(round, _player);
+        }
+
+        IEnumerable<CardModel> picked;
+        try
+        {
+            picked = await CardSelectCmd.FromSimpleGrid(context, cards, _player, prefs);
+        }
+        finally
+        {
+            // 选中 / 取消 / 抛异常都要收回标记，否则回忆界面上会一直留着一根蓝色刻度。
+            if (showsSelector)
+            {
+                RecallFocus.End();
+            }
+        }
+
         CardModel? selected = picked.FirstOrDefault();
         if (selected == null)
         {

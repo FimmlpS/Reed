@@ -66,6 +66,58 @@ public sealed class PlayerMemory
             return n;
         }
     }
+
+    /// <summary>
+    /// 这张牌（**引用相等**）所在的回忆回合数；它不在回忆里时返回 null。
+    ///
+    /// <para>回忆界面展示的就是 <see cref="RememberedCard.Card"/> 那个副本本身，所以把界面上/预览里
+    /// 拿到的 <see cref="CardModel"/> 直接丢进来即可得到「它属于第几回合」——追忆类卡牌据此把
+    /// 「上一回合」解释成「它所在回合的上一回合」（连锁）。</para>
+    /// </summary>
+    public int? RoundOf(CardModel? card)
+    {
+        if (card == null)
+        {
+            return null;
+        }
+        foreach ((int round, List<RememberedCard> entries) in _rounds)
+        {
+            for (int i = 0; i < entries.Count; i++)
+            {
+                if (ReferenceEquals(entries[i].Card, card))
+                {
+                    return round;
+                }
+            }
+        }
+        return null;
+    }
+
+    /// <summary>
+    /// 【便捷过滤器】取指定回合里**最新被添加**的至多 <paramref name="count"/> 张牌（按记录顺序倒着取，
+    /// 也就是同回合内最后打出的那几张），可选再叠一层 <paramref name="filter"/> 筛选卡牌本身。
+    ///
+    /// <para>追忆类卡牌的悬浮预览默认就用它：<c>memory.LatestCards(round, c =&gt; c.Type == CardType.Attack)</c>。
+    /// 回合桶不存在（没打过牌 / 还没到那个回合）时返回空列表，不创建桶。</para>
+    /// </summary>
+    public List<CardModel> LatestCards(int round, Func<CardModel, bool>? filter = null, int count = 5)
+    {
+        List<CardModel> result = new();
+        if (count <= 0)
+        {
+            return result;
+        }
+        IReadOnlyList<RememberedCard> entries = PeekRound(round);
+        for (int i = entries.Count - 1; i >= 0 && result.Count < count; i--)
+        {
+            CardModel? card = entries[i].Card;
+            if (card != null && (filter == null || filter(card)))
+            {
+                result.Add(card);
+            }
+        }
+        return result;
+    }
 }
 
 /// <summary>一场战斗里所有玩家的回忆（按 <see cref="MegaCrit.Sts2.Core.Entities.Players.Player.NetId"/> 区分）。</summary>

@@ -57,6 +57,12 @@
 	"REED-SPREAD.title":"蔓延",
 	"REED-SPREAD.description":"[gold]引爆[/gold]一张火花牌。\n{IfUpgraded:show:以150％伤害量}作用于所有敌人。",
 
+	"REED-BURN_ME.title":"照我以火",
+	"REED-BURN_ME.description":"造成{Damage:diff()}点伤害。\n从上一回合的回忆中[gold]追忆[/gold]一张攻击牌。",
+
+	"REED-BORN_FLOWER.title":"枯焰生花",
+	"REED-BORN_FLOWER.description":"获得{Block:diff()}点[gold]格挡[/gold]。\n从上一回合的回忆中[gold]追忆[/gold]一张技能牌。",
+
 	"UNCOMMON-RARE":"",
 
 	"REED-DYING_FIRE.title":"将熄的火",

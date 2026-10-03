@@ -18,6 +18,7 @@ using MegaCrit.Sts2.Core.Nodes.GodotExtensions;
 using MegaCrit.Sts2.Core.Nodes.Screens;
 using MegaCrit.Sts2.Core.Nodes.Screens.Capstones;
 using MegaCrit.Sts2.Core.Nodes.Screens.ScreenContext;
+using MegaCrit.Sts2.addons.mega_text;
 using Reed.Scripts.Enums;
 
 namespace Reed.Scripts.Memory;
@@ -66,43 +67,69 @@ internal sealed partial class MemoryPileScreen : Control, ICapstoneScreen, IScre
 
     // ---- 布局常量 ----
     private const float ViewLeft = 150f;       // 内容区左内缩（同 card_grid.tscn）
-    private const float ViewRight = 210f;      // 右侧留给刻度列 + 滚动条
+    /// <summary>
+    /// 右侧留给「刻度列 + 滚动条」的宽度。**必须容得下刻度的整条标签**（「第 12 回合」约 130px）：
+    /// 标签是画在刻度列里的，若列比标签窄，文字就会溢到卡牌区上 —— 那些溢出去的字**点不到**
+    /// （拾取只认控件自己的矩形），看着就像「回合按钮点不动」。
+    /// </summary>
+    private const float ViewRight = 330f;
     private const float ViewBottom = 130f;
     private const float HeaderTop = 20f;       // header 色带的上边距
     private const float HeaderHeight = 64f;
     private const float ViewTop = HeaderTop + HeaderHeight + 20f; // 内容从 header 下方开始
     private const float ScrollbarLeft = -100f; // 右对齐下的偏移（同 card_grid.tscn）
     private const float ScrollbarRight = -50f;
-    private const float TickColumnLeft = -186f;  // 刻度列本身很窄（避免抢视口右侧的点击）
-    private const float TickColumnRight = -112f; // 但标签可以往左溢出（Label 不裁剪文字）
+    private const float TickColumnLeft = -310f;  // 刻度列宽度：刻度线（14）+ 箭头空隙（18）+ 最长的「第 NN 回合」标签
+    private const float TickColumnRight = -112f;
     private const float SortButtonWidth = 250f;  // 与 deck 的排序按钮同尺寸
     private const float SortButtonHeight = 42f;
 
     private const float SectionGap = 54f;      // 回合区块间距
     private const float HeaderHeightInSection = 56f; // 回合标题行高
     private const float ContentPaddingTop = 24f;
-    private const float ContentPaddingBottom = 80f;
+
+    /// <summary>
+    /// 内容末尾的留白：底部说明条是**悬浮**在内容之上的（同原版），所以必须留够高度，
+    /// 让滚到底时最后一行卡牌停在说明条上方、而不是被它压住。
+    /// </summary>
+    private const float ContentPaddingBottom = 130f;
     private const float EmptyHintHeight = 60f;   // 空回忆提示语的行高
     private const float EmptyRoundHeight = 40f;  // 空回合区块（只有标题）的高度
 
     /// <summary>卡与卡之间的间距：与 <c>NCardGrid.CardPadding</c> 一致，观感才和 deck 一样。</summary>
     private const float CardPadding = 40f;
 
+    /// <summary>底部说明条的兜底文案（本地化 key 没进 pck 时用；格式同原版三个牌堆的 INFO）。</summary>
+    private const string DefaultInfoText =
+        "回忆：本场战斗中你[gold]手动打出[/gold]过的牌，按回合归档。\n"
+        + "[gold]（点击卡牌可放大查看，点右侧刻度可跳到该回合）[/gold]";
+
     /// <summary>一张卡缩放后的占位尺寸（<c>NCard.defaultSize * NCardHolder.smallScale</c>）。</summary>
     private static readonly Vector2 CardSize = NCard.defaultSize * NCardHolder.smallScale;
 
     private readonly struct Section
     {
-        public Section(int round, float y, int count)
+        public Section(int round, float y, int count, Label? header = null, ColorRect? line = null, bool empty = false)
         {
             Round = round;
             Y = y;
             Count = count;
+            Header = header;
+            Line = line;
+            Empty = empty;
         }
 
         public int Round { get; }
         public float Y { get; }      // 内容坐标系里的区块顶部
         public int Count { get; }
+
+        /// <summary>区块标题「第 N 回合」；「正在追忆哪一回合」变化时要就地重刷它的颜色，所以留个引用。</summary>
+        public Label? Header { get; }
+
+        /// <summary>标题下的分隔线（空回合没有）。</summary>
+        public ColorRect? Line { get; }
+
+        public bool Empty { get; }
     }
 
     // ---- 节点 ----
@@ -186,8 +213,10 @@ internal sealed partial class MemoryPileScreen : Control, ICapstoneScreen, IScre
         BuildScrollbar();
         BuildTicks();
         BuildBackButton();
+        BuildBottomTip();
 
         MemorySystem.MemoryChanged += OnMemoryChanged;
+        RecallFocus.Changed += OnRecallFocusChanged;
 
         Resized += Rebuild;
         _viewport.Resized += Rebuild;
@@ -198,6 +227,7 @@ internal sealed partial class MemoryPileScreen : Control, ICapstoneScreen, IScre
     public override void _ExitTree()
     {
         MemorySystem.MemoryChanged -= OnMemoryChanged;
+        RecallFocus.Changed -= OnRecallFocusChanged;
     }
 
     public void AfterCapstoneOpened()
@@ -309,7 +339,9 @@ internal sealed partial class MemoryPileScreen : Control, ICapstoneScreen, IScre
         _viewport.OffsetLeft = ViewLeft;
         _viewport.OffsetTop = ViewTop;
         _viewport.OffsetRight = -ViewRight;
-        _viewport.OffsetBottom = -ViewBottom;
+        // 一直铺到屏幕底边：原版的 CardGrid 也是「顶边留 80、底边不留」，底部说明条只是浮在卡牌之上。
+        // 之前这里留了 ViewBottom 的空白，下方的卡牌区域够不到屏幕底部，看着像没对齐、最后一行也容易被裁掉。
+        _viewport.OffsetBottom = 0f;
         _viewport.GuiInput += OnViewportInput;
         this.AddChildSafely(_viewport);
 
@@ -373,6 +405,115 @@ internal sealed partial class MemoryPileScreen : Control, ICapstoneScreen, IScre
         _backButton.Connect(NClickableControl.SignalName.Released, Callable.From<NButton>(_ => NCapstoneContainer.Instance?.Close()));
         this.AddChildSafely(_backButton);
         _backButton.Enable();
+    }
+
+    /// <summary>
+    /// 底部说明条：和抽牌堆/弃牌堆界面一样，用一句话告诉玩家这个界面是干什么的。
+    ///
+    /// <para>**悬浮**在内容之上：它是根节点的**兄弟**节点（不参与内容布局），底部锚定（anchors 0.5/1），
+    /// 于是卡牌区（<c>_viewport</c>）可以一直铺到屏幕底边，说明条只是盖在它上面 —— 与抽牌堆/弃牌堆界面
+    /// 的观感一致（那里的 CardGrid 也是直接铺到屏幕底、说明条浮在卡上）。</para>
+    ///
+    /// <para>节点结构与 <c>card_pile_screen.tscn</c> 的 <c>BottomText</c> 一字不差：底部居中（anchors 0.5/1）、
+    /// 黑底 75% <see cref="ColorRect"/> + 内缩 16/6 的 <see cref="MarginContainer"/> + 居中的
+    /// <see cref="MegaRichTextLabel"/>（kreon 22、cream、阴影 3/2、行距 -3；<c>[gold]</c> 靠它注册的自定义
+    /// bbcode 特效着色，用普通 <see cref="RichTextLabel"/> 会丢掉金色）。</para>
+    ///
+    /// <para><c>GrowHorizontal = Both</c> 是关键：文案比初始的 124px 宽时，容器以中心为基准向两边长开，
+    /// 黑色条才真的包住文字并保持居中（同原版 <c>grow_horizontal = 2</c>）。全部节点 MouseFilter = Ignore，
+    /// 不抢下方区域的输入。</para>
+    /// </summary>
+    private void BuildBottomTip()
+    {
+        MarginContainer bottomText = new()
+        {
+            Name = "BottomText",
+            MouseFilter = MouseFilterEnum.Ignore,
+            AnchorLeft = 0.5f,
+            AnchorTop = 1f,
+            AnchorRight = 0.5f,
+            AnchorBottom = 1f,
+            OffsetLeft = -62f,
+            OffsetTop = -57f,
+            OffsetRight = 62f,
+            OffsetBottom = -17f,
+            GrowHorizontal = GrowDirection.Both,
+            GrowVertical = GrowDirection.Begin,
+        };
+        this.AddChildSafely(bottomText);
+
+        ColorRect background = new()
+        {
+            Name = "ColorRect",
+            Color = new Color(0f, 0f, 0f, 0.752941f),
+            MouseFilter = MouseFilterEnum.Ignore,
+        };
+        bottomText.AddChildSafely(background);
+
+        MarginContainer padding = new()
+        {
+            Name = "MarginContainer",
+            MouseFilter = MouseFilterEnum.Ignore,
+        };
+        padding.AddThemeConstantOverride("margin_left", 16);
+        padding.AddThemeConstantOverride("margin_top", 6);
+        padding.AddThemeConstantOverride("margin_right", 16);
+        padding.AddThemeConstantOverride("margin_bottom", 6);
+        bottomText.AddChildSafely(padding);
+
+        // 必须是原版的 MegaRichTextLabel（card_pile_screen.tscn 的 BottomLabel 挂的就是它）：
+        // 自定义 bbcode 特效（[gold] 等）由它在 CustomEffects 里注册，普通 RichTextLabel 只会把
+        // [gold] 当未知标签忽略掉 —— 这就是之前 tip 里 [gold] 不生效的原因；顺带它还按语言换字体
+        // （中文会换成 CJK 字体）。注意它的 _Ready 里会 AssertThemeFontOverride("normal_font")，
+        // 没有字体覆盖会直接抛异常，所以字体必须先设好再入树（下面的 AddChildSafely 在最后）。
+        MegaRichTextLabel label = new()
+        {
+            Name = "BottomLabel",
+            BbcodeEnabled = true,
+            FitContent = true,
+            // 原版同样关掉自动缩放（与 FitContent 互斥，开着会打警告并按内容改字号）。
+            AutoSizeEnabled = false,
+            ScrollActive = false,
+            AutowrapMode = TextServer.AutowrapMode.Off,
+            MouseFilter = MouseFilterEnum.Ignore,
+            // 同原版（size_flags = 4）：按内容收缩并在容器里居中，黑色条才刚好包住文字。
+            SizeFlagsHorizontal = SizeFlags.ShrinkCenter,
+            SizeFlagsVertical = SizeFlags.ShrinkCenter,
+        };
+        label.AddThemeFontOverride("normal_font", PreloadManager.Cache.GetAsset<Font>(KreonRegularPath));
+        label.AddThemeFontOverride("bold_font", PreloadManager.Cache.GetAsset<Font>(KreonBoldPath));
+        label.AddThemeFontSizeOverride("normal_font_size", 22);
+        label.AddThemeFontSizeOverride("bold_font_size", 22);
+        label.AddThemeFontSizeOverride("italics_font_size", 22);
+        label.AddThemeFontSizeOverride("bold_italics_font_size", 22);
+        label.AddThemeFontSizeOverride("mono_font_size", 22);
+        label.AddThemeColorOverride("default_color", StsColors.cream);
+        label.AddThemeColorOverride("font_shadow_color", new Color(0f, 0f, 0f, 0.25098f));
+        label.AddThemeConstantOverride("shadow_offset_x", 3);
+        label.AddThemeConstantOverride("shadow_offset_y", 2);
+        label.AddThemeConstantOverride("line_separation", -3);
+        // 放在字体之后：MegaRichTextLabel.Text 的 setter 会顺带装特效 / 解析 bbcode。
+        // [center] 不加闭合标签 → 整段（含换行后的第二行）都居中，同原版 NCardPileScreen 的写法。
+        label.Text = "[center]" + LocOrDefault("REED-RECALL.pile.info", DefaultInfoText);
+        padding.AddChildSafely(label);
+
+        // 入树之后再确认一遍整棵说明条都不参与鼠标拾取：它浮在内容/刻度之上，
+        // 只要有一层是默认的 Stop，就会挡住下方 UI 的点击（原版那一行就是默认 Stop，
+        // 那里下面没有可点的东西所以无所谓；我们这里下面有刻度，不能不管）。
+        MakeMouseTransparent(bottomText);
+    }
+
+    /// <summary>把一棵子树上的所有 <see cref="Control"/> 都设成 <c>Ignore</c>（不接收、也不阻挡鼠标事件）。</summary>
+    private static void MakeMouseTransparent(Node node)
+    {
+        if (node is Control control)
+        {
+            control.MouseFilter = MouseFilterEnum.Ignore;
+        }
+        foreach (Node child in node.GetChildren())
+        {
+            MakeMouseTransparent(child);
+        }
     }
 
     private void OnMemoryChanged(Player player)
@@ -468,6 +609,9 @@ internal sealed partial class MemoryPileScreen : Control, ICapstoneScreen, IScre
             rounds.Reverse(); // 新 → 旧（默认）
         }
 
+        // 「正在追忆的回合」在整屏只算一次：区块标题与刻度列共用同一个值（两处必须一致）。
+        int? focusRound = RecallRound();
+
         float y = ContentPaddingTop;
         foreach (int round in rounds)
         {
@@ -476,7 +620,7 @@ internal sealed partial class MemoryPileScreen : Control, ICapstoneScreen, IScre
             {
                 items = items.Reverse().ToList(); // 同一回合内也按时间顺序
             }
-            y = BuildSection(round, items, y, width, round == _currentRound);
+            y = BuildSection(round, items, y, width, round == _currentRound, round == focusRound);
         }
 
         _contentHeight = y + ContentPaddingBottom;
@@ -492,8 +636,38 @@ internal sealed partial class MemoryPileScreen : Control, ICapstoneScreen, IScre
         _content.Size = new Vector2(width, _contentHeight);
         _content.Position = new Vector2(0f, _scroll);
 
-        _ticks?.SetSections(_sections, _currentRound, _contentHeight);
+        _ticks?.SetSections(_sections, _currentRound, _contentHeight, focusRound);
         ClampScroll();
+    }
+
+    /// <summary>
+    /// 正在被追忆的回合（追忆选择屏开着时才有值），用于把那一回合的刻度标成蓝色。
+    /// 不是本地玩家在追忆就是 null（多人下别人的追忆不该点亮你的回忆界面）。
+    /// </summary>
+    private int? RecallRound() => RecallFocus.RoundFor(ResolvePlayer());
+
+    /// <summary>
+    /// 追忆开始 / 结束：回忆的**内容**没变（变化的只是「哪一回合正在被追忆」），所以不重建卡牌，
+    /// 只把刻度列重画一遍 + 就地重刷各区块标题的颜色即可。
+    /// </summary>
+    private void OnRecallFocusChanged()
+    {
+        int? focusRound = RecallRound();
+        foreach (Section section in _sections)
+        {
+            if (section.Header is { } header && GodotObject.IsInstanceValid(header))
+            {
+                ApplyHeaderStyle(header, section.Round == _currentRound, section.Round == focusRound, section.Empty);
+            }
+            if (section.Line is { } line && GodotObject.IsInstanceValid(line))
+            {
+                line.Color = HeaderLineColor(section.Round == _currentRound, section.Round == focusRound);
+            }
+        }
+        if (_ticks != null && GodotObject.IsInstanceValid(_ticks))
+        {
+            _ticks.SetSections(_sections, _currentRound, _contentHeight, focusRound);
+        }
     }
 
     /// <summary>界面拿到的玩家：优先用打开时传入的，没有就自己兜底找一次（读档 / 重建场景都可能漏传）。</summary>
@@ -507,10 +681,8 @@ internal sealed partial class MemoryPileScreen : Control, ICapstoneScreen, IScre
     }
 
     /// <summary>构建一个回合区块（标题 + 分隔线 + 若干行卡牌），返回下一个区块的顶部 y。</summary>
-    private float BuildSection(int round, IReadOnlyList<RememberedCard> items, float y, float width, bool isCurrent)
+    private float BuildSection(int round, IReadOnlyList<RememberedCard> items, float y, float width, bool isCurrent, bool isFocused)
     {
-        _sections.Add(new Section(round, y, items.Count));
-
         bool empty = items.Count == 0;
         float headerHeight = empty ? EmptyRoundHeight : HeaderHeightInSection;
 
@@ -524,24 +696,26 @@ internal sealed partial class MemoryPileScreen : Control, ICapstoneScreen, IScre
         label.Position = new Vector2(4f, y);
         label.Size = new Vector2(width, headerHeight - 10f);
         // 空回合不抢眼：只用暗淡的标题交代「这个回合存在，只是没留下回忆」。
-        ApplyHeaderStyle(label, isCurrent, empty);
+        ApplyHeaderStyle(label, isCurrent, isFocused, empty);
         _content.AddChildSafely(label);
 
         if (empty)
         {
+            _sections.Add(new Section(round, y, 0, label, null, true));
             return y + headerHeight + SectionGap;
         }
 
-        // 标题下的金色分隔线
+        // 标题下的分隔线（颜色跟标题一致：追忆中的回合是蓝色）
         ColorRect line = new ColorRect
         {
             Name = $"Round{round}Line",
-            Color = new Color(StsColors.gold, isCurrent ? 0.55f : 0.25f),
+            Color = HeaderLineColor(isCurrent, isFocused),
             MouseFilter = MouseFilterEnum.Ignore,
         };
         line.Position = new Vector2(4f, y + HeaderHeightInSection - 10f);
         line.Size = new Vector2(Mathf.Max(0f, width - 8f), 2f);
         _content.AddChildSafely(line);
+        _sections.Add(new Section(round, y, items.Count, label, line));
 
         float cardW = CardSize.X;
         float cardH = CardSize.Y;
@@ -655,13 +829,27 @@ internal sealed partial class MemoryPileScreen : Control, ICapstoneScreen, IScre
         }
     }
 
-    private static void ApplyHeaderStyle(Label label, bool isCurrent, bool empty = false)
+    /// <summary>标题下分隔线的颜色：与标题同步 —— 追忆中的回合蓝、当前回合金、其余淡金。</summary>
+    private static Color HeaderLineColor(bool isCurrent, bool isFocused)
     {
+        return new Color(isFocused ? StsColors.blue : StsColors.gold, isCurrent || isFocused ? 0.55f : 0.25f);
+    }
+
+    /// <summary>
+    /// 回合标题样式。<paramref name="isFocused"/>（正在被追忆的回合）用蓝色、<paramref name="isCurrent"/>
+    /// （当前回合）用金色 —— 与右侧刻度列同一套规则，**蓝色优先**（追忆的正好是当前回合时蓝色覆盖金色）。
+    /// </summary>
+    private static void ApplyHeaderStyle(Label label, bool isCurrent, bool isFocused, bool empty = false)
+    {
+        bool emphasized = isCurrent || isFocused;
         label.AddThemeFontOverride("font", PreloadManager.Cache.GetAsset<Font>(KreonBoldPath));
-        label.AddThemeFontSizeOverride("font_size", empty ? 28 : isCurrent ? 36 : 32);
+        label.AddThemeFontSizeOverride("font_size", emphasized ? 36 : empty ? 28 : 32);
         label.AddThemeColorOverride(
             "font_color",
-            empty ? new Color(StsColors.cream, 0.4f) : isCurrent ? StsColors.gold : StsColors.cream);
+            isFocused ? StsColors.blue
+            : isCurrent ? StsColors.gold
+            : empty ? new Color(StsColors.cream, 0.4f)
+            : StsColors.cream);
         label.AddThemeColorOverride("font_outline_color", new Color(0f, 0f, 0f, 0.7f));
         label.AddThemeConstantOverride("outline_size", 8);
         label.AddThemeColorOverride("font_shadow_color", new Color(0f, 0f, 0f, 0.25f));
@@ -786,6 +974,29 @@ internal sealed partial class MemoryPileScreen : Control, ICapstoneScreen, IScre
 
     // ============ 输入：拖动 / 滚轮 ============
 
+    /// <summary>
+    /// 滚轮 / 触控板滚动。挂在**整屏**上（不是视口）：视口只占屏幕中间一块，
+    /// 而玩家会理所当然地在刻度列、说明条、右侧空白处滚 —— 那些地方的滚轮事件顺着父链传到这里。
+    ///
+    /// <para>注意滚轮本身也是 <see cref="InputEventMouseButton"/>（<c>WheelUp</c>/<c>WheelDown</c>），
+    /// 所以**不能**交给 <see cref="HandleMouseButton"/>（它只认左键、顺带把滚轮一起吞掉）——
+    /// 这正是之前滚轮完全没反应的原因。</para>
+    /// </summary>
+    public override void _GuiInput(InputEvent @event)
+    {
+        if (_viewport == null || !GodotObject.IsInstanceValid(_viewport))
+        {
+            return;
+        }
+        float wheel = ScrollHelper.GetDragForScrollEvent(@event);
+        if (Mathf.IsZeroApprox(wheel))
+        {
+            return;
+        }
+        _targetScroll = Mathf.Clamp(_targetScroll + wheel, ScrollLimit, 0f);
+        AcceptEvent();
+    }
+
     private void OnViewportInput(InputEvent @event)
     {
         if (@event is InputEventMouseButton button)
@@ -797,13 +1008,6 @@ internal sealed partial class MemoryPileScreen : Control, ICapstoneScreen, IScre
         {
             _dragDistance += Mathf.Abs(motion.Relative.Y);
             _targetScroll = Mathf.Clamp(_dragStartScroll + (motion.Position.Y - _dragStartMouseY), ScrollLimit, 0f);
-            return;
-        }
-
-        float wheel = ScrollHelper.GetDragForScrollEvent(@event);
-        if (!Mathf.IsZeroApprox(wheel))
-        {
-            _targetScroll = Mathf.Clamp(_targetScroll + wheel, ScrollLimit, 0f);
         }
     }
 
@@ -870,6 +1074,9 @@ internal sealed partial class MemoryPileScreen : Control, ICapstoneScreen, IScre
     ///   <item>回合太多时自动抽稀：间隔 1 → 2 → 4 → 8 …，保证屏幕上大约 10 根刻度，方便快速跳转；</item>
     ///   <item>当前回合**永远显示**（即使它落在抽稀的间隔之外），用金色 + 更粗的刻度线 + 右侧圆点标出，
     ///     标签写成完整标题，箭头指向它自己那根刻度；</item>
+    ///   <item>**正在被追忆的回合**（<see cref="RecallFocus"/>，即追忆选择屏开着的那一会儿）用同样的方式
+    ///     标出，但换成**蓝色** —— 于是「我这次追的是哪一回合的牌」在回忆界面上一眼可见；它恰好就是当前回合时
+    ///     蓝色**覆盖**金色（蓝色优先）;</item>
     ///   <item>鼠标悬停：刻度线变长变粗、标签放大变亮（与按钮一致的「悬停放大」手感）；</item>
     ///   <item>点任意刻度 → 平滑滚到该回合区块。</item>
     /// </list>
@@ -896,6 +1103,10 @@ internal sealed partial class MemoryPileScreen : Control, ICapstoneScreen, IScre
         private readonly List<Label> _labels = new();
         private readonly List<Tween?> _labelTweens = new();
         private int _currentRound;
+
+        /// <summary>正在被追忆的回合（蓝色标出）；没在追忆时为 null。</summary>
+        private int? _focusRound;
+
         private float _contentHeight = 1f;
         private float _lastHeight = -1f;
         private bool _dirty = true;
@@ -909,8 +1120,11 @@ internal sealed partial class MemoryPileScreen : Control, ICapstoneScreen, IScre
             MouseExited += () => SetHovered(-1);
         }
 
-        /// <summary>重建刻度（回合集合 / 当前回合 / 内容总高变化时调用）。重复调用必须幂等。</summary>
-        public void SetSections(IReadOnlyList<Section> sections, int currentRound, float contentHeight)
+        /// <summary>
+        /// 重建刻度（回合集合 / 当前回合 / 内容总高 / 正在追忆的回合变化时调用）。重复调用必须幂等。
+        /// <paramref name="focusRound"/> 为 null 表示当前没有人在追忆。
+        /// </summary>
+        public void SetSections(IReadOnlyList<Section> sections, int currentRound, float contentHeight, int? focusRound)
         {
             _allRounds.Clear();
             _sectionYs.Clear();
@@ -920,6 +1134,7 @@ internal sealed partial class MemoryPileScreen : Control, ICapstoneScreen, IScre
                 _sectionYs.Add(section.Y);
             }
             _currentRound = currentRound;
+            _focusRound = focusRound;
             _contentHeight = Mathf.Max(contentHeight, 1f);
             _hovered = -1;
             SelectShownRounds();
@@ -929,7 +1144,10 @@ internal sealed partial class MemoryPileScreen : Control, ICapstoneScreen, IScre
             Refresh(Size.Y);
         }
 
-        /// <summary>抽稀：间隔 1/2/4/8…，让屏上刻度数不超过 <see cref="MaxVisibleTicks"/>，并保证当前回合在内。</summary>
+        /// <summary>
+        /// 抽稀：间隔 1/2/4/8…，让屏上刻度数不超过 <see cref="MaxVisibleTicks"/>，
+        /// 并保证**当前回合**与**正在追忆的回合**这两根一定在内（它们各有一段完整标题要显示）。
+        /// </summary>
         private void SelectShownRounds()
         {
             _shownRounds.Clear();
@@ -947,11 +1165,20 @@ internal sealed partial class MemoryPileScreen : Control, ICapstoneScreen, IScre
             {
                 _shownRounds.Add(_allRounds[i]);
             }
-            if (_currentRound > 0 && _allRounds.Contains(_currentRound) && !_shownRounds.Contains(_currentRound))
+            EnsureShown(_currentRound);
+            EnsureShown(_focusRound);
+        }
+
+        /// <summary>把某个回合插进显示列表（抽稀恰好滤掉它时用），插入后仍按原来的回合顺序排列。</summary>
+        private void EnsureShown(int? round)
+        {
+            if (round is not { } value || value <= 0
+                || !_allRounds.Contains(value) || _shownRounds.Contains(value))
             {
-                _shownRounds.Add(_currentRound);
-                _shownRounds.Sort((a, b) => _allRounds.IndexOf(a).CompareTo(_allRounds.IndexOf(b)));
+                return;
             }
+            _shownRounds.Add(value);
+            _shownRounds.Sort((a, b) => _allRounds.IndexOf(a).CompareTo(_allRounds.IndexOf(b)));
         }
 
         private void EnsureLabels()
@@ -991,14 +1218,14 @@ internal sealed partial class MemoryPileScreen : Control, ICapstoneScreen, IScre
                     continue;
                 }
                 int round = _shownRounds[i];
-                bool isCurrent = round == _currentRound;
+                bool emphasized = IsEmphasized(round);
                 bool hovered = i == _hovered;
-                // 当前回合写成完整标题（「第 N 回合」），滚动时一眼就能找到自己现在在哪。
-                _labels[i].Text = isCurrent ? RoundHeaderText(round) : round.ToString();
-                _labels[i].AddThemeFontSizeOverride("font_size", isCurrent ? 26 : 22);
+                // 当前回合 / 正在追忆的回合写成完整标题（「第 N 回合」），滚动时一眼就能找到自己现在在哪。
+                _labels[i].Text = emphasized ? RoundHeaderText(round) : round.ToString();
+                _labels[i].AddThemeFontSizeOverride("font_size", emphasized ? 26 : 22);
                 _labels[i].AddThemeColorOverride(
                     "font_color",
-                    isCurrent ? StsColors.gold : hovered ? StsColors.cream : new Color(StsColors.cream, 0.7f));
+                    emphasized ? EmphasisColor(round) : hovered ? StsColors.cream : new Color(StsColors.cream, 0.7f));
                 _labels[i].AddThemeConstantOverride("outline_size", hovered ? 8 : 6);
                 TweenLabelScale(i, hovered ? HoverLabelScale : 1f);
             }
@@ -1136,34 +1363,38 @@ internal sealed partial class MemoryPileScreen : Control, ICapstoneScreen, IScre
             // 区间带：本回合区块占用的篇幅（真实长短比例）
             for (int i = 0; i < n; i++)
             {
-                bool current = _shownRounds[i] == _currentRound;
-                Color band = current ? new Color(StsColors.gold, 0.35f) : new Color(StsColors.cream, 0.14f);
+                bool emphasized = IsEmphasized(_shownRounds[i]);
+                Color band = emphasized
+                    ? new Color(EmphasisColor(_shownRounds[i]), 0.35f)
+                    : new Color(StsColors.cream, 0.14f);
                 DrawRect(new Rect2(x1 - BandWidth, _ys[i], BandWidth, Mathf.Max(3f, _bandEnds[i] - _ys[i])), band);
             }
 
             for (int i = 0; i < n; i++)
             {
                 float y = _ys[i];
-                bool isCurrent = _shownRounds[i] == _currentRound;
+                bool emphasized = IsEmphasized(_shownRounds[i]);
+                Color emphasis = EmphasisColor(_shownRounds[i]);
                 bool hovered = i == _hovered;
-                Color color = isCurrent
-                    ? StsColors.gold
+                Color color = emphasized
+                    ? emphasis
                     : hovered ? StsColors.cream : new Color(StsColors.cream, 0.45f);
 
                 // 悬停放大：刻度线朝左伸长并加粗（标签的放大在 ApplyLabelStyle 里做）。
                 float length = TickHalfLength + (hovered ? HoverTickExtra : 0f);
-                float width = isCurrent ? 4f : hovered ? HoverTickWidth : 2f;
+                float width = emphasized ? 4f : hovered ? HoverTickWidth : 2f;
                 DrawLine(new Vector2(x1 - length, y), new Vector2(x1, y), color, width);
 
-                if (hovered && !isCurrent)
+                if (hovered && !emphasized)
                 {
                     DrawCircle(new Vector2(x1 - length, y), 4f, color);
                 }
 
-                if (isCurrent)
+                if (emphasized)
                 {
-                    DrawCircle(new Vector2(x1, y), 5f, StsColors.gold);
-                    // 「当前回合在这」的箭头：紧贴标签右侧，指向这根金色刻度（长度固定，悬停时不乱跳）。
+                    DrawCircle(new Vector2(x1, y), 5f, emphasis);
+                    // 「当前回合 / 正在追忆的回合在这」的箭头：紧贴标签右侧，指向这根刻度
+                    // （长度固定，悬停时不乱跳；颜色跟刻度一致 —— 追忆中就是蓝色）。
                     float ax = x1 - TickHalfLength - ArrowGap + 4f;
                     DrawColoredPolygon(
                         new[]
@@ -1172,10 +1403,19 @@ internal sealed partial class MemoryPileScreen : Control, ICapstoneScreen, IScre
                             new Vector2(ax, y + 7f),
                             new Vector2(ax + 11f, y),
                         },
-                        StsColors.gold);
+                        emphasis);
                 }
             }
         }
+
+        /// <summary>这根刻度要不要「重点标出」：当前回合（金）或正在被追忆的回合（蓝）。</summary>
+        private bool IsEmphasized(int round) => round == _currentRound || round == _focusRound;
+
+        /// <summary>
+        /// 重点刻度的颜色：正在追忆 → 蓝色（<see cref="StsColors.blue"/>）；
+        /// 否则是当前回合 → 金色。**蓝色优先**，于是「追忆的正好是当前回合」时蓝色覆盖金色。
+        /// </summary>
+        private Color EmphasisColor(int round) => round == _focusRound ? StsColors.blue : StsColors.gold;
 
         public override void _GuiInput(InputEvent @event)
         {

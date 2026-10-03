@@ -18,5 +18,11 @@
     "REED-UNYIELDING.description":"这张牌被消耗后，复制到你的手牌。",
 
     "REED-IGNITE.title":"引爆",
-    "REED-IGNITE.description":"触发爆发效果，然后将其移除。"
+    "REED-IGNITE.description":"触发爆发效果，然后将其移除。",
+
+    "REED-MEMORY.title":"回忆",
+    "REED-MEMORY.description":"你每[gold]手动打出[/gold]一张攻击牌、技能牌或能力牌，就将其留存一份复制。\n回忆按[gold]回合数[/gold]归档，仅在本场战斗内保留。",
+
+    "REED-RECALL.title":"追忆",
+    "REED-RECALL.description":"从回忆中选一张牌，打出其复制（视为[gold]自动打出[/gold]），并将其从回忆中移除。\n追忆打出的牌[gold]视为在被记住的那个回合打出[/gold]。"
 }

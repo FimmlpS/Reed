@@ -2,6 +2,15 @@
     "REED-ENHANCE.title":"增强说明",
     "REED-ENHANCE.description":"如果你的[gold]坍缩[/gold]不低于当前生命值的：\n0％，获得[gold]虚无[/gold]\n50％，攻击和格挡值+2\n100％，升级\n200％，[purple]附魔：华彩[/purple]",
 
+    "REED-RECALL.select.title":"追忆一张牌",
+    "REED-RECALL.pile.title":"回忆",
+    "REED-RECALL.pile.description":"本场战斗里你[gold]手动打出[/gold]过的牌。\n按回合归档，仅供查看。",
+    "REED-RECALL.pile.hotkey":"快捷键：{Hotkey}",
+    "REED-RECALL.pile.empty":"这场战斗还没有留下任何回忆。",
+    "REED-RECALL.round.header":"第 {Round} 回合",
+    "REED-RECALL.sort.desc":"时间逆序",
+    "REED-RECALL.sort.asc":"时间顺序",
+
     "REED-SPARK.title":"火花牌",
     "REED-SPARK.description":"这名生物当前有{SparkCount}张火花牌（上限为{SparkMax})。[red]燃烧状态[/red]下玩家每打出一张牌为其恢复1点抗性。",
     "REED-SPARK.burst-select.title":"引爆一张火花牌"

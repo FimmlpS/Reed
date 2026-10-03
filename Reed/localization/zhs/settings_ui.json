@@ -1,4 +1,8 @@
 {
     "REED.mod_title":"[明日方舟] 苇草",
-    "REED-CURRENT_SKIN.title":"选择当前皮肤"
+    "REED-CURRENT_SKIN.title":"选择当前皮肤",
+
+    "REED-MEMORY_TOGGLE_KEY.title":"回忆牌堆快捷键",
+    "REED-MEMORY_TOGGLE_KEY.hover.title":"回忆牌堆快捷键",
+    "REED-MEMORY_TOGGLE_KEY.hover.desc":"战斗中按这个键快速开关回忆牌堆界面，默认 R。\n填 Godot 的键名：R / M / F1 / Space …（改成一个没被占用的键即可）。"
 }

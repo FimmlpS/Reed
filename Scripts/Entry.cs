@@ -13,7 +13,7 @@ public class Entry
 
 	public static void Init()
 	{
-		//ModConfigRegistry.Register("Reed", new ReedModConfig());
+		ModConfigRegistry.Register("Reed", new ReedModConfig());
 
 		_harmony = new Harmony("sts2.fimmlps.reed");
 		//SINGLE

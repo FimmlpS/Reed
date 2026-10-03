@@ -32,4 +32,12 @@ public class ReedKeywords
     [CustomEnum("IGNITE")]
     [KeywordProperties(AutoKeywordPosition.None)]
     public static CardKeyword Ignite;
+
+    [CustomEnum("MEMORY")]
+    [KeywordProperties(AutoKeywordPosition.None)]
+    public static CardKeyword Memory;
+
+    [CustomEnum("RECALL")]
+    [KeywordProperties(AutoKeywordPosition.None)]
+    public static CardKeyword Recall;
 }

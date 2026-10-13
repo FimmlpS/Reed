@@ -25,6 +25,10 @@ public class AsTorchPower : AbstractReedPower, IFireFlowerSubscriber
 
     async Task IFireFlowerSubscriber.AfterAllBurnt(PlayerChoiceContext playerChoiceContext, Creature c, bool triggerByBurning)
     {
+        if (c != Owner)
+        {
+            return;
+        }
         if(triggerByBurning)
             await PowerCmd.ModifyAmount(playerChoiceContext, this, -Amount, Owner, null);
     }

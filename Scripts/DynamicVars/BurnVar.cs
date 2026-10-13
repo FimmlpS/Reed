@@ -28,6 +28,11 @@ public static class BurnExtensions
         return cardModel.CombatState.CreateCard<T>(cardModel.Owner);
     }
 
+    public static CardModel CreateFireFlower(this CardModel cardModel, CardModel source)
+    {
+        return cardModel.CombatState.CreateCard(source, cardModel.Owner);
+    }
+
     public static async Task<CardModel?> CreateInHand<T>(this CardModel card, Player? creator = null) where T : CardModel
     {
         return (await CreateInHand<T>(card, 1, creator)).FirstOrDefault();

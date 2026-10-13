@@ -4,6 +4,7 @@ using MegaCrit.Sts2.Core.Entities.Cards;
 using MegaCrit.Sts2.Core.GameActions.Multiplayer;
 using MegaCrit.Sts2.Core.Localization.DynamicVars;
 using MegaCrit.Sts2.Core.ValueProps;
+using Reed.Scripts.Helper;
 using Reed.Scripts.Pools;
 using Reed.Scripts.Resistance;
 
@@ -13,7 +14,7 @@ namespace Reed.Scripts.Cards.Flower;
 public class SplendidFlower : AbstractReedCard, IFireFlower
 {
     protected override IEnumerable<DynamicVar> CanonicalVars => [
-        new DamageVar(8, ValueProp.Unpowered),
+        new DamageVar(24, ValueProp.Unpowered),
         new CardsVar(2),
         new EnergyVar(1)
     ];
@@ -32,6 +33,7 @@ public class SplendidFlower : AbstractReedCard, IFireFlower
     {
         for(int i = 0; i < fireBurnt.Times; i++)
         {
+            ReedHelper.CreateFireFx(fireBurnt.Target);
             await CreatureCmd.Damage(playerChoiceContext,fireBurnt.Target,DynamicVars.Damage.BaseValue * fireBurnt.Blv,ValueProp.Unpowered,Owner.Creature,this,null);
         }
 

@@ -88,11 +88,13 @@ public sealed class ReedBurnBuilder
             {
                 if (_isBurn)
                 {
-                    await ResistanceSystem.Reduce(creature, _amount);
+                    // 带上出牌上下文：抗性归零会在 Reduce 内部进入燃烧状态，
+                    // 并把「进入燃烧」事件派发给订阅者（见 ResistanceSystem.EnterBurning）。
+                    await ResistanceSystem.Reduce(creature, _amount, choiceContext);
                 }
                 else
                 {
-                    await ResistanceSystem.Restore(creature, _amount);
+                    await ResistanceSystem.Restore(creature, _amount, choiceContext);
                 }
             }
             foreach(AbstractModel model in creature.CombatState?.IterateHookListeners() ?? [])

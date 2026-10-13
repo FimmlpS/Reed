@@ -8,11 +8,13 @@ using Reed.Scripts.DynamicVars;
 using Reed.Scripts.Cards.Flower;
 using MegaCrit.Sts2.Core.HoverTips;
 using Reed.Scripts.Enums;
+using BaseLib.Abstracts;
+using MegaCrit.Sts2.Core.Models;
 
 namespace Reed.Scripts.Cards.Skill;
 
 [Pool(typeof(ReedCardPool))]
-public class IgniteFire : AbstractReedCard
+public class IgniteFire : AbstractReedCard,ITranscendenceCard
 {
     protected override IEnumerable<DynamicVar> CanonicalVars => [
        
@@ -37,5 +39,10 @@ public class IgniteFire : AbstractReedCard
     protected override void OnUpgrade()
     {
         EnergyCost.UpgradeBy(-1);
+    }
+
+    CardModel ITranscendenceCard.GetTranscendenceTransformedCard()
+    {
+        return ModelDb.Card<IgniteLife>();
     }
 }

@@ -35,9 +35,30 @@
 	"REED-FORGE.description":"造成{Damage:diff()}点伤害。\n[gold]附着[/gold]一张[gold]基础[/gold]火花。\n增加此牌1点耗能。",
 
 	"REED-WAY_BACK.title":"归处",
-	"REED-WAY_BACK.description":"[gold]附着[/gold]一张[gold]映耀[/gold]火花。\n每当有一张火花牌爆发，这张牌下次打出的耗能减1。",
+	"REED-WAY_BACK.description":"[gold]附着[/gold]一张[gold]映耀[/gold]火花。\n每当有一张火花牌爆发，下次打出的耗能减1。",
+
+	"REED-OVERLOOK.title":"远眺",
+	"REED-OVERLOOK.description":"将{Cards:diff()}张[gold]防御+[/gold]记录到[blue]下一回合[/blue]的回忆，并从中[gold]追忆[/gold]一张牌。",
+
+	"REED-REGRET.title":"缺憾",
+	"REED-REGRET.description":"获得{Block:diff()}点[gold]格挡[/gold]。\n打出可以发起[gold]追忆[/gold]的牌后，从弃牌堆返回你的手牌。",
+
+	"REED-TIME_FIRE.title":"时之炎",
+	"REED-TIME_FIRE.description":"造成{CalculatedDamage:diff()}点伤害。\n[blue]当前回合[/blue]与实际回合每相差1，提升{ExtraDamage:diff()}点伤害。",
+
+	"REED-CANDLE_NIGHT.title":"烛夜",
+	"REED-CANDLE_NIGHT.description":"获得{Block:diff()}点[gold]格挡[/gold]。\n这张牌被记录到[gold]回忆[/gold]时，将一张[gold]焰光[/gold]加入手牌。",
+
+	"REED-SQUAMA.title":"逆鳞",
+	"REED-SQUAMA.description":"造成{CalculatedDamage:diff()}点伤害。\n将{Cards:diff()}张[gold]焰光[/gold]加入手牌。",
+
+	"REED-LIVING_ELEGY.title":"生灵挽歌",
+	"REED-LIVING_ELEGY.description":"打出期间获得[gold]咒愈[/gold]。\n[gold]灼烧[/gold]{Reed_Burn:diff()}。",
 
 	"COMMON-UNCOMMON":"",
+
+	"REED-BACKGROUND.title":"身世",
+	"REED-BACKGROUND.description":"抽{Cards:diff()}张牌。\n增加此牌1点耗能。\n从[blue]上一回合[/blue]的回忆中[gold]追忆[/gold]一张可以发起追忆的牌。",
 
 	"REED-HER_SHADOW.title":"她的影子",
 	"REED-HER_SHADOW.description":"对所有敌人[gold]灼烧[/gold]{Reed_Burn:diff()}。\n将{Cards:diff()}张[gold]焰影[/gold]放入手牌。",
@@ -58,10 +79,62 @@
 	"REED-SPREAD.description":"[gold]引爆[/gold]一张火花牌。\n{IfUpgraded:show:以150％伤害量}作用于所有敌人。",
 
 	"REED-BURN_ME.title":"照我以火",
-	"REED-BURN_ME.description":"造成{Damage:diff()}点伤害。\n从上一回合的回忆中[gold]追忆[/gold]一张攻击牌。",
+	"REED-BURN_ME.description":"造成{Damage:diff()}点伤害。\n从[blue]上一回合[/blue]的回忆中[gold]追忆[/gold]一张攻击牌。",
 
 	"REED-BORN_FLOWER.title":"枯焰生花",
-	"REED-BORN_FLOWER.description":"获得{Block:diff()}点[gold]格挡[/gold]。\n从上一回合的回忆中[gold]追忆[/gold]一张技能牌。",
+	"REED-BORN_FLOWER.description":"获得{Block:diff()}点[gold]格挡[/gold]。\n从[blue]上一回合[/blue]的回忆中[gold]追忆[/gold]一张技能牌。",
+
+	"REED-HEART_KNOT.title":"心结",
+	"REED-HEART_KNOT.description":"当你自动打出一张牌时，获得{HeartKnotPower:diff()}点[gold]格挡[/gold]。",
+
+	"REED-TO_DUST.title":"归尘",
+	"REED-TO_DUST.description":"将[gold]回忆[/gold]中每一回合各一张随机牌记录到[blue]当前回合[/blue]，并从中[gold]追忆[/gold]一张{IfUpgraded:show:攻击牌或}技能牌。",
+
+	"REED-CONSCIOUS.title":"识意",
+	"REED-CONSCIOUS.description":"若敌人的意图是攻击，降低其{StrengthPower:diff()}点[gold]力量[/gold]。\n自动打出时改为全体敌人。",
+
+	"REED-WITH_YOU.title":"与你同在",
+	"REED-WITH_YOU.description":"获得{CalculatedBlock:diff()}点[gold]格挡[/gold]。\n[gold]回忆[/gold]中[blue]当前回合[/blue]每有一张牌，额外获得{ExtraBlock:diff()}点[gold]格挡[/gold]。",
+
+	"REED-ASHLESS.title":"不烬",
+	"REED-ASHLESS.description":"造成{Damage:diff()}点伤害{Repeat:diff()}次。\n自动打出时随机攻击敌人，并额外造成{Repeat:diff()}次伤害。",
+
+	"REED-EMPEROR_TRAVEL.title":"列王行迹",
+	"REED-EMPEROR_TRAVEL.description":"从[blue]上一回合[/blue]的回忆中[gold]追忆[/gold]一张攻击牌。若打出攻击牌，追忆此牌（视为上一回合）。",
+
+	"REED-CRACK.title":"裂解",
+	"REED-CRACK.description":"造成{Damage:diff()}点伤害。\n抽{Cards:diff()}张牌。\n在接下来{Repeat:diff()}个回合的[gold]回忆[/gold]中记录此牌。",
+
+	"REED-RUINS.title":"残垣",
+	"REED-RUINS.description":"获得{Energy:energyIcons()}。\n在接下来{Repeat:diff()}个回合的[gold]回忆[/gold]中记录此牌。",
+
+	"REED-WRITE_HISTORY.title":"书写历史",
+	"REED-WRITE_HISTORY.description":"将任意张手牌丢弃并记录在[blue]当前回合[/blue]的[gold]回忆[/gold]。\n每张获得{Block:diff()}点[gold]格挡[/gold]。",
+
+	"REED-FROM_HISTORY.title":"从历史中来",
+	"REED-FROM_HISTORY.description":"每次[gold]追忆[/gold]后，在[blue]被追忆回合[/blue]的回忆中记录{FromHistoryPower:diff()}张随机牌。",
+
+	"REED-FOREVER_HEART.title":"焰心",
+	"REED-FOREVER_HEART.description":"造成{Damage:diff()}点伤害。\n如果目标有2张同名火花牌，再[gold]附着[/gold]1张。",
+	"REED-FOREVER_HEART.selectionScreenPrompt":"选择{Cards:diff()}张牌附着给敌人",
+
+	"REED-TO_THE_DEATH.title":"予逝者",
+	"REED-TO_THE_DEATH.description":"从[blue]上一回合[/blue]的回忆中[gold]追忆[/gold]一张{IfUpgraded:show:攻击牌或}技能牌，并将其记录在当前回合。",
+
+	"REED-NATURAL_HISTORY.title":"博物",
+	"REED-NATURAL_HISTORY.description":"你每[gold]追忆[/gold]或记录10张牌，抽{NaturalHistoryPower:diff()}张牌。",
+
+	"REED-ALIVE_DRAW.title":"栩栩光景",
+	"REED-ALIVE_DRAW.description":"[gold]附着[/gold]一张[gold]映耀[/gold]火花。\n在下一回合抽{Cards:diff()}张牌。",
+
+	"REED-HEART_CLEAR.title":"心焯",
+	"REED-HEART_CLEAR.description":"造成{Damage:diff()}点伤害。\n如果此牌在回忆中，当你[gold]追忆[/gold]打出[blue]当前回合[/blue]的其他牌时，一并追忆此牌。",
+
+	"REED-DEAD_CROWN.title":"枯枝与桂冠",
+	"REED-DEAD_CROWN.description":"给予所有敌人{WeakPower:diff()}层[gold]虚弱[/gold]。\n每当有生物死亡，将这张牌从消耗牌堆放回你的手牌。",
+
+	"REED-MELT_CALAMITY.title":"融劫",
+	"REED-MELT_CALAMITY.description":"目标每有1张[gold]火花[/gold]牌，造成{Damage:diff()}点伤害。\n[gold]进阶[/gold]牌记作2张。{InCombat:\n（攻击{CalculatedCards:diff()}次）|}",
 
 	"UNCOMMON-RARE":"",
 
@@ -74,8 +147,46 @@
 	"REED-CHASE_FIRE.title":"逐火",
 	"REED-CHASE_FIRE.description":"将火花牌上限提升至4。\n你[gold]灼烧[/gold]处于[red]燃烧状态[/red]的敌人时，使其随机火花牌提升等量伤害。",
 
+	"REED-LIVING_FIRE.title":"生灵火花",
+	"REED-LIVING_FIRE.description":"打出期间获得[gold]咒愈[/gold]。\n向所有敌人附着一张[gold]灼痕[/gold]火花并[gold]灼烧[/gold]{Reed_Burn:diff()}。",
+
+	"REED-IRELAND.title":"“塔拉”",
+	"REED-IRELAND.description":"选择一名敌人的一张[gold]火花牌[/gold]，使其直接[gold]进阶[/gold]。",
+
+	"REED-DRAGON_BLOOD.title":"龙血",
+	"REED-DRAGON_BLOOD.description":"对所有敌人造成{Damage:diff()}点伤害。\n[gold]引爆[/gold]每名敌人的第一张火花牌且额外爆发{Repeat:diff()}次。",
+
+	"REED-TURBID_BURN.title":"浊燃",
+	"REED-TURBID_BURN.description":"向自己[gold]附着[/gold]一张[gold]映耀[/gold]火花。\n你每打出一张攻击牌，对所有生物[gold]灼烧[/gold]{TurbidBurnPower:diff()}。",
+
+	"REED-HERO_EPIC.title":"英雄史诗",
+	"REED-HERO_EPIC.description":"如果是通过[gold]追忆[/gold]打出，选择一个回合的回忆，[gold]追忆[/gold]所有不会发起追忆的牌。",
+
+	"REED-CLASH.title":"残脉",
+	"REED-CLASH.description":"手牌中每有一种除攻击牌外的类型，造成{Damage:diff()}点伤害并[gold]灼烧[/gold]{Reed_Burn:diff()}。{InCombat:\n（攻击{CalculatedCards:diff()}次）|}",
+
+	"REED-SPEAK_TO_TERRA.title":"向大地诉说TODO",
+	"REED-SPEAK_TO_TERRA.description":"",
+
+	"REED-AS_NIGHT_ENDS.title":"夜尽之时",
+	"REED-AS_NIGHT_ENDS.description":"使一名敌人下次进入[red]燃烧状态[/red]时，[gold]火花牌[/gold]额外爆发X次。\n将{IfUpgraded:show:X+2|X}张[gold]焰影[/gold]加入手牌。",
+
+	"REED-OVER_COLD_NIGHT.title":"涉过寒夜",
+	"REED-OVER_COLD_NIGHT.description":"获得{Block:diff()}点[gold]格挡[/gold]。\n在上一回合以及接下来{Repeat:diff()}个回合的[gold]回忆[/gold]中记录此牌。",
+
+	"REED-FACE_PAST.title":"面对过往",
+	"REED-FACE_PAST.description":"打出期间获得[gold]咒愈[/gold]。\n依次对前{IfUpgraded:show:X+1|X}个回合的回忆[gold]追忆[/gold]一张非能力牌。",
+
+	"REED-LIGHT_SHADOW.title":"光与影",
+	"REED-LIGHT_SHADOW.description":"每当有生物进入/离开[red]燃烧状态[/red]时，将一张[gold]焰光[/gold]/[gold]焰影[/gold]加入手牌。",
+
+	"REED-DEAD_FIRE.title":"死火",
+	"REED-DEAD_FIRE.description":"以200％伤害量[gold]引爆[/gold]所有敌人的火花牌。将被移除的火花牌合并后随机[gold]附着[/gold]给敌人。",
+
 	"RARE-ANCIENT":"",
 
+	"REED-IGNITE_LIFE.title":"生命火种",
+	"REED-IGNITE_LIFE.description":"[gold]附着[/gold]一张[gold]灼痕[/gold]火花。\n将{Cards:diff()}张[gold]焰影[/gold]加入手牌。",
 
 	"ANCIENT-SPECIAL":"",
 
@@ -95,5 +206,11 @@
 	"REED-SHINE_FLOWER.description":"[gold]爆发[/gold]：受到{Damage:diff()}点伤害，令来源抽{Cards:diff()}张牌。",
 
 	"REED-SPLENDID_FLOWER.title":"[火花]灿烂",
-	"REED-SPLENDID_FLOWER.description":"[gold]爆发[/gold]：受到{Damage:diff()}点伤害，令来源抽{Cards:diff()}张牌并获得{energyPrefix:energyIcons(1)}"
+	"REED-SPLENDID_FLOWER.description":"[gold]爆发[/gold]：受到{Damage:diff()}点伤害，令来源抽{Cards:diff()}张牌并获得{Energy:energyIcons()}",
+
+	"REED-BURN_MARK_FLOWER.title":"[火花]灼痕",
+	"REED-BURN_MARK_FLOWER.description":"[gold]爆发[/gold]：受到{Damage:diff()}点伤害。\n[gold]持续[/gold]：造成的攻击伤害降低25％，受到的攻击伤害提升25％。",
+
+	"REED-BLAZE_FLOWER.title":"[火花]烈焰",
+	"REED-BLAZE_FLOWER.description":"[gold]爆发[/gold]：受到{Damage:diff()}点伤害。\n[gold]持续[/gold]：造成的攻击伤害降低40％，受到的攻击伤害提升40％。"
 }

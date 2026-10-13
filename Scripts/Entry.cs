@@ -3,6 +3,7 @@ using Godot.Bridge;
 using HarmonyLib;
 using MegaCrit.Sts2.Core.Logging;
 using MegaCrit.Sts2.Core.Modding;
+using Reed.Scripts.Resistance;
 
 namespace Reed.Scripts;
 
@@ -14,6 +15,9 @@ public class Entry
 	public static void Init()
 	{
 		ModConfigRegistry.Register("Reed", new ReedModConfig());
+
+		// 让挂在生物身上的火花牌也能收到 combat hook（它们不在任何牌堆里，原版不会收集它们）。
+		ResistanceSystem.RegisterHookSubscription();
 
 		_harmony = new Harmony("sts2.fimmlps.reed");
 		//SINGLE

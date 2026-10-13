@@ -3,7 +3,7 @@
     "REED-LIGHT_POWER.description":"你的[gold]焰光[/gold]提升1点伤害。",
     "REED-LIGHT_POWER.smartDescription":"你的[gold]焰光[/gold]提升{Amount}点伤害。",
 
-    "REED-AS_TORCH_POWER.title":"如矩",
+    "REED-AS_TORCH_POWER.title":"如炬",
     "REED-AS_TORCH_POWER.description":"下次进入[red]燃烧状态[/red]时，[gold]火花牌[/gold]额外爆发1次。",
     "REED-AS_TORCH_POWER.smartDescription":"下次进入[red]燃烧状态[/red]时，[gold]火花牌[/gold]额外爆发{Amount}次。",
 
@@ -17,5 +17,25 @@
 
     "REED-CHASE_FIRE_POWER.title":"逐火",
 	"REED-CHASE_FIRE_POWER.description":"将火花牌上限提升至4。\n你[gold]灼烧[/gold]处于[red]燃烧状态[/red]的敌人时，使其所有火花牌提升等量伤害。",
-    "REED-CHASE_FIRE_POWER.smartDescription":"将火花牌上限提升至4。\n你[gold]灼烧[/gold]处于[red]燃烧状态[/red]的敌人时，使其所有火花牌提升{Amount}*等量伤害。"
+    "REED-CHASE_FIRE_POWER.smartDescription":"将火花牌上限提升至4。\n你[gold]灼烧[/gold]处于[red]燃烧状态[/red]的敌人时，使其所有火花牌提升{Amount}*等量伤害。",
+
+	"REED-HEART_KNOT_POWER.title":"心结",
+	"REED-HEART_KNOT_POWER.description":"当你自动打出一张牌时，获得[gold]格挡[/gold]。",
+    "REED-HEART_KNOT_POWER.smartDescription":"当你自动打出一张牌时，获得{Amount}点[gold]格挡[/gold]。",
+
+    "REED-FROM_HISTORY_POWER.title":"从历史中来",
+	"REED-FROM_HISTORY_POWER.description":"每次[gold]追忆[/gold]后，在[blue]被追忆回合[/blue]的回忆中记录1张随机牌。",
+    "REED-FROM_HISTORY_POWER.smartDescription":"每次[gold]追忆[/gold]后，在[blue]被追忆回合[/blue]的回忆中记录{Amount}张随机牌。",
+
+    "REED-TURBID_BURN_POWER.title":"浊燃",
+	"REED-TURBID_BURN_POWER.description":"你每打出一张攻击牌，对所有生物[gold]灼烧[/gold]。",
+    "REED-TURBID_BURN_POWER.smartDescription":"你每打出一张攻击牌，对所有生物[gold]灼烧[/gold]{Amount}。",
+
+    "REED-NATURAL_HISTORY_POWER.title":"博物",
+	"REED-NATURAL_HISTORY_POWER.description":"你每[gold]追忆[/gold]或记录10张牌，抽1张牌。",
+    "REED-NATURAL_HISTORY_POWER.smartDescription":"你每[gold]追忆[/gold]或记录10张牌，抽{Amount}张牌。",
+
+    "REED-LIGHT_SHADOW_POWER.title":"光与影",
+	"REED-LIGHT_SHADOW_POWER.description":"每当有生物进入/离开[red]燃烧状态[/red]时，将一张[gold]焰光[/gold]/[gold]焰影[/gold]加入手中。",
+    "REED-LIGHT_SHADOW_POWER.smartDescription":"每当有生物进入/离开[red]燃烧状态[/red]时，将{Amount}张[gold]焰光[/gold]/[gold]焰影[/gold]加入手中。"
 }

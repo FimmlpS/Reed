@@ -40,9 +40,9 @@ public class FlameShadow : AbstractReedCard
     {
         if (card == this)
         {
-            if(card.Pile?.Type!=PileType.Hand && card.Pile?.Type != PileType.Exhaust)
+            if(card.Pile?.Type!=PileType.Hand && card.Pile?.Type != PileType.Exhaust && card.Pile?.Type!=PileType.Play && card.Pile?.Type!=PileType.None)
             {
-                await CardCmd.Exhaust(new ThrowingPlayerChoiceContext(),this,false);
+                await CardCmd.Exhaust(new ThrowingPlayerChoiceContext(),this,false,true);
             }
         }
     }

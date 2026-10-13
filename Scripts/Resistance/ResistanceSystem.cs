@@ -12,6 +12,7 @@ using MegaCrit.Sts2.Core.GameActions.Multiplayer;
 using MegaCrit.Sts2.Core.Helpers;
 using MegaCrit.Sts2.Core.Models;
 using MegaCrit.Sts2.Core.Models.Cards;
+using MegaCrit.Sts2.Core.Modding;
 using MegaCrit.Sts2.Core.Nodes;
 using MegaCrit.Sts2.Core.Nodes.Cards;
 using MegaCrit.Sts2.Core.Nodes.Combat;
@@ -30,6 +31,11 @@ namespace Reed.Scripts.Resistance;
 /// 只写了两个“状态切换”函数（其余为通用数值/读取 API）：
 ///   <see cref="EnterBurning"/> / <see cref="ExitBurning"/>
 /// 何时调用它们完全由你决定（例如抗性被打到 0 时进入、回满时退出）。
+///
+/// <para>这两个函数是燃烧状态的<b>唯一切换点</b>，因此也是「进入/离开燃烧」事件的广播点：
+/// 切换成功后会把事件派发给全场所有 <see cref="IFireFlowerSubscriber"/>
+/// （<see cref="IFireFlowerSubscriber.AfterEnterBurning"/> / <see cref="IFireFlowerSubscriber.AfterExitBurning"/>）。
+/// 事件只在真正发生切换时触发，重复调用（已在燃烧中再进入）不会重复广播。</para>
 /// </summary>
 public static class ResistanceSystem
 {
@@ -66,8 +72,18 @@ public static class ResistanceSystem
 
     private static void OnCombatSetUp(CombatState state)
     {
+        _attachedSparkCount = 0; // 新一场战斗：上一场的火花全没了，监听者计数据此清零
         bool reedInBattle = state.Players.Any(p => p.Character is ReedCharacter);
         ForceShowAll = reedInBattle;
+
+        // 跨战斗清理：绝大多数生物每场战斗都是新 Creature（数据天然干净），但**玩家的 Creature 整个 run
+        // 都是同一个对象**（Player.Creature 在 Player 构造里建一次），挂在它身上的火花牌/抗性值/燃烧状态/
+        // 上限都会残留到下一场 —— 上一场战斗附给自己的火花会带进新战斗。这里逐只重置。
+        foreach (Creature creature in state.Creatures)
+        {
+            ResetForNewCombat(creature, state);
+        }
+
         if (!reedInBattle)
         {
             return;
@@ -80,10 +96,64 @@ public static class ResistanceSystem
         //TrySeedDemoSpark(state);
     }
 
+    /// <summary>
+    /// 新战斗开始：清掉某生物身上"跨战斗残留"的抗性状态，并让 UI 跟上。
+    ///
+    /// <para>生物大多是每场新建的，此函数对它们等价于 no-op（还没建过数据，直接返回）；
+    /// 真正会命中的是<b>玩家</b>（以及同样整个 run 复用 Creature 的宠物）。</para>
+    ///
+    /// <para>清的是一整套"每场战斗都该归零"的东西：火花牌（<see cref="ResistanceData.Sparks"/>）、
+    /// 自定义火花上限（<see cref="ResistanceData.SparkMaxes"/>）、抗性值（回满）、燃烧状态、变化标记，
+    /// 上限按本场房间类型重算（<see cref="ResistanceData.MaxForRoom"/>）。</para>
+    /// </summary>
+    private static void ResetForNewCombat(Creature c, ICombatState? combat)
+    {
+        ResistanceData? d = _data[c];
+        if (d == null)
+        {
+            return; // 这场战斗才第一次出现（或还没建条）：没有历史可清
+        }
+
+        // 火花牌：整组丢掉（旧战斗的卡对象本身也随旧战斗一起作废，不通知 OnRemoved —— 那会引起旧战斗的连锁结算）。
+        int removed = 0;
+        foreach (List<CardModel> group in d.Sparks.Values)
+        {
+            removed += group.Count;
+        }
+        bool hadSparks = removed > 0;
+        if (hadSparks)
+        {
+            d.Sparks.Clear();
+            _attachedSparkCount = Math.Max(0, _attachedSparkCount - removed);
+        }
+        d.SparkMaxes.Clear();
+
+        d.Max = ResistanceData.MaxForRoom(combat);
+        d.Current = d.Max;
+        d.Burning = false;
+        d.Changed = false;
+
+        // 上一场的抗性条/火焰驱动器：节点通常已随旧战斗房间一起释放 → 作废引用，等本场新血条建条时重建。
+        //（顺带避免下面 SyncVisuals / SetShown 去碰已经释放的节点。）
+        if (d.Bar != null && !GodotObject.IsInstanceValid(d.Bar.Root))
+        {
+            d.Fire = null;
+            d.Bar = null;
+        }
+        d.Fire?.Stop();
+
+        if (hadSparks)
+        {
+            SparksChanged?.Invoke(c); // 已建好的本场火花 UI：把卡行与计数圆清空
+        }
+        SyncVisuals(c, d); // 若本场条已建好：立刻显示满抗性 + 非燃烧
+    }
+
     private static void OnCombatEnded()
     {
         ForceShowAll = false;
         _sparkDemoSeeded = false;
+        _attachedSparkCount = 0;
     }
 
     // ============ 数据访问 ============
@@ -126,6 +196,16 @@ public static class ResistanceSystem
     /// 将来想显示例如火花总伤害、牌堆数等，只需在此给函数即可（函数参数为生物）。
     /// </summary>
     public static Func<Creature, int>? SparkBadgeValueProvider;
+
+    /// <summary>
+    /// 火花牌 → 它此刻附着的生物（只在 <see cref="GiveSpark"/> 成功时写入）。
+    /// 移除时不回写 null：火花一旦被取下就不在任何 SparkHookListeners 里，宿主是谁已无人过问；
+    /// 若之后这张牌被挂到别的生物上，GiveSpark 会直接覆盖。表项随火花实例一起回收。
+    /// </summary>
+    private static readonly SpireField<CardModel, Creature> _sparkHost = new(() => null);
+
+    /// <summary>当前附着在生物身上的火花牌总数。为 0 时 <see cref="SparkHookListeners"/> 直接空转（hook 派发热路径的廉价守卫）。</summary>
+    private static int _attachedSparkCount;
 
     /// <summary>读取某（生物 × owner）火花上限；没单独设过则返回默认 DefaultSparkMax。</summary>
     public static int GetSparkMax(Creature c, Player owner)
@@ -187,6 +267,9 @@ public static class ResistanceSystem
             return false;
         }
         list.Add(spark);
+        // 记下它此刻挂在谁身上：火花牌的「持续」效果要据此判断宿主（见 HostOf）。
+        _sparkHost[spark] = c;
+        _attachedSparkCount++;
         SparksChanged?.Invoke(c);
         SparkAdded?.Invoke(c, owner, spark);
         return true;
@@ -204,6 +287,7 @@ public static class ResistanceSystem
         {
             return false;
         }
+        _attachedSparkCount = Math.Max(0, _attachedSparkCount - 1);
         SparksChanged?.Invoke(c);
         SparkRemoved?.Invoke(c, owner, spark);
         return true;
@@ -217,10 +301,11 @@ public static class ResistanceSystem
             return false;
         }
         ResistanceData d = GetData(c);
-        if (!d.Sparks.Remove(owner.NetId))
+        if (!d.Sparks.Remove(owner.NetId, out List<CardModel>? removed))
         {
             return false;
         }
+        _attachedSparkCount = Math.Max(0, _attachedSparkCount - removed.Count);
         SparksChanged?.Invoke(c);
         return true;
     }
@@ -241,6 +326,48 @@ public static class ResistanceSystem
 
     public static bool CanAddSpark(Creature c, Player owner)
         => CountSparks(c, owner) < GetSparkMax(c, owner);
+
+    /// <summary>这张火花牌此刻附着的生物；从未 attach 过（或被取下后再没挂上）返回 null。</summary>
+    public static Creature? HostOf(CardModel? spark) => spark == null ? null : _sparkHost[spark];
+
+    /// <summary>
+    /// 把「已 attach 的火花牌」注册为 combat hook 的监听者来源（mod 初始化时调用一次即可）。
+    ///
+    /// <para><b>为什么需要</b>：原版只把<b>牌堆里</b>的卡当作 hook 监听者（见 <c>CombatState.IterateHookListeners</c>），
+    /// 而火花牌不在任何牌堆里 —— 不登记的话，火花自己的 <c>ModifyDamageMultiplicative</c> 之类的 hook
+    /// 永远不会被调用，「持续」效果无从生效。登记之后它们才和力量/易伤一样参与伤害结算。</para>
+    ///
+    /// <para>走的是游戏给 mod 留的正规口子 <see cref="ModHelper.SubscribeForCombatStateHooks"/>：它被
+    /// <c>CombatState.IterateHookListeners</c> 在枚举末尾原样接上，因此既不用 Harmony 补丁，也绕过了
+    /// 那一层「模型必须属于本场战斗」的过滤。顺带覆盖 runState 那条路径 ——
+    /// <c>RunState.IterateHookListeners(combatState)</c> 末尾同样会 yield 这个枚举。</para>
+    /// </summary>
+    public static void RegisterHookSubscription()
+        => ModHelper.SubscribeForCombatStateHooks("Reed.Sparks", combatState => SparkHookListeners(combatState));
+
+    /// <summary>本场战斗中所有「已 attach 的火花牌」（由 <see cref="RegisterHookSubscription"/> 接进 hook 派发）。</summary>
+    public static IEnumerable<AbstractModel> SparkHookListeners(ICombatState? combat)
+    {
+        if (combat == null || _attachedSparkCount <= 0)
+        {
+            yield break;
+        }
+        foreach (Creature creature in combat.Creatures)
+        {
+            ResistanceData? d = _data[creature];
+            if (d == null || d.Sparks.Count == 0)
+            {
+                continue;
+            }
+            foreach (List<CardModel> group in d.Sparks.Values)
+            {
+                foreach (CardModel spark in group)
+                {
+                    yield return spark;
+                }
+            }
+        }
+    }
 
     // ============ 火花牌 测试种子（给第一只怪物放若干张本地玩家的“打击”） ============
 
@@ -326,7 +453,7 @@ public static class ResistanceSystem
     // ============ 数值修改 API ============
 
     /// <summary>扣抗性（最低 0）。仅当非灼烧状态才会执行。</summary>
-    public static async Task Reduce(Creature c, int amount)
+    public static async Task Reduce(Creature c, int amount, PlayerChoiceContext? choiceContext = null)
     {
         if (amount <= 0 || c.IsBurningResistance())
         {
@@ -355,12 +482,12 @@ public static class ResistanceSystem
         AfterMutation(c, d);
         if (d.Current == 0)
         {
-            await EnterBurning(c);
+            await EnterBurning(c, choiceContext);
         }
     }
 
     /// <summary>恢复抗性（最高回满 max）。按需调用 ExitBurning。</summary>
-    public static async Task Restore(Creature c, int amount)
+    public static async Task Restore(Creature c, int amount, PlayerChoiceContext? choiceContext = null)
     {
         if (amount <= 0)
         {
@@ -389,12 +516,12 @@ public static class ResistanceSystem
         AfterMutation(c, d);
         if (d.Current == d.Max)
         {
-            await ExitBurning(c);
+            await ExitBurning(c, choiceContext);
         }
     }
 
     /// <summary>直接设定当前抗性（自动收敛到 0..max）。</summary>
-    public static async Task SetCurrent(Creature c, int value)
+    public static async Task SetCurrent(Creature c, int value, PlayerChoiceContext? choiceContext = null)
     {
         ResistanceData d = GetData(c);
         int nv = Math.Clamp(value, 0, d.Max);
@@ -404,24 +531,24 @@ public static class ResistanceSystem
         }
         d.Current = nv;
         AfterMutation(c, d);
-        await JudgeBurning(c);
+        await JudgeBurning(c, choiceContext);
     }
 
-    public static async Task JudgeBurning(Creature c)
+    public static async Task JudgeBurning(Creature c, PlayerChoiceContext? choiceContext = null)
     {
         ResistanceData d = GetData(c);
         if (d.Current == d.Max)
         {
-            await ExitBurning(c);
+            await ExitBurning(c, choiceContext);
         }
         else if(d.Current == 0)
         {
-            await EnterBurning(c);
+            await EnterBurning(c, choiceContext);
         }
     }
 
     /// <summary>修改抗性上限（最少为1点）</summary>
-    public static async Task ChangeMax(Creature c, int offset)
+    public static async Task ChangeMax(Creature c, int offset, PlayerChoiceContext? choiceContext = null)
     {
         ResistanceData d = GetData(c);
         int finalMax = Math.Max(1,d.Max+offset);
@@ -431,35 +558,82 @@ public static class ResistanceSystem
             d.Current = d.Max;
         }
         AfterMutation(c, d);
-        await JudgeBurning(c);
+        await JudgeBurning(c, choiceContext);
     }
 
     // ============ 两个状态切换函数（规则2/3：蓝 ↔ 紫 + 燃烧特效）============
 
-    /// <summary>进入燃烧状态：条变紫，生物播放常驻火焰（原版特效循环铺放）。</summary>
-    public static async Task EnterBurning(Creature c)
+    /// <summary>
+    /// 进入燃烧状态：条变紫，生物播放常驻火焰（原版特效循环铺放），
+    /// 随后结算「进入燃烧」的火花爆发，最后广播 <see cref="IFireFlowerSubscriber.AfterEnterBurning"/>。
+    /// 已在燃烧中时是 no-op（不会重复爆发、也不会重复广播）。
+    /// </summary>
+    public static async Task EnterBurning(Creature c, PlayerChoiceContext? choiceContext = null)
     {
         ResistanceData d = GetData(c);
         if (d.Burning)
         {
             return;
         }
+        choiceContext ??= new ThrowingPlayerChoiceContext();
         d.Burning = true;
         SyncVisuals(c, d);
-        await ReedAttachCmd.Burnt(new ThrowingPlayerChoiceContext(),c,triggerByBurning:true);
+        await ReedAttachCmd.Burnt(choiceContext,c,triggerByBurning:true);
+        await NotifyBurningChanged(c, choiceContext, entered: true);
     }
 
-    /// <summary>退出燃烧状态：条回蓝，停止火焰。</summary>
-    public static async Task ExitBurning(Creature c)
+    /// <summary>
+    /// 退出燃烧状态：条回蓝，停止火焰，随后广播 <see cref="IFireFlowerSubscriber.AfterExitBurning"/>。
+    /// 本就不在燃烧中时是 no-op（不会重复广播）。
+    ///
+    /// <para>注意：这是燃烧状态的<b>唯一出口</b>，且只有「抗性条回满」（Current == Max）才会走到这里
+    /// （见 <see cref="Restore"/> / <see cref="JudgeBurning"/>）。新战斗重置
+    /// （<see cref="ResetForNewCombat"/>）是直接写 <c>Burning = false</c> 的，<b>不</b>算离开燃烧、不广播。</para>
+    /// </summary>
+    public static async Task ExitBurning(Creature c, PlayerChoiceContext? choiceContext = null)
     {
         ResistanceData d = GetData(c);
         if (!d.Burning)
         {
             return;
         }
+        choiceContext ??= new ThrowingPlayerChoiceContext();
         d.Burning = false;
         d.Fire?.Stop();
         SyncVisuals(c, d);
+        await NotifyBurningChanged(c, choiceContext, entered: false);
+    }
+
+    /// <summary>
+    /// 把「某生物进入/离开燃烧状态」派发给全场所有 <see cref="IFireFlowerSubscriber"/>。
+    /// 与 <see cref="ReedAttachCmd.Burnt(Creature, decimal, int, bool)"/> 同一套约定：
+    /// 事件发生时才用 IterateHookListeners 现查订阅者，没有注册/注销生命周期。
+    /// 单个订阅者抛异常只记一条警告，不影响状态机本身与其他订阅者。
+    /// </summary>
+    private static async Task NotifyBurningChanged(Creature c, PlayerChoiceContext choiceContext, bool entered)
+    {
+        foreach (AbstractModel model in c.CombatState?.IterateHookListeners() ?? [])
+        {
+            if (model is not IFireFlowerSubscriber sub)
+            {
+                continue;
+            }
+            try
+            {
+                if (entered)
+                {
+                    await sub.AfterEnterBurning(choiceContext, c);
+                }
+                else
+                {
+                    await sub.AfterExitBurning(choiceContext, c);
+                }
+            }
+            catch (Exception e)
+            {
+                GD.PushWarning($"[ResistanceSystem] 燃烧状态订阅者失败（{model.Id}）：{e.Message}");
+            }
+        }
     }
 
     // ============ 生物死亡 / 复活 ============
@@ -631,14 +805,14 @@ public static class CreatureResistanceExtensions
     public static bool IsBurningResistance(this Creature c) => ResistanceSystem.IsBurning(c);
     public static bool IsResistanceFull(this Creature c) => ResistanceSystem.IsFull(c);
 
-    public static async Task DamageResistance(this Creature c, int amount) => await ResistanceSystem.Reduce(c, amount);
-    public static async Task RestoreResistance(this Creature c, int amount) => await ResistanceSystem.Restore(c, amount);
-    public static async Task SetResistance(this Creature c, int value) => await ResistanceSystem.SetCurrent(c, value);
-    public static async Task ChangeMaxResistance(this Creature c, int offset) => await ResistanceSystem.ChangeMax(c, offset);
+    public static async Task DamageResistance(this Creature c, int amount, PlayerChoiceContext? choiceContext = null) => await ResistanceSystem.Reduce(c, amount, choiceContext);
+    public static async Task RestoreResistance(this Creature c, int amount, PlayerChoiceContext? choiceContext = null) => await ResistanceSystem.Restore(c, amount, choiceContext);
+    public static async Task SetResistance(this Creature c, int value, PlayerChoiceContext? choiceContext = null) => await ResistanceSystem.SetCurrent(c, value, choiceContext);
+    public static async Task ChangeMaxResistance(this Creature c, int offset, PlayerChoiceContext? choiceContext = null) => await ResistanceSystem.ChangeMax(c, offset, choiceContext);
 
     /// <summary>状态切换：进入燃烧。</summary>
-    public static void EnterBurningState(this Creature c) => ResistanceSystem.EnterBurning(c);
+    public static void EnterBurningState(this Creature c, PlayerChoiceContext? choiceContext = null) => ResistanceSystem.EnterBurning(c, choiceContext);
 
     /// <summary>状态切换：退出燃烧。</summary>
-    public static void ExitBurningState(this Creature c) => ResistanceSystem.ExitBurning(c);
+    public static void ExitBurningState(this Creature c, PlayerChoiceContext? choiceContext = null) => ResistanceSystem.ExitBurning(c, choiceContext);
 }

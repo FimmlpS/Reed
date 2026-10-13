@@ -1,3 +1,4 @@
+using MegaCrit.Sts2.Core.Combat;
 using MegaCrit.Sts2.Core.Entities.Creatures;
 using MegaCrit.Sts2.Core.Models;
 using MegaCrit.Sts2.Core.Rooms;
@@ -15,15 +16,27 @@ public sealed class ResistanceData
     public ResistanceData(Creature _creature)
     {
         Owner = _creature;
-        RoomType type = Owner.CombatState?.RunState.CurrentRoom?.RoomType??RoomType.Unassigned;
-        if(type == RoomType.Elite)
+        Max = MaxForRoom(Owner.CombatState);
+    }
+
+    /// <summary>
+    /// 按房间类型算出的抗性上限：普通 <see cref="DefaultMax"/>、精英 +1、首领 +2。
+    /// 挂到 <see cref="ResistanceSystem.ResetForNewCombat"/> 上是为了让"跨战斗存活"的生物（玩家）
+    /// 每场都按本场房间重算，而不是停在它第一次建数据时那场的房间类型上。
+    /// </summary>
+    public static int MaxForRoom(ICombatState? combat)
+    {
+        int max = DefaultMax;
+        RoomType type = combat?.RunState.CurrentRoom?.RoomType ?? RoomType.Unassigned;
+        if (type == RoomType.Elite)
         {
-            Max+=1;
+            max += 1;
         }
-        else if(type == RoomType.Boss)
+        else if (type == RoomType.Boss)
         {
-            Max+=2;
+            max += 2;
         }
+        return max;
     }
 
     public Creature Owner;

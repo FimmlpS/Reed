@@ -14,6 +14,9 @@
     "REED-FIRE_FLOWER.title":"火花",
     "REED-FIRE_FLOWER.description":"附着的生物进入[red]燃烧状态[/red]时，触发[gold]爆发[/gold]效果。",
 
+    "REED-STEP.title":"进阶",
+    "REED-STEP.description":"通常情况下，三张[gold]同名[/gold]火花牌会合并为一张更高形态的火花牌。",
+
     "REED-UNYIELDING.title":"不灭",
     "REED-UNYIELDING.description":"这张牌被消耗后，复制到你的手牌。",
 
@@ -24,5 +27,8 @@
     "REED-MEMORY.description":"你每[gold]手动打出[/gold]一张攻击牌、技能牌或能力牌，就将其记录在回忆中。",
 
     "REED-RECALL.title":"追忆",
-    "REED-RECALL.description":"从回忆中选一张牌，打出其复制，并从回忆中移除。"
+    "REED-RECALL.description":"从回忆中选一张牌，打出其复制，并从回忆中移除。",
+
+    "REED-FUTURE.title":"塔拉终会走向未来",
+    "REED-FUTURE.description":"只是那不再是你的未来。"
 }

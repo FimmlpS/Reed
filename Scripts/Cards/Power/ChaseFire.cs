@@ -34,6 +34,6 @@ public class ChaseFire : AbstractReedCard
 
     protected override void OnUpgrade()
     {
-        AddKeyword(CardKeyword.Retain);
+        AddKeyword(CardKeyword.Innate);
     }
 }

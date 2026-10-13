@@ -57,6 +57,9 @@ public static class ReedAttachCmd
     /// <summary>进阶循环的兜底上限：正常最多连跳几级就停，防逻辑缺陷死循环。</summary>
     private const int FuseLoopGuard = 64;
 
+    /// <summary>一次合体（进阶）需要的同名火花总数：目标上已有的 2 张 + 参与进来的第 3 张。</summary>
+    private const int FuseTotalRequired = FuseSameIdRequired + 1;
+
     /// <summary>引爆选择屏的标题文案（key 见 Reed/localization/zhs/static_hover_tips.json）。</summary>
     private static LocString BurstPrompt => new LocString("static_hover_tips", "REED-SPARK.burst-select.title");
 
@@ -296,6 +299,78 @@ public static class ReedAttachCmd
         return upper;
     }
 
+    /// <summary>
+    /// 把一堆**已经摘下来的**火花牌（例如「死火」引爆后收进列表里的那些）做“虚拟合体”：
+    /// 每凑够 <see cref="FuseTotalRequired"/> 张同 <see cref="CardModel.Id"/> 且能进阶的牌，就合出一张上级卡放回队列
+    /// —— 规则与 <see cref="Attach"/> 里的进阶判断完全一致（额外伤害照旧继承，见 <see cref="ExcessDamageOf"/>），
+    /// 因此支持链式进阶：9 张普通 → 3 张终末。凑不够张数的牌原样留在队列里，顺序不变。
+    /// 本方法**不碰**任何生物身上已 attach 的火花，只看传入的列表（调用方应自行先摘下来）。
+    /// </summary>
+    public static List<CardModel> MergeSparks(Player owner, IEnumerable<CardModel> sparks)
+    {
+        List<CardModel> queue = sparks.Where(s => s != null).ToList();
+        if (owner == null || queue.Count < FuseTotalRequired)
+        {
+            return queue;
+        }
+
+        // 上级卡按 Id 缓存：同一批火花反复合体时不必重复问 GetUpperCard()（null = 这张火花没有进阶形态）。
+        List<CardModel> cachedTemplates = new();
+        List<CardModel?> cachedUppers = new();
+        CardModel? UpperOf(CardModel spark)
+        {
+            for (int i = 0; i < cachedTemplates.Count; i++)
+            {
+                if (cachedTemplates[i].Id == spark.Id)
+                {
+                    return cachedUppers[i];
+                }
+            }
+            CardModel? upper = (spark as IFireFlower)?.GetUpperCard();
+            cachedTemplates.Add(spark);
+            cachedUppers.Add(upper);
+            return upper;
+        }
+
+        for (int guard = 0; guard < FuseLoopGuard; guard++)
+        {
+            bool merged = false;
+            foreach (CardModel head in queue.ToList())
+            {
+                CardModel? upperTemplate = UpperOf(head);
+                if (upperTemplate == null)
+                {
+                    continue; // 这张火花没有进阶形态
+                }
+                List<CardModel> sameId = queue.Where(s => s.Id == head.Id).ToList();
+                if (sameId.Count < FuseTotalRequired)
+                {
+                    continue;
+                }
+
+                // 参与合体的这几张牌，谁被养出过额外伤害就一起带进上级卡（合不出来则整批保持原样）。
+                List<CardModel> parts = sameId.Take(FuseTotalRequired).ToList();
+                CardModel? upper = MaterializeSpark(upperTemplate, owner, null);
+                if (upper == null)
+                {
+                    continue; // 非战斗等极端情况无法实例化：这次合体作废，其它 Id 继续
+                }
+                AddDamage(upper, parts.Sum(s => ExcessDamageOf(s)));
+
+                HashSet<CardModel> consumed = new(parts, ReferenceEqualityComparer.Instance);
+                queue = queue.Where(s => !consumed.Contains(s)).ToList();
+                queue.Add(upper);
+                merged = true;
+                break; // 队列已变，重新扫一遍（上级卡之间可能还能再向上合）
+            }
+            if (!merged)
+            {
+                break;
+            }
+        }
+        return queue;
+    }
+
     // ============ 额外伤害继承 ============
 
     /// <summary>
@@ -385,7 +460,8 @@ public static class ReedAttachCmd
     /// 见 <see cref="ResistanceSystem.GiveSpark"/> 的 list.Contains 去重）；已是可变卡则原样使用，
     /// 若它还没绑定 owner 则顺手登记进本场战斗。
     /// </summary>
-    private static CardModel? MaterializeSpark(CardModel template, Player owner, Creature target)
+    /// <param name="target">火花将挂上的生物；还没定目标（如合体中间产物）时传 null，只从 owner 身上要战斗上下文。</param>
+    private static CardModel? MaterializeSpark(CardModel template, Player owner, Creature? target)
     {
         if (template.IsMutable)
         {
@@ -398,7 +474,7 @@ public static class ReedAttachCmd
         }
 
         // canonical：需要可变副本才能叠加/进阶，物化必须发生在有战斗上下文时（火花本就只在战斗里出现）。
-        ICombatState? combat = owner.Creature.CombatState ?? target.CombatState;
+        ICombatState? combat = owner.Creature.CombatState ?? target?.CombatState;
         if (combat == null)
         {
             GD.PushWarning($"[ReedAttachCmd] 非战斗上下文无法实例化火花 {template.Id} 的可变副本，attach 跳过。");
@@ -425,5 +501,22 @@ public static class ReedAttachCmd
         CardSelectorPrefs prefs = new CardSelectorPrefs(BurstPrompt, 1);
         IEnumerable<CardModel> chosen = await CardSelectCmd.FromSimpleGrid(choiceContext, sparks, owner, prefs);
         return chosen.FirstOrDefault();
+    }
+
+    /// <summary>让玩家从目标上已 attach 的火花里按index获取一张引爆。</summary>
+    public static async Task<CardModel?> GetOneToBurst(PlayerChoiceContext? choiceContext, Creature target, Player owner, int index)
+    {
+        IReadOnlyList<CardModel> sparks = ResistanceSystem.SparksOf(target, owner);
+        if (index<0 || sparks.Count==0)
+        {
+            return null; // 已满却没有任何火花：理论上到不了这里
+        }
+        if (choiceContext == null || index>=sparks.Count)
+        {
+            // 非交互上下文（测试/结算等）弹不出选择屏：取最后一张（最新）作默认引爆对象，让流程仍可走通。
+            return sparks[sparks.Count - 1];
+        }
+
+        return sparks[index];
     }
 }

@@ -14,7 +14,7 @@ using MegaCrit.Sts2.Core.ValueProps;
 namespace Reed.Scripts.Cards.Skill;
 
 /// <summary>
-/// 「枯焰生花」：获得格挡，引爆一张火花牌，然后从**上一回合**的回忆中追忆一张技能牌
+/// 「枯焰生花」：获得格挡，然后从**上一回合**的回忆中追忆一张技能牌
 /// （自动打出，并从回忆里移除）。
 ///
 /// <para>引爆部分照抄 <see cref="Spread"/>：<see cref="ReedAttachCmd.PickOneToBurst"/> 让玩家从目标

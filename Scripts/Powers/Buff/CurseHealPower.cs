@@ -17,7 +17,7 @@ public class CurseHealPower : AbstractReedPower
     {
         if(dealer == Owner && cardSource != null)
         {
-            decimal block = 0.25m * result.TotalDamage * Amount;
+            decimal block = Math.Ceiling(0.25m * result.TotalDamage * Amount);
             if (block > 0)
             {
                 Flash();

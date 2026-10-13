@@ -1,4 +1,5 @@
 using System.Runtime.CompilerServices;
+using BaseLib.Utils;
 using MegaCrit.Sts2.Core.Combat;
 using MegaCrit.Sts2.Core.Entities.Cards;
 using MegaCrit.Sts2.Core.Models;
@@ -16,6 +17,10 @@ namespace Reed.Scripts.Memory;
 ///   <item>卡牌效果（<c>OnPlay</c> 内部）用 <see cref="PlayedRound"/> 读回来。</item>
 /// </list>
 ///
+/// <para>同一条途径还捎带一个「是不是追忆打出的」标记：<see cref="MarkFromRecall"/> →
+/// <see cref="IsFromRecall"/>（同样是副作用表，CardPlay 上没有真字段）。判「追忆」用它，
+/// 不要用 <see cref="CardPlay.IsAutoPlay"/>（那会把其它效果的自动打出也算进来）。</para>
+///
 /// **连锁追忆的关键**：所有「上一回合 / 下 x 回合」的基准都取自 <see cref="PlayedRound"/>，
 /// 而不是 <c>CombatState.RoundNumber</c>。于是「第 3 回合打出的牌」在被追忆打出的那一刻，
 /// 它的 <see cref="PlayedRound"/> 仍然是 3，它自己再去追忆「上一回合」就能拿到第 2 回合 —— 一路向上追溯。
@@ -27,6 +32,12 @@ public static class MemoryPlayRound
 
     /// <summary>已打出的 CardPlay 的回合戳。</summary>
     private static readonly ConditionalWeakTable<CardPlay, StrongBox<int>> Stamped = new();
+
+    /// <summary>「这张牌这一趟是被追忆打出的」的预定标记（同 <see cref="MarkPlayedRound"/> 一起下）。</summary>
+    private static readonly ConditionalWeakTable<CardModel, StrongBox<bool>> PendingRecall = new();
+
+    /// <summary>已打出的 CardPlay 的「由追忆打出」戳。</summary>
+    private static readonly SpireField<CardPlay, bool> RecallPlays = new(() => false);
 
     /// <summary>给一张「即将被打出」的卡预定它的打出回合（追忆打出前调用）。</summary>
     public static void MarkPlayedRound(this CardModel card, int round)
@@ -54,7 +65,26 @@ public static class MemoryPlayRound
         return true;
     }
 
-    /// <summary>在 <c>Hook.BeforeCardPlayed</c> 处调用：若这张牌带着预定回合，就盖到本次 CardPlay 上。</summary>
+    public static bool CanRecord(this CardModel model)
+    {
+        return model.Type == CardType.Attack || model.Type == CardType.Skill || model.Type == CardType.Power;
+    }
+
+    /// <summary>
+    /// 标记这张牌这一趟**由追忆打出**（追忆方在打出副本前，与 <see cref="MarkPlayedRound"/> 一起调用）。
+    /// 与回合戳分开是因为「视为第几回合」和「是不是追忆来的」是两个独立问题：前者可以为任意回合，
+    /// 后者只有 <see cref="RecallCmd"/> 这一条途径会置位。
+    /// </summary>
+    public static void MarkFromRecall(this CardModel card)
+    {
+        if (card == null)
+        {
+            return;
+        }
+        PendingRecall.AddOrUpdate(card, new StrongBox<bool>(true));
+    }
+
+    /// <summary>在 <c>Hook.BeforeCardPlayed</c> 处调用：若这张牌带着预定回合 / 追忆标记，就盖到本次 CardPlay 上。</summary>
     public static void StampPendingRound(this CardPlay play)
     {
         if (play?.Card == null)
@@ -65,6 +95,20 @@ public static class MemoryPlayRound
         {
             play.StampPlayedRound(round);
         }
+        if (PendingRecall.TryGetValue(play.Card, out StrongBox<bool>? recall) && recall.Value)
+        {
+            RecallPlays[play] = true;
+        }
+    }
+
+    /// <summary>
+    /// 这次出牌是否**由追忆打出**（<see cref="RecallCmd"/> 那条途径）。
+    /// 手动出牌、被其它效果自动打出的牌都是 false —— 需要「只对追忆打出的牌生效」的效果（如
+    /// <c>FromHistoryPower</c>）用它，而不是 <see cref="CardPlay.IsAutoPlay"/>。
+    /// </summary>
+    public static bool IsFromRecall(this CardPlay play)
+    {
+        return play != null && RecallPlays[play];
     }
 
     /// <summary>手动给一次 CardPlay 盖回合戳（一般不用，<see cref="StampPendingRound"/> 已自动处理）。</summary>
@@ -96,6 +140,27 @@ public static class MemoryPlayRound
     public static int PlayedRound(this CardPlay play, ICombatState? combat = null)
     {
         if (play != null && play.TryGetPlayedRound(out int stamped))
+        {
+            return stamped;
+        }
+        return combat?.RoundNumber ?? 0;
+    }
+
+    /// <summary>
+    /// <see cref="CardModel"/> 版的「视为在第几回合打出」，给**拿不到 <see cref="CardPlay"/>** 的地方用
+    /// ——典型场景是 <see cref="MegaCrit.Sts2.Core.Localization.DynamicVars.CalculatedVar.WithMultiplier"/>
+    /// 的乘数 lambda：它只拿得到卡牌本身，且被强制要求是静态 lambda（不能把 <c>cardPlay</c> 闭包进去）。
+    ///
+    /// <para>与 <see cref="PlayedRound(CardPlay, ICombatState)"/> **等价**：这张牌带着预定回合（被追忆打出，
+    /// 见 <see cref="MarkPlayedRound"/>）就取它，否则取当前 <see cref="ICombatState.RoundNumber"/>。
+    /// 之所以等价，是因为 <c>StampPendingRound</c> 盖到 <see cref="CardPlay"/> 上的正是这张牌身上的同一个值。</para>
+    ///
+    /// <para>换句话说：卡面预览（手里的牌还没被打出）看到一个「如果是现在打出」的回合数，
+    /// 而真正打出时（<c>OnPlay</c> 里再算一次）拿到的是同一次出牌的回合数，两者一致。</para>
+    /// </summary>
+    public static int PlayedRound(this CardModel card, ICombatState? combat = null)
+    {
+        if (card != null && card.TryPeekPlayedRound(out int stamped))
         {
             return stamped;
         }

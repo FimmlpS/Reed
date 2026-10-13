@@ -13,7 +13,20 @@
     "REED-RECALL.sort.desc":"时间逆序",
     "REED-RECALL.sort.asc":"时间顺序",
 
+    "REED-RECORD.select.title":"记录一张牌",
+    "REED-RECORD.select.round.title":"将一张牌记录到[blue]第 {Round} 回合[/blue]的回忆",
+
+    "REED-HERO_EPIC.select.title":"重现一段过往",
+    "REED-HERO_EPIC.select.empty":"没有可以重现的回忆。\n（确认键已禁用，只能取消）",
+    "REED-HERO_EPIC.select.preview.empty":"把鼠标移到左边的回合上，这里会显示那一回合的全部回忆。",
+    "REED-HERO_EPIC.select.preview.header":"第 {Round} 回合 · 共 {Count} 张 · 按打出顺序重现",
+    "REED-HERO_EPIC.row.count":"{Count} 张",
+    "REED-HERO_EPIC.type.attack":"攻击",
+    "REED-HERO_EPIC.type.skill":"技能",
+    "REED-HERO_EPIC.type.power":"能力",
+
     "REED-SPARK.title":"火花牌",
     "REED-SPARK.description":"这名生物当前有{SparkCount}张火花牌（上限为{SparkMax})。[red]燃烧状态[/red]下玩家每打出一张牌为其恢复1点抗性。",
-    "REED-SPARK.burst-select.title":"引爆一张火花牌"
+    "REED-SPARK.burst-select.title":"引爆一张火花牌",
+    "REED-SPARK.step-select.title":"进阶一张火花牌"
 }

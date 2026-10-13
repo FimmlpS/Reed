@@ -5,6 +5,7 @@ using MegaCrit.Sts2.Core.GameActions.Multiplayer;
 using MegaCrit.Sts2.Core.Localization.DynamicVars;
 using MegaCrit.Sts2.Core.Models;
 using MegaCrit.Sts2.Core.ValueProps;
+using Reed.Scripts.Helper;
 using Reed.Scripts.Pools;
 using Reed.Scripts.Resistance;
 
@@ -31,6 +32,7 @@ public class NormalFlower : AbstractReedCard, IFireFlower
     {
         for(int i = 0; i < fireBurnt.Times; i++)
         {
+            ReedHelper.CreateFireFx(fireBurnt.Target);
             await CreatureCmd.Damage(playerChoiceContext,fireBurnt.Target,DynamicVars.Damage.BaseValue * fireBurnt.Blv,ValueProp.Unpowered,Owner.Creature,this,null);
         }
     }

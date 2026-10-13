@@ -64,6 +64,13 @@ internal sealed partial class MemoryPreviewOverlay : CanvasLayer
     private static NCardHolder? _owner;
     private static Callable? _ownerExitCallable;
 
+    /// <summary>
+    /// 当前这张牌的预览是被**「抓住 / 选中」撑着**的（拖着出牌、键盘 1-10 出牌、选择模式里选中一张手牌），
+    /// 而不是靠悬浮撑着。撑着期间悬浮离开不收起 —— 拖牌 / 键盘出牌时悬浮会中断，
+    /// 一断就收等于白做；要等松手（出牌结算或取消）才收。
+    /// </summary>
+    private static bool _held;
+
     private Control _fan = null!;
     private readonly List<NCard> _cards = new();
 
@@ -105,10 +112,17 @@ internal sealed partial class MemoryPreviewOverlay : CanvasLayer
         }
         if (!isHovered)
         {
-            if (ReferenceEquals(_owner, holder))
+            // 正被「抓住」的那张不吃悬浮离开（见 _held）；除此之外照旧收起。
+            if (!_held && ReferenceEquals(_owner, holder))
             {
                 HidePreview();
             }
+            return;
+        }
+
+        // 有牌正被「抓住」：悬浮只是路过（拖牌时鼠标扫到别的牌），不接管已经展开的那张。
+        if (_held && !ReferenceEquals(_owner, holder))
+        {
             return;
         }
 
@@ -119,41 +133,49 @@ internal sealed partial class MemoryPreviewOverlay : CanvasLayer
             HidePreview();
         }
 
-        CardModel? model = holder.CardModel;
-        if (model is not IMemorySubscriber subscriber)
-        {
-            return; // 普通牌：没有追忆预览
-        }
+        TryShow(holder);
+    }
 
-        MemoryPreviewContext? context = MemoryPreviewContext.FromCard(model);
-        if (context == null)
+    /// <summary>
+    /// 牌被「抓住 / 选中」时展开预览。两个调用点：
+    /// <list type="bullet">
+    ///   <item><c>NPlayerHand.StartCardPlay</c> —— 鼠标点击拖着出牌、键盘 1-10 出牌都汇聚在这一个方法
+    ///     （键盘那条路鼠标从没碰过牌，光靠悬浮永远出不来预览）；</item>
+    ///   <item><c>NSelectedHandCardContainer.Add</c> —— 选择模式（“选一张牌弃掉”这类）里选中一张手牌，
+    ///     牌被挪进「已选」容器、悬浮随之消失。</item>
+    /// </list>
+    /// 不是追忆牌 / 这会没得追忆：不进入抓住状态，悬浮那套逻辑照旧。
+    /// </summary>
+    public static void OnCardHeld(NCardHolder? holder)
+    {
+        if (holder == null || !GodotObject.IsInstanceValid(holder) || !holder.IsInsideTree())
         {
             return;
         }
-
-        IReadOnlyList<CardModel>? preview;
-        try
+        if (ReferenceEquals(_owner, holder))
         {
-            preview = subscriber.GetRecallPreview(context);
-        }
-        catch (Exception e)
-        {
-            // 卡牌的预览逻辑出错不该把悬浮效果一起带走。
-            GD.PushWarning($"[MemoryPreview] {model.Id} 的追忆预览失败：{e.Message}");
+            // 已经为这张牌展开着（多半是鼠标先把它悬浮出来的）：只把预览从「悬浮撑着」改成「抓住撑着」，
+            // 不重建扇形 —— 重建会让整把牌闪一下重排。
+            _held = true;
             return;
         }
-
-        if (preview == null || preview.Count == 0)
+        if (TryShow(holder))
         {
-            // 没得追忆（比如上一回合没打过牌）：不显示，也别留着上一次的预览。
-            if (ReferenceEquals(_owner, holder))
-            {
-                HidePreview();
-            }
-            return;
+            _held = true;
         }
+    }
 
-        Show(holder, preview);
+    /// <summary>
+    /// 「抓住」结束（出牌结算成功、或取消出牌）时收起。只收抓着的那张 —— 别顺手把玩家此刻正悬浮的
+    /// 另一张牌的预览也带走（比如鼠标停在 A 上、却用键盘打出 B）。松开后鼠标若还停在牌上，
+    /// 悬浮会重新接管。
+    /// </summary>
+    public static void OnCardReleased()
+    {
+        if (_held)
+        {
+            HidePreview();
+        }
     }
 
     /// <summary>收起预览并断掉与被悬浮卡牌的联动。</summary>
@@ -161,10 +183,49 @@ internal sealed partial class MemoryPreviewOverlay : CanvasLayer
     {
         DetachOwnerExit();
         _owner = null;
+        _held = false;
         if (_instance != null && GodotObject.IsInstanceValid(_instance))
         {
             _instance.ClearCards();
         }
+    }
+
+    /// <summary>取这张牌能追忆的候选并展开；不是追忆牌 / 没得追忆则不显示（也不留上一次的预览）。</summary>
+    /// <returns>是否真的为这张牌展开了预览。</returns>
+    private static bool TryShow(NCardHolder holder)
+    {
+        CardModel? model = holder.CardModel;
+        if (model is IMemorySubscriber subscriber)
+        {
+            MemoryPreviewContext? context = MemoryPreviewContext.FromCard(model);
+            if (context != null)
+            {
+                IReadOnlyList<CardModel>? preview;
+                try
+                {
+                    preview = subscriber.GetRecallPreview(context);
+                }
+                catch (Exception e)
+                {
+                    // 卡牌的预览逻辑出错不该把悬浮效果一起带走。
+                    GD.PushWarning($"[MemoryPreview] {model.Id} 的追忆预览失败：{e.Message}");
+                    preview = null;
+                }
+
+                if (preview is { Count: > 0 })
+                {
+                    Show(holder, preview);
+                    return true;
+                }
+            }
+        }
+
+        // 没得追忆（比如上一回合没打过牌）：不显示，也别留着上一轮的预览。
+        if (ReferenceEquals(_owner, holder))
+        {
+            HidePreview();
+        }
+        return false;
     }
 
     // ============ 展开 ============

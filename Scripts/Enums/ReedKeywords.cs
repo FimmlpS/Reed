@@ -25,6 +25,10 @@ public class ReedKeywords
     [KeywordProperties(AutoKeywordPosition.None)]
     public static CardKeyword FireFlower;
 
+    [CustomEnum("STEP")]
+    [KeywordProperties(AutoKeywordPosition.None)]
+    public static CardKeyword Step;
+
     [CustomEnum("UNYIELDING")]
     [KeywordProperties(AutoKeywordPosition.Before)]
     public static CardKeyword Unyielding;
@@ -40,4 +44,8 @@ public class ReedKeywords
     [CustomEnum("RECALL")]
     [KeywordProperties(AutoKeywordPosition.None)]
     public static CardKeyword Recall;
+
+    [CustomEnum("FUTURE")]
+    [KeywordProperties(AutoKeywordPosition.None)]
+    public static CardKeyword Future;
 }

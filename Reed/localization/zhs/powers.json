@@ -16,8 +16,8 @@
     "REED-CURSE_HEAL_POWER.smartDescription":"当你的牌造成伤害时，获得伤害量{Amount}*25％的[gold]格挡[/gold]。",
 
     "REED-CHASE_FIRE_POWER.title":"逐火",
-	"REED-CHASE_FIRE_POWER.description":"将火花牌上限提升至4。\n你[gold]灼烧[/gold]处于[red]燃烧状态[/red]的敌人时，使其所有火花牌提升等量伤害。",
-    "REED-CHASE_FIRE_POWER.smartDescription":"将火花牌上限提升至4。\n你[gold]灼烧[/gold]处于[red]燃烧状态[/red]的敌人时，使其所有火花牌提升{Amount}*等量伤害。",
+	"REED-CHASE_FIRE_POWER.description":"将火花牌上限提升至4。\n你[gold]灼烧[/gold]处于[red]燃烧状态[/red]的敌人时，使其随机一张火花牌提升等量伤害。",
+    "REED-CHASE_FIRE_POWER.smartDescription":"将火花牌上限提升至4。\n你[gold]灼烧[/gold]处于[red]燃烧状态[/red]的敌人时，使其随机一张火花牌提升{Amount}*等量伤害。",
 
 	"REED-HEART_KNOT_POWER.title":"心结",
 	"REED-HEART_KNOT_POWER.description":"当你自动打出一张牌时，获得[gold]格挡[/gold]。",
@@ -37,5 +37,29 @@
 
     "REED-LIGHT_SHADOW_POWER.title":"光与影",
 	"REED-LIGHT_SHADOW_POWER.description":"每当有生物进入/离开[red]燃烧状态[/red]时，将一张[gold]焰光[/gold]/[gold]焰影[/gold]加入手中。",
-    "REED-LIGHT_SHADOW_POWER.smartDescription":"每当有生物进入/离开[red]燃烧状态[/red]时，将{Amount}张[gold]焰光[/gold]/[gold]焰影[/gold]加入手中。"
+    "REED-LIGHT_SHADOW_POWER.smartDescription":"每当有生物进入/离开[red]燃烧状态[/red]时，将{Amount}张[gold]焰光[/gold]/[gold]焰影[/gold]加入手中。",
+
+    "REED-UNTIL_DEATH_POWER.title":"直至燃烧殆尽",
+	"REED-UNTIL_DEATH_POWER.description":"每当有敌人离开[red]燃烧状态[/red]时，触发其随机[gold]火花[/gold]牌的爆发效果。",
+	"REED-UNTIL_DEATH_POWER.smartDescription":"每当有敌人离开[red]燃烧状态[/red]时，触发其随机[gold]火花[/gold]牌的爆发效果{Amount}次。",
+
+    "REED-WHICH_LIVING_POWER.title":"生死之灵",
+	"REED-WHICH_LIVING_POWER.description":"将你附着给其他生物的火花牌转化为生灵或死灵形态。",
+	"REED-WHICH_LIVING_POWER.smartDescription":"将你附着给其他生物的火花牌转化为{Alive:生灵形态，它们会提供给你防御能力。|死灵形态，它们会提供给你攻击能力。}",
+
+    "REED-STEP_STEP_POWER.title":"向前走吧",
+	"REED-STEP_STEP_POWER.description":"在你回合开始时，从[blue]第1回合[/blue]的回忆中[gold]追忆[/gold]一张攻击牌或技能牌，然后回合数加1。",
+    "REED-STEP_STEP_POWER.smartDescription":"在你回合开始时，从[blue]第{Amount}回合[/blue]的回忆中[gold]追忆[/gold]一张攻击牌或技能牌，然后回合数加1。",
+
+    "REED-LIGHT_FLOW_POWER.title":"光流",
+	"REED-LIGHT_FLOW_POWER.description":"你每打出一张牌，将一张[gold]焰光[/gold]加入手牌。",
+    "REED-LIGHT_FLOW_POWER.smartDescription":"你每打出一张牌，将{Amount}张[gold]焰光[/gold]加入手牌。",
+
+    "REED-RECALL_POWER.title":"待忆",
+	"REED-RECALL_POWER.description":"手动打出下一张牌后，从[blue]上一回合[/blue]的回忆中[gold]追忆[/gold]一张耗能不超过1的攻击牌或技能牌。",
+    "REED-RECALL_POWER.smartDescription":"手动打出下{Amount}张牌后，从[blue]上一回合[/blue]的回忆中[gold]追忆[/gold]一张耗能不超过{Amount}的攻击牌或技能牌。",
+
+    "REED-DRAGON_CROWN_POWER.title":"赠予红龙的花冠",
+	"REED-DRAGON_CROWN_POWER.description":"你可以打出并[gold]消耗[/gold]手中的[gold]状态牌[/gold]并抽一张牌，无论其是否可以打出。",
+    "REED-DRAGON_CROWN_POWER.smartDescription":"每回合限{Amount}张，你可以打出并[gold]消耗[/gold]手中的[gold]状态牌[/gold]并抽一张牌，无论其是否可以打出。"
 }

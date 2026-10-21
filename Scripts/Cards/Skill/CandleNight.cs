@@ -42,9 +42,11 @@ public class CandleNight : AbstractReedCard, IMemoryEventSubscriber
 
     async Task IMemoryEventSubscriber.AfterRemembered(PlayerChoiceContext choiceContext, Player player, CardModel card)
     {
+        // 事件里的 card 就是刚进回忆的那张快照副本本身（自动记录、RecordCmd 的选择/模板记录都算），
+        // 认它即可——快照不在牌堆里，所以把 player 作为发起者传下去，借玩家的战斗上下文生成牌
         if (ReferenceEquals(card, this))
         {
-            await this.CreateInHand<FlameLight>(DynamicVars.Cards.IntValue);
+            await this.CreateInHand<FlameLight>(1, player);
         }
     }
 }

@@ -31,7 +31,7 @@ public class Spread : AbstractReedCard
         }
         if (victim is IFireFlower flower)
         {
-            foreach(Creature target in CombatState.GetOpponentsOf(Owner.Creature).Where(c => c.IsAlive))
+            foreach(Creature target in CombatState.HittableEnemies.Where(c => c.IsAlive))
             {
                 await ReedAttachCmd.Burnt(choiceContext, victim, target, blv:IsUpgraded?1.5m:1m);
             }

@@ -21,7 +21,7 @@ public class HeroEpic : AbstractReedCard, IMemorySubscriber
         HoverTipFactory.FromKeyword(ReedKeywords.Memory)
     ];
 
-    public HeroEpic() : base(0, CardType.Skill, CardRarity.Rare, TargetType.Self)
+    public HeroEpic() : base(0, CardType.Skill, CardRarity.Event, TargetType.Self)
     {
 
     }
@@ -37,7 +37,8 @@ public class HeroEpic : AbstractReedCard, IMemorySubscriber
         }
 
         // 界面与真正的追忆必须用**同一个**谓词，否则界面会承诺一些打不出来的牌。
-        int? chosen = await MemoryRoundSelectScreen.Select(Owner, CanBeRecalled);
+        // 必须带上 choiceContext：联机时它负责暂停/恢复这个 GameAction，选择结果也要按原版协议同步给其他 peer。
+        int? chosen = await MemoryRoundSelectScreen.Select(choiceContext, Owner, CanBeRecalled);
         if (chosen is not int round)
         {
             return; // 取消：不追忆任何牌（消耗照旧）

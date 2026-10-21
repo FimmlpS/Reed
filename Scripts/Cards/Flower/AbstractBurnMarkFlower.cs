@@ -23,7 +23,7 @@ namespace Reed.Scripts.Cards.Flower;
 /// </summary>
 public abstract class AbstractBurnMarkFlower : AbstractReedCard, IFireFlower
 {
-    protected AbstractBurnMarkFlower() : base(1, CardType.Status, CardRarity.Token, TargetType.Self)
+    protected AbstractBurnMarkFlower() : base(-1, CardType.Status, CardRarity.Token, TargetType.Self)
     {
     }
 
@@ -33,8 +33,27 @@ public abstract class AbstractBurnMarkFlower : AbstractReedCard, IFireFlower
     /// <summary>宿主受到的攻击伤害的倍率（仿易伤：<c>1.25</c> = 提升 25%）。</summary>
     protected abstract decimal DamageIncrease { get; }
 
+    /// <summary>
+    /// 「生死之灵」形态下的倍率：生灵偏向压低宿主的输出（<see cref="AliveDamageDecrease"/>），
+    /// 死灵偏向放大宿主所受的伤害（<see cref="DeadDamageIncrease"/>）。
+    /// 默认都和基础值相同 —— 只覆写<b>本族的形态确实改变了的那几项</b>，没覆写的项形态下不变。
+    /// </summary>
+    protected virtual decimal AliveDamageDecrease => DamageDecrease;
+
+    /// <inheritdoc cref="AliveDamageDecrease"/>
+    protected virtual decimal AliveDamageIncrease => DamageIncrease;
+
+    /// <inheritdoc cref="AliveDamageDecrease"/>
+    protected virtual decimal DeadDamageDecrease => DamageDecrease;
+
+    /// <inheritdoc cref="AliveDamageDecrease"/>
+    protected virtual decimal DeadDamageIncrease => DamageIncrease;
+
     /// <summary>本卡的上级形态（合体进阶用）；null = 没有上级。</summary>
     protected virtual CardModel? UpperCard => null;
+
+    /// <summary>本卡是否为进阶形态（每族花的最上级）；供按张数计伤的效果使用，见 <see cref="IFireFlower.IsAdvanced"/>。</summary>
+    protected virtual bool IsAdvancedTier => false;
 
     public override int MaxUpgradeLevel => 0;
 
@@ -47,13 +66,21 @@ public abstract class AbstractBurnMarkFlower : AbstractReedCard, IFireFlower
             return 1m;
         }
         decimal result = 1m;
+        // 形态取自火花的 owner（把它附着上去的那名玩家），不是宿主：同一张火花挂在不同人身上，
+        // 强度按各自玩家当前选的是生灵还是死灵走。普通形态（没打出生死之灵）= 卡自己的基础值。
+        (decimal decrease, decimal increase) = LivingForm.Of(this) switch
+        {
+            WhichLivingForm.Alive => (AliveDamageDecrease, AliveDamageIncrease),
+            WhichLivingForm.Dead => (DeadDamageDecrease, DeadDamageIncrease),
+            _ => (DamageDecrease, DamageIncrease),
+        };
         if (ReferenceEquals(dealer, host))
         {
-            result *= DamageDecrease;
+            result *= decrease;
         }
         if (ReferenceEquals(target, host))
         {
-            result *= DamageIncrease;
+            result *= increase;
         }
         return result;
     }
@@ -68,6 +95,8 @@ public abstract class AbstractBurnMarkFlower : AbstractReedCard, IFireFlower
         // 所以这里照抄它的标记、用 ! 压掉不可空的空值告警。
         return UpperCard!;
     }
+
+    bool IFireFlower.IsAdvanced => IsAdvancedTier;
 
     async Task IFireFlower.OnBurnt(PlayerChoiceContext playerChoiceContext, FireBurnt fireBurnt)
     {

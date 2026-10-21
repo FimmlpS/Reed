@@ -144,7 +144,9 @@ public static class ReedAttachCmd
             CardModel? victim = await PickOneToBurst(choiceContext, target, owner);
             if (victim == null)
             {
-                GD.PushWarning("[ReedAttachCmd] 火花已满且无可引爆对象，本次 attach 取消。");
+                // 两种可能：已满却一张都没有（理论到不了），或者当前上下文问不了玩家（hook 里的
+                // ThrowingPlayerChoiceContext 等）——后者是多人安全设计，两端都取消，不动任何人的火花。
+                GD.PushWarning("[ReedAttachCmd] 火花已满且无法选定引爆对象（无可选火花或当前上下文不接受玩家选择），本次 attach 取消。");
                 return;
             }
             if (victim is IFireFlower flower)
@@ -158,11 +160,23 @@ public static class ReedAttachCmd
         // GiveSpark 广播 SparkAdded（计数圆闪烁 + Attach 特效）；成功后再通知火花自身。
         if (ResistanceSystem.GiveSpark(target, owner, toAttach))
         {
-            if (toAttach is IFireFlower attached)
-            {
-                await attached.OnAttached(choiceContext!, target);
-            }
+            await OnSparkAttached(choiceContext, toAttach, target);
         }
+    }
+
+    /// <summary>
+    /// 火花正式挂到目标身上之后的统一收尾（<see cref="Attach"/> 与 <see cref="UpgradeSpark"/> 都走这里）。
+    /// 目前两件事：通知火花自身 <see cref="IFireFlower.OnAttached"/>；让它跟上 owner 当前的「形态」
+    /// （见 <see cref="IFireFlower.ApplyLivingForm"/> —— 物化出来的新副本带的是 canonical 的基础数值，
+    /// 玩家在它挂上来之前就已经处于生灵/死灵时得在这里补一次；幂等，没形态或形态无影响时是空操作）。
+    /// </summary>
+    private static async Task OnSparkAttached(PlayerChoiceContext? choiceContext, CardModel spark, Creature target)
+    {
+        if (spark is IFireFlower attached)
+        {
+            await attached.OnAttached(choiceContext!, target);
+        }
+        LivingForm.ApplyTo(spark);
     }
 
     public static async Task Burnt(PlayerChoiceContext? choiceContext, Creature target, decimal blv = 1m, int times = 1, bool triggerByBurning = false)
@@ -292,10 +306,7 @@ public static class ReedAttachCmd
         {
             return null;
         }
-        if (upper is IFireFlower upgraded)
-        {
-            await upgraded.OnAttached(choiceContext!, target);
-        }
+        await OnSparkAttached(choiceContext, upper, target);
         return upper;
     }
 
@@ -427,7 +438,9 @@ public static class ReedAttachCmd
     }
 
     /// <summary>
-    /// 判定这组火花挂在哪个玩家名下。优先级：火花卡的 Owner → 出牌上下文 OwnerId → 目标所在战斗的本地玩家。
+    /// 判定这组火花挂在哪个玩家名下。优先级：火花卡的 Owner → 出牌上下文 OwnerId（行动者）→ 单人时该战斗
+    /// 唯一的玩家。**绝不能**在多人里退回“本地玩家”：那会让同一张卡在宿主和客户端上归到不同的人，
+    /// 两端的火花表随即错位（火花按 owner 分开存储，错一位整场结算都不一样）。
     /// </summary>
     private static Player? ResolveSparkOwner(PlayerChoiceContext? choiceContext, CardModel card, Creature target)
     {
@@ -445,8 +458,10 @@ public static class ReedAttachCmd
             return byContext;
         }
 
-        // 3) 单机回退：目标所在战斗的本地玩家。
-        if (combat != null && LocalContext.GetMe(combat) is { } me)
+        // 3) 回退：只有「全场就一名玩家」时才用本地玩家 —— 那种情况下本地玩家就是唯一玩家，任何客户端
+        //    算出来都一样，所以是确定性的。多人里一律返回 null（调用方跳过 attach 并告警），
+        //    需要归属于谁就由调用方显式把 owner 写进火花卡（CreateCard(canonical, owner)）。
+        if (combat != null && combat.Players.Count == 1 && LocalContext.GetMe(combat) is { } me)
         {
             return me;
         }
@@ -470,6 +485,8 @@ public static class ReedAttachCmd
                 // 一颗没主的可变副本：登记进本场战斗并挂到 owner 名下，保证后续事件/预览可用。
                 owner.Creature.CombatState.AddCard(template, owner);
             }
+            // 火花牌不在牌堆里，引擎不会给它分配网络 id；这里补上，联网路径（悬停高亮/选择结果/出牌）才不会抛。
+            ResistanceSystem.RegisterSparkForNet(template, owner);
             return template;
         }
 
@@ -480,10 +497,15 @@ public static class ReedAttachCmd
             GD.PushWarning($"[ReedAttachCmd] 非战斗上下文无法实例化火花 {template.Id} 的可变副本，attach 跳过。");
             return null;
         }
-        return combat.CreateCard(template, owner);
+        CardModel created = combat.CreateCard(template, owner);
+        ResistanceSystem.RegisterSparkForNet(created, owner); // 同上：先拿到网络 id，后续联网引用才不会抛
+        return created;
     }
 
-    /// <summary>让玩家从目标上已 attach 的火花里选一张引爆（只选 1 张）。选择屏无法弹出时取最后一张作默认。</summary>
+    /// <summary>
+    /// 让玩家从目标上已 attach 的火花里选一张引爆（只选 1 张）。
+    /// 只有在「能真正问玩家」时才开选择屏；否则返回 null（= 本次 attach 取消，谁都不引爆）。
+    /// </summary>
     public static async Task<CardModel?> PickOneToBurst(PlayerChoiceContext? choiceContext, Creature target, Player owner)
     {
         IReadOnlyList<CardModel> sparks = ResistanceSystem.SparksOf(target, owner);
@@ -491,13 +513,20 @@ public static class ReedAttachCmd
         {
             return null; // 已满却没有任何火花：理论上到不了这里
         }
-        if (choiceContext == null)
+        if (choiceContext == null || choiceContext is ThrowingPlayerChoiceContext || CombatManager.Instance?.IsEnding == true)
         {
-            // 非交互上下文（测试/结算等）弹不出选择屏：取最后一张（最新）作默认引爆对象，让流程仍可走通。
-            return sparks[sparks.Count - 1];
+            // 非交互上下文（hook 里的 ThrowingPlayerChoiceContext、测试、结算、战斗已结束）：
+            //   1) ThrowingPlayerChoiceContext.SignalPlayerChoiceBegun 会直接抛 NotImplementedException ——
+            //      在这里开选择屏等于把整场结算炸掉（火花满时一爆就崩）；
+            //   2) 即使能开屏，选择结果也要两端同步；没人选时由本端私自挑一张烧掉，就是在客户端本地
+            //      改动别人的火花表，两端必然越走越远。
+            // 因此一律不开屏：返回 null 让 Attach 取消这次 attach，状态保持两端一致。
+            return null;
         }
 
         // 只选 1 张；RequireManualConfirmation=false → 若恰好只有 1 张可选，FromSimpleGrid 会自动全选、免弹屏。
+        // 选择在网络上按「列表下标」同步（见 CardSelectCmd.FromSimpleGrid 的 FromIndexes），因此要求两端的
+        // 火花列表内容与顺序一致 —— 那正是 ResolveSparkOwner/GiveSpark 不做本地判断的原因。
         CardSelectorPrefs prefs = new CardSelectorPrefs(BurstPrompt, 1);
         IEnumerable<CardModel> chosen = await CardSelectCmd.FromSimpleGrid(choiceContext, sparks, owner, prefs);
         return chosen.FirstOrDefault();

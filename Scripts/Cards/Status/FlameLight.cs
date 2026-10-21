@@ -8,16 +8,16 @@ using MegaCrit.Sts2.Core.Helpers;
 using MegaCrit.Sts2.Core.HoverTips;
 using MegaCrit.Sts2.Core.Localization.DynamicVars;
 using MegaCrit.Sts2.Core.Models;
+using MegaCrit.Sts2.Core.Models.CardPools;
 using MegaCrit.Sts2.Core.Nodes.Rooms;
 using MegaCrit.Sts2.Core.Nodes.Vfx;
 using MegaCrit.Sts2.Core.ValueProps;
 using Reed.Scripts.DynamicVars;
 using Reed.Scripts.Enums;
-using Reed.Scripts.Pools;
 
 namespace Reed.Scripts.Cards.Status;
 
-[Pool(typeof(ReedCardPool))]
+[Pool(typeof(TokenCardPool))]
 public class FlameLight : AbstractReedCard
 {
     protected override IEnumerable<DynamicVar> CanonicalVars => [
@@ -39,34 +39,7 @@ public class FlameLight : AbstractReedCard
 
     protected override async Task OnTurnEndInHand(PlayerChoiceContext choiceContext)
     {
-        // foreach(Creature target in GetPossibleTargets())
-        // {
-        //     if (target.IsAlive)
-        //     {
-        //         NCombatRoom.Instance?.CombatVfxContainer.AddChildSafely(NGroundFireVfx.Create(target));
-        //         SfxCmd.Play("event:/sfx/characters/attack_fire");
-        //         await CreatureCmd.Damage(choiceContext, target, base.DynamicVars.Damage, this, null);
-        //     }
-
-        // }
-        foreach(Creature target in GetPossibleTargets())
-        {
-            if (target.IsAlive)
-            {
-                NCombatRoom.Instance?.CombatVfxContainer.AddChildSafely(NGroundFireVfx.Create(target));
-            }
-        }
-        SfxCmd.Play("event:/sfx/characters/attack_fire");
-        await CreatureCmd.Damage(choiceContext,GetPossibleTargets(),DynamicVars.Damage,Owner.Creature,this,null);
-    }
-
-    private IReadOnlyList<Creature> GetPossibleTargets()
-    {
-        if(CombatState == null)
-        {
-            return [];
-        }
-        return CombatState.GetOpponentsOf(Owner.Creature);
+        
     }
 
     public override async Task AfterCardChangedPiles(CardModel card, PileType oldPileType, AbstractModel? clonedBy)
@@ -82,6 +55,18 @@ public class FlameLight : AbstractReedCard
 
     public override async Task AfterCardExhausted(PlayerChoiceContext choiceContext, CardModel card, bool causedByEthereal)
     {
+        if(card == this)
+        {
+            foreach(Creature target in CombatState?.HittableEnemies??[])
+            {
+                if (target.IsAlive)
+                {
+                    NCombatRoom.Instance?.CombatVfxContainer.AddChildSafely(NGroundFireVfx.Create(target));
+                }
+            }
+            SfxCmd.Play("event:/sfx/characters/attack_fire");
+            await CreatureCmd.Damage(choiceContext,CombatState?.HittableEnemies??[],DynamicVars.Damage,Owner.Creature,this,null);
+        }
         if(card == this && Keywords.Contains(ReedKeywords.Unyielding))
         {
             if (PileType.Hand.GetPile(Owner).Cards.Count < MaxHandSizePatch.GetMaxHandSize(Owner, CardPile.MaxCardsInHand))
@@ -89,6 +74,7 @@ public class FlameLight : AbstractReedCard
                 foreach(CardModel c in await this.CreateInHand<FlameLight>(1))
                 {
                     CardCmd.ApplyKeyword(c,ReedKeywords.Unyielding);
+                    c.GiveSingleTurnRetain();
                 }
             }
         }

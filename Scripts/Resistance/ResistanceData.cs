@@ -1,7 +1,9 @@
+using System.Linq;
 using MegaCrit.Sts2.Core.Combat;
 using MegaCrit.Sts2.Core.Entities.Creatures;
 using MegaCrit.Sts2.Core.Models;
 using MegaCrit.Sts2.Core.Rooms;
+using ReedCharacter = Reed.Scripts.Characters.Reed;
 
 namespace Reed.Scripts.Resistance;
 
@@ -16,15 +18,18 @@ public sealed class ResistanceData
     public ResistanceData(Creature _creature)
     {
         Owner = _creature;
-        Max = MaxForRoom(Owner.CombatState);
+        Max = MaxForRoom(Owner.CombatState, _creature);
     }
 
     /// <summary>
     /// 按房间类型算出的抗性上限：普通 <see cref="DefaultMax"/>、精英 +1、首领 +2。
     /// 挂到 <see cref="ResistanceSystem.ResetForNewCombat"/> 上是为了让"跨战斗存活"的生物（玩家）
     /// 每场都按本场房间重算，而不是停在它第一次建数据时那场的房间类型上。
+    ///
+    /// <para>多人：再乘上场上苇草角色的数量（2 个苇草打普通/精英/首领 = 8/10/12）。
+    /// 只乘敌人 —— 玩家自己的条长度不受影响（<see cref="Creature.IsPlayer"/>）。</para>
     /// </summary>
-    public static int MaxForRoom(ICombatState? combat)
+    public static int MaxForRoom(ICombatState? combat, Creature creature)
     {
         int max = DefaultMax;
         RoomType type = combat?.RunState.CurrentRoom?.RoomType ?? RoomType.Unassigned;
@@ -36,7 +41,21 @@ public sealed class ResistanceData
         {
             max += 2;
         }
-        return max;
+        return max * ReedScale(combat, creature);
+    }
+
+    /// <summary>
+    /// 敌人抗性上限要乘的倍数 = 场上苇草角色数量；玩家自己恒为 1 倍。
+    /// 读不到战斗/玩家时也按 1 倍（与单人一致）。
+    /// </summary>
+    private static int ReedScale(ICombatState? combat, Creature creature)
+    {
+        if (creature.IsPlayer)
+        {
+            return 1;
+        }
+        int reeds = combat?.Players.Count(p => p.Character is ReedCharacter) ?? 1;
+        return reeds < 1 ? 1 : reeds;
     }
 
     public Creature Owner;

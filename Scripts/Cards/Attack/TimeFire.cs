@@ -12,6 +12,8 @@ using MegaCrit.Sts2.Core.Nodes.Vfx;
 using MegaCrit.Sts2.Core.Nodes.Rooms;
 using Godot;
 using MegaCrit.Sts2.Core.Helpers;
+using MegaCrit.Sts2.Core.Models;
+using MegaCrit.Sts2.Core.Context;
 
 namespace Reed.Scripts.Cards.Attack;
 
@@ -19,17 +21,8 @@ namespace Reed.Scripts.Cards.Attack;
 public class TimeFire : AbstractReedCard
 {
     protected override IEnumerable<DynamicVar> CanonicalVars => [
-        new CalculationBaseVar(4),
-        new ExtraDamageVar(8),
-        new CalculatedDamageVar(ValueProp.Move).WithMultiplier((card,target)=> {
-            if(card.CombatState!=null){
-                int playedRound = MemoryPlayRound.PlayedRound(card, card.CombatState);
-                if(playedRound>0){
-                    return Math.Abs(playedRound-card.CombatState.RoundNumber);
-                }
-            }
-            return 0;
-        })
+        new DamageVar(5,ValueProp.Move),
+        new DynamicVar("Increase",1)
     ];
 
     protected override IEnumerable<IHoverTip> ExtraHoverTips => [
@@ -44,7 +37,7 @@ public class TimeFire : AbstractReedCard
     protected override async Task OnPlay(PlayerChoiceContext choiceContext, CardPlay cardPlay)
     {
         float scale = 0.8f;
-        await DamageCmd.Attack(DynamicVars.CalculatedDamage)
+        await DamageCmd.Attack(DynamicVars.Damage.BaseValue)
         .FromCard(this, cardPlay)
         .Targeting(cardPlay.Target)
         .BeforeDamage(delegate
@@ -61,11 +54,37 @@ public class TimeFire : AbstractReedCard
                 return Task.CompletedTask;
             })
         .Execute(choiceContext);
+
+        foreach(int round in MemorySystem.Of(Owner).Rounds)
+        {
+            foreach(RememberedCard rCard in MemorySystem.Of(Owner).PeekRound(round))
+            {
+                CardModel card = rCard.Card;
+                if (card.Type != CardType.Attack)
+                {
+                    continue;
+                }
+                decimal improveVal = DynamicVars["Increase"].BaseValue;
+                //damage
+                if (card.DynamicVars.ContainsKey("CalculatedDamage"))
+                {
+                    card.DynamicVars.CalculatedDamage.BaseValue += improveVal;
+                }
+                else if(card.DynamicVars.ContainsKey("Damage"))
+                {
+                    card.DynamicVars.Damage.BaseValue += improveVal;
+                }
+                else if(card.DynamicVars.ContainsKey("OstyDamage"))
+                {
+                    card.DynamicVars.OstyDamage.BaseValue += improveVal;
+                }
+            }
+        }
     }
 
     protected override void OnUpgrade()
     {
-        DynamicVars.CalculationBase.UpgradeValueBy(2);
-        DynamicVars.ExtraDamage.UpgradeValueBy(4);
+        DynamicVars.Damage.UpgradeValueBy(2);
+        DynamicVars["Increase"].UpgradeValueBy(1);
     }
 }

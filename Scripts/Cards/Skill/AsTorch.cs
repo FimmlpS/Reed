@@ -37,6 +37,7 @@ public class AsTorch : AbstractReedCard
 
     protected override void OnUpgrade()
     {
-        DynamicVars["AsTorchPower"].UpgradeValueBy(1);
+        //DynamicVars["AsTorchPower"].UpgradeValueBy(1);
+        EnergyCost.UpgradeBy(-1);
     }
 }

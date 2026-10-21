@@ -5,6 +5,7 @@ using MegaCrit.Sts2.Core.GameActions.Multiplayer;
 using MegaCrit.Sts2.Core.HoverTips;
 using MegaCrit.Sts2.Core.Localization.DynamicVars;
 using MegaCrit.Sts2.Core.Models;
+using MegaCrit.Sts2.Core.Models.CardPools;
 using Reed.Scripts.DynamicVars;
 using Reed.Scripts.Enums;
 using Reed.Scripts.Pools;
@@ -12,7 +13,7 @@ using Reed.Scripts.Resistance;
 
 namespace Reed.Scripts.Cards.Status;
 
-[Pool(typeof(ReedCardPool))]
+[Pool(typeof(TokenCardPool))]
 public class FlameShadow : AbstractReedCard
 {
     protected override IEnumerable<DynamicVar> CanonicalVars => [

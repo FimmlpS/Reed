@@ -7,6 +7,9 @@ using Reed.Scripts.Cards.Flower;
 using Reed.Scripts.Enums;
 using Reed.Scripts.Resistance;
 using Reed.Scripts.DynamicVars;
+using MegaCrit.Sts2.Core.Localization.DynamicVars;
+using MegaCrit.Sts2.Core.ValueProps;
+using MegaCrit.Sts2.Core.Commands;
 
 namespace Reed.Scripts.Cards.Skill;
 
@@ -17,6 +20,10 @@ public class Patrol : AbstractReedCard
 
     public override IEnumerable<CardKeyword> CanonicalKeywords => [
         CardKeyword.Exhaust
+    ];
+
+    protected override IEnumerable<DynamicVar> CanonicalVars => [
+        new BlockVar(8, ValueProp.Move)
     ];
 
     protected override IEnumerable<IHoverTip> ExtraHoverTips => [
@@ -31,7 +38,8 @@ public class Patrol : AbstractReedCard
 
     protected override async Task OnPlay(PlayerChoiceContext choiceContext, CardPlay cardPlay)
     {
-        int energyCost = cardPlay.Resources.EnergyValue + (IsUpgraded?1:0);
+        await CreatureCmd.GainBlock(Owner.Creature, DynamicVars.Block, cardPlay);
+        int energyCost = cardPlay.Resources.EnergyValue;
         for(int i = 0; i < energyCost; i++)
         {
             await ReedAttachCmd.Attach(choiceContext, this.CreateFireFlower<NormalFlower>(), cardPlay.Target);
@@ -40,6 +48,7 @@ public class Patrol : AbstractReedCard
 
     protected override void OnUpgrade()
     {
-
+        DynamicVars.Block.UpgradeValueBy(2);
+        AddKeyword(CardKeyword.Innate);
     }
 }

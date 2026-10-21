@@ -48,6 +48,21 @@ public interface IFireFlower
     }
 
     /// <summary>
+    /// 按「生死之灵」的形态重算本卡<b>写在自己牌面上</b>的数值。形态取自 owner（玩家），参数直接给进来。
+    /// 「映耀」的抽牌 +1、「灿烂」生灵抽牌 +2／死灵能量 +1 都走这里。
+    ///
+    /// <para><b>实现必须幂等</b>：每次都从 canonical（<c>ModelDb.Card&lt;T&gt;()</c>）的基准值重算，
+    /// 而不是在当前值上加减 —— 形态会在生灵↔死灵↔普通之间来回切，靠重算才能做到「切换回普通形态后重制」。
+    /// 收到 <see cref="WhichLivingForm.None"/> 时也照样重算，那就是回到基准值。</para>
+    ///
+    /// <para>不急的形态效果<b>不要</b>写进这里：能读的时候现读（爆发时问一次 owner 的形态）就不必维护牌面数值，
+    /// 也就不会有忘记重制的风险。默认无行为。</para>
+    /// </summary>
+    public virtual void ApplyLivingForm(WhichLivingForm form)
+    {
+    }
+
+    /// <summary>
     /// 返回这张火花的“上级形态”（canonical 即可），用于合体进阶：当目标上已有 2 张与本卡同 ModelId 的火花、
     /// 而这次又要 attach 一张本卡时，三张会合体成一张上级卡。返回 null（默认）表示本卡没有进阶形态。
     /// </summary>
@@ -55,4 +70,14 @@ public interface IFireFlower
     {
         return null;
     }
+
+    /// <summary>
+    /// 这张火花是否为「<b>进阶形态</b>」—— 即每族花的最上级（<c>EndFlower</c> / <c>SplendidFlower</c> / <c>BlazeFlower</c>）。
+    /// 供按张数计伤的效果使用：MeltCalamity（融化灾变）把进阶火花记作 2 张。与“卡牌升级（upgrade）”无关。
+    ///
+    /// <para><b>必须显式声明</b>，不要用 <c>GetUpperCard() == null</c> 反推：那个判断的真实含义是“没有上级形态”，
+    /// 一旦某张火花忘了声明上级，它就会被静默当成进阶牌、凭空多算一份伤害 —— 不抛异常，只是数值错，极难查。
+    /// 默认 false：漏声明的后果是少算，方向上是安全的。</para>
+    /// </summary>
+    public virtual bool IsAdvanced => false;
 }

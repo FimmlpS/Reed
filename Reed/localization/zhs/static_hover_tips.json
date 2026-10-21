@@ -25,6 +25,8 @@
     "REED-HERO_EPIC.type.skill":"技能",
     "REED-HERO_EPIC.type.power":"能力",
 
+    "REED-WHICH_LIVING.select.title":"选择进入生灵或死灵",
+
     "REED-SPARK.title":"火花牌",
     "REED-SPARK.description":"这名生物当前有{SparkCount}张火花牌（上限为{SparkMax})。[red]燃烧状态[/red]下玩家每打出一张牌为其恢复1点抗性。",
     "REED-SPARK.burst-select.title":"引爆一张火花牌",

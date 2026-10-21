@@ -14,7 +14,7 @@ namespace Reed.Scripts.Cards.Skill;
 public class Ruins : AbstractReedCard
 {
     protected override IEnumerable<DynamicVar> CanonicalVars => [
-        new EnergyVar(1),
+        new EnergyVar(2),
         new RepeatVar(1)
     ];
 
@@ -26,7 +26,7 @@ public class Ruins : AbstractReedCard
         CardKeyword.Exhaust
     ];
 
-    public Ruins() : base(0, CardType.Skill, CardRarity.Uncommon, TargetType.Self)
+    public Ruins() : base(1, CardType.Skill, CardRarity.Uncommon, TargetType.Self)
     {
         
     }

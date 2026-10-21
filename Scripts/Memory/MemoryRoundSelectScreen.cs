@@ -4,13 +4,17 @@ using System.Linq;
 using System.Threading.Tasks;
 using Godot;
 using MegaCrit.Sts2.Core.Assets;
+using MegaCrit.Sts2.Core.Context;
 using MegaCrit.Sts2.Core.ControllerInput;
 using MegaCrit.Sts2.Core.Entities.Cards;
 using MegaCrit.Sts2.Core.Entities.Multiplayer;
 using MegaCrit.Sts2.Core.Entities.Players;
 using MegaCrit.Sts2.Core.Entities.UI;
+using MegaCrit.Sts2.Core.GameActions;
+using MegaCrit.Sts2.Core.GameActions.Multiplayer;
 using MegaCrit.Sts2.Core.Helpers;
 using MegaCrit.Sts2.Core.Localization;
+using MegaCrit.Sts2.Core.Multiplayer.Game;
 using MegaCrit.Sts2.Core.Models;
 using MegaCrit.Sts2.Core.Nodes;
 using MegaCrit.Sts2.Core.Nodes.Cards;
@@ -20,6 +24,7 @@ using MegaCrit.Sts2.Core.Nodes.GodotExtensions;
 using MegaCrit.Sts2.Core.Nodes.Screens;
 using MegaCrit.Sts2.Core.Nodes.Screens.Overlays;
 using MegaCrit.Sts2.Core.Nodes.Screens.ScreenContext;
+using MegaCrit.Sts2.Core.Runs;
 using Reed.Scripts.Enums;
 
 namespace Reed.Scripts.Memory;
@@ -60,9 +65,22 @@ internal sealed partial class MemoryRoundSelectScreen : Control, IOverlayScreen,
     private const float MarginLeft = 110f;
     private const float MarginRight = 110f;
     private const float MarginTop = 24f;
-    private const float MarginBottom = 150f;   // 给底部两个按钮（返回 / 确认）留位
     private const float HeaderHeight = 64f;
-    private const float PaneTop = MarginTop + HeaderHeight + 16f;
+
+    /// <summary>
+    /// 两栏的顶边。必须低于**遗物行**：<c>run.tscn</c> 里 <c>RelicInventory</c> 的 offset_top = 82，
+    /// 每格遗物 68px（<c>relic_inventory_holder.tscn</c> 的 custom_minimum_size）→ 遗物行占 y ≈ 82…150。
+    /// 遗物行/顶栏都是 <c>OverlayScreensContainer</c> **之后**的兄弟节点（树序在后 = 画在上面），
+    /// 覆盖层压不过它们，只能把内容躲开：150 之下再留 12 的间隙。
+    /// </summary>
+    private const float PaneTop = 162f;
+
+    /// <summary>
+    /// 滚动内容末尾的留白：两栏本身一直铺到屏幕底边（<c>OffsetBottom = 0</c>），但返回键（左下）与确认键
+    /// （右下）是**悬浮**在内容之上的，所以内容要自己留够高度，滚到底时最后一行停在两个按钮上方
+    /// （同回忆牌堆界面的 ContentPaddingBottom）。屏幕因此「铺满整个屏幕」，不会有半截被硬裁在中间的观感。
+    /// </summary>
+    private const float ContentPaddingBottom = 160f;
 
     /// <summary>左栏（回合列表）宽度。</summary>
     private const float LeftPaneWidth = 500f;
@@ -111,6 +129,7 @@ internal sealed partial class MemoryRoundSelectScreen : Control, IOverlayScreen,
     private int _hovered = -1;    // 鼠标正悬停的回合（-1 = 没悬停）
     private int _shownRound = -2; // 右侧当前正在展示的回合（-2 = 还没建过）
     private Func<CardModel, bool>? _filter; // 只认这些牌（null = 全认）；见 Select(...) 的说明
+    private List<int> _rounds = new();      // 可选的回合（新 → 旧），由 Select 算好传入：与远端还原索引用的是同一份
     private bool _closing;
     private bool _inspectOpen;
     private bool _previewDirty;
@@ -129,31 +148,104 @@ internal sealed partial class MemoryRoundSelectScreen : Control, IOverlayScreen,
     // ============ 打开 ============
 
     /// <summary>
-    /// 弹出「选择一个回忆回合」界面，返回玩家选中的回合号；取消（返回键 / Esc）时返回 null。
-    /// 只显示本地/该玩家确实有回忆的回合。
+    /// 弹出「选择一个回忆回合」界面，返回玩家选中的回合号；取消（返回键 / Esc）时返回 null；
+    /// 一个可选的回合都没有时**连界面都不弹**，直接返回 null。
+    ///
+    /// <para><b>联机同步</b>：必须走原版 <c>CardSelectCmd</c> 那套玩家选择协议。所有 peer 都会确定性地跑完
+    /// 这次出牌结算，如果各自弹一次界面，就只有「选中那张牌的人」那台能等到结果，其余 peer 会永远等下去（卡死）。
+    /// 顺序照抄 <c>CardSelectCmd.FromChooseACardScreen</c>：先在确定的上下文里
+    /// <c>ReserveChoiceId</c> → <c>SignalPlayerChoiceBegun</c> → 本地选择方弹屏、选完 <c>SyncLocalChoice</c>
+    /// （结果编码成**索引**）、其余 peer <c>WaitForRemoteChoice</c> 后按索引还原 →
+    /// <c>SignalPlayerChoiceEnded</c>。所以可选回合表（<see cref="CandidateRounds"/>）必须在所有 peer 上
+    /// 算出同一份：它既用来编码索引，也是界面展示的那一份（界面不自己重算）。</para>
     ///
     /// <para><paramref name="filter"/> 决定**哪些牌算数**：被它筛掉的回忆既不显示（不算进张数/类型统计/缩略图/
     /// 右栏预览），也不参与「这个回合还算不算有回忆」的判断 —— 一整个回合的牌全被筛掉时，那一回合干脆不列出。
     /// 调用方拿它过滤「这个界面给得出什么」，而真正追忆时的筛选由调用方自己再传一次（两边用**同一个**谓词，
     /// 否则界面会承诺一些实际追忆不到、或漏掉一些实际会追忆到的牌）。传 null = 什么都不过滤。</para>
     /// </summary>
-    public static Task<int?> Select(Player? player, Func<CardModel, bool>? filter = null)
+    public static async Task<int?> Select(PlayerChoiceContext? choiceContext, Player? player, Func<CardModel, bool>? filter = null)
     {
-        TaskCompletionSource<int?> tcs = new();
-        if (player == null || player.Creature?.CombatState == null || NOverlayStack.Instance == null)
+        if (player?.Creature?.CombatState is not { } combat)
         {
-            tcs.SetResult(null);
-            return tcs.Task;
+            return null;
         }
+
+        // 候选表要在**任何 await 之前**算出来：此刻所有 peer 都还在确定性的上下文里。
+        List<int> rounds = CandidateRounds(MemorySystem.Of(combat, player), filter);
+        if (rounds.Count == 0)
+        {
+            return null; // 没得选：不弹界面（弹了也只能点返回，还会把玩家卡在一屏空列表前）
+        }
+
+        if (choiceContext == null)
+        {
+            // 拿不到选择上下文（理论上不会走到）：退回「只有本地才弹界面」，不参与同步。
+            return LocalContext.IsMe(player) ? await ShowLocal(player, filter, rounds) : null;
+        }
+
+        uint choiceId = RunManager.Instance.PlayerChoiceSynchronizer.ReserveChoiceId(player);
+        await choiceContext.SignalPlayerChoiceBegun(player, PlayerChoiceOptions.None);
+
+        int? chosen;
+        if (ShouldSelectLocalCard(player))
+        {
+            chosen = await ShowLocal(player, filter, rounds);
+            int index = chosen is int round ? rounds.IndexOf(round) : -1;
+            // 取消 → 空索引（AsIndex() 得到 -1）；远端据此还原成「没选」。
+            RunManager.Instance.PlayerChoiceSynchronizer.SyncLocalChoice(
+                player, choiceId, PlayerChoiceResult.FromIndex(index >= 0 ? index : null));
+        }
+        else
+        {
+            int index = (await RunManager.Instance.PlayerChoiceSynchronizer.WaitForRemoteChoice(player, choiceId)).AsIndex();
+            chosen = index >= 0 && index < rounds.Count ? rounds[index] : null;
+        }
+
+        await choiceContext.SignalPlayerChoiceEnded();
+        return chosen;
+    }
+
+    /// <summary>本机弹屏让玩家选一个回合（只有本机是选择方时才调用）。界面被外力拆掉 / 取消 = null。</summary>
+    private static async Task<int?> ShowLocal(Player player, Func<CardModel, bool>? filter, List<int> rounds)
+    {
+        if (NOverlayStack.Instance is not { } stack)
+        {
+            return null;
+        }
+        TaskCompletionSource<int?> tcs = new();
         MemoryRoundSelectScreen screen = new()
         {
             _player = player,
             _filter = filter,
+            _rounds = rounds,
             _result = tcs,
             Name = "MemoryRoundSelectScreen"
         };
-        NOverlayStack.Instance.Push(screen);
-        return tcs.Task;
+        stack.Push(screen);
+        return await tcs.Task;
+    }
+
+    /// <summary>本机就是那个要做选择的玩家吗（照抄 <c>CardSelectCmd.ShouldSelectLocalCard</c>）。</summary>
+    private static bool ShouldSelectLocalCard(Player player)
+        => LocalContext.IsMe(player) && RunManager.Instance.NetService.Type != NetGameType.Replay;
+
+    /// <summary>
+    /// 可选回合：回忆里**过滤后仍有牌**的回合，新 → 旧。系统每回合开始会预创建「本回合 / 下一回合」的空桶，
+    /// 空桶必须滤掉（否则会列出点开什么也没有的回合）。只用回合号 + 调用方的谓词判断，所有 peer 结果一致。
+    /// </summary>
+    private static List<int> CandidateRounds(PlayerMemory memory, Func<CardModel, bool>? filter)
+    {
+        List<int> rounds = new();
+        foreach (int round in memory.Rounds)
+        {
+            if (round >= 1 && memory.PeekRound(round).Any(e => e.Card != null && (filter == null || filter(e.Card))))
+            {
+                rounds.Add(round);
+            }
+        }
+        rounds.Sort((a, b) => b.CompareTo(a)); // 最近打过的回合在最上面（回合号互不相同，各 peer 排序结果唯一）
+        return rounds;
     }
 
     // ============ IOverlayScreen / IScreenContext ============
@@ -368,7 +460,7 @@ internal sealed partial class MemoryRoundSelectScreen : Control, IOverlayScreen,
         _leftPane.OffsetLeft = MarginLeft;
         _leftPane.OffsetRight = MarginLeft + LeftPaneWidth;
         _leftPane.OffsetTop = PaneTop;
-        _leftPane.OffsetBottom = -MarginBottom;
+        _leftPane.OffsetBottom = 0f;   // 一直铺到屏幕底边（底部两个按钮悬浮在内容上，内容自己留 ContentPaddingBottom）
         this.AddChildSafely(_leftPane);
     }
 
@@ -384,7 +476,7 @@ internal sealed partial class MemoryRoundSelectScreen : Control, IOverlayScreen,
         _previewPane.OffsetLeft = MarginLeft + LeftPaneWidth + PaneGap;
         _previewPane.OffsetRight = -MarginRight;
         _previewPane.OffsetTop = PaneTop;
-        _previewPane.OffsetBottom = -MarginBottom;
+        _previewPane.OffsetBottom = 0f;
         this.AddChildSafely(_previewPane);
 
         _previewHeader = new Label
@@ -440,21 +532,9 @@ internal sealed partial class MemoryRoundSelectScreen : Control, IOverlayScreen,
             return;
         }
 
-        // 先把每一回合**过滤后**的回忆算出来：同一个谓词要同时决定「这一回合列不列」和「这一回合里有什么」，
-        // 分开算两遍容易算出不一致的结果。只列过滤后仍有牌的回合（原本就空、或全被筛掉的都不列）。
-        List<(int Round, List<RememberedCard> Entries)> rounds = new();
-        foreach (int r in memory.Rounds)
-        {
-            List<RememberedCard> entries = FilteredEntries(r);
-            if (entries.Count > 0)
-            {
-                rounds.Add((r, entries));
-            }
-        }
-        // 新 → 旧：最近打过的回合在最上面。
-        rounds.Sort((a, b) => b.Round.CompareTo(a.Round));
-
-        if (rounds.Count == 0)
+        // 回合表由 Select 算好传进来（就是远端还原索引用的那一份），这里不再自己算一遍 ——
+        // 两处各算一次的话，界面列出的回合和索引表就可能对不上（比如索引越界变成「取消」）。
+        if (_rounds.Count == 0)
         {
             Label empty = MakeLabel(LocOrDefault("REED-HERO_EPIC.select.empty", "没有可以重现的回忆。"), 24, new Color(StsColors.cream, 0.6f), bold: false);
             empty.Position = new Vector2(8f, 8f);
@@ -465,11 +545,11 @@ internal sealed partial class MemoryRoundSelectScreen : Control, IOverlayScreen,
             return;
         }
 
-        for (int i = 0; i < rounds.Count; i++)
+        for (int i = 0; i < _rounds.Count; i++)
         {
-            _rows.Add(BuildRow(rounds[i].Round, rounds[i].Entries, i));
+            _rows.Add(BuildRow(_rounds[i], FilteredEntries(_rounds[i]), i));
         }
-        _leftScroll.SetContentHeight(_rows.Count * RowHeight + (_rows.Count - 1) * RowGap + 4f);
+        _leftScroll.SetContentHeight(_rows.Count * RowHeight + (_rows.Count - 1) * RowGap + 4f + ContentPaddingBottom);
 
         // 只有一个可选的回合：先替玩家选上（确认键随之亮起），但**不**替他确认 —— 双重确认这一层不动。
         if (_rows.Count == 1)
@@ -738,8 +818,9 @@ internal sealed partial class MemoryRoundSelectScreen : Control, IOverlayScreen,
         float width = Mathf.Max(240f, _previewPane.Size.X - ScrollbarGutter);
         int cols = Mathf.Max(1, (int)((width + CardPadding) / (CardSize.X + CardPadding)));
         int rows = (entries.Count + cols - 1) / cols;
-        // 60 表头 + 40 上边距 + 各行 + 末尾给「第 N 张」序号留 48（序号挂在卡下方，不留就会被裁掉）。
-        float contentHeight = 100f + rows * CardSize.Y + Mathf.Max(0, rows - 1) * CardPadding + 48f;
+        // 60 表头 + 40 上边距 + 各行 + 末尾给「第 N 张」序号留 48（序号挂在卡下方，不留就会被裁掉），
+        // 最后再加 ContentPaddingBottom：滚到底时最后一行要停在右下角确认键的上方。
+        float contentHeight = 100f + rows * CardSize.Y + Mathf.Max(0, rows - 1) * CardPadding + 48f + ContentPaddingBottom;
 
         for (int i = 0; i < entries.Count; i++)
         {

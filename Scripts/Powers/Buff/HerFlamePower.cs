@@ -15,6 +15,10 @@ public class HerFlamePower : AbstractReedPower
 
     public override async Task AfterCardExhausted(PlayerChoiceContext choiceContext, CardModel card, bool causedByEthereal)
     {
+        if(card.Owner != Owner.Player)
+        {
+            return;
+        }
         Creature target = null;
         IEnumerable<Creature> targets = GetPossibleTargets().Where(c=>c.IsAlive && !c.IsBurningResistance());
         if (targets.Count() > 0)

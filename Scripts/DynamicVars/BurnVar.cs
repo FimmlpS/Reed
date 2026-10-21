@@ -50,13 +50,21 @@ public static class BurnExtensions
             return Array.Empty<CardModel>();
         }
 
+        // 发起牌不一定在牌堆里（回忆里的快照副本就不在），战斗上下文与归属都退回玩家身上取
+        Player? owner = creator ?? card.Owner;
+        ICombatState? combat = card.CombatState ?? owner?.Creature.CombatState;
+        if (owner == null || combat == null)
+        {
+            return Array.Empty<CardModel>();
+        }
+
         List<CardModel> shivs = new List<CardModel>();
         for (int i = 0; i < count; i++)
         {
-            shivs.Add(card.CombatState?.CreateCard<T>(card.Owner));
+            shivs.Add(combat.CreateCard<T>(owner));
         }
 
-        await CardPileCmd.AddGeneratedCardsToCombat(shivs, PileType.Hand, creator ?? card.Owner);
+        await CardPileCmd.AddGeneratedCardsToCombat(shivs, PileType.Hand, owner);
         return shivs;
     }
 }

@@ -21,6 +21,11 @@ public class FlowerOfDragon : AbstractReedRelic
 {
     public override RelicRarity Rarity => RelicRarity.Starter;
 
+    public override RelicModel? GetUpgradeReplacement()
+    {
+        return ModelDb.Relic<TearOfDragon>();
+    }
+
     private bool _wasUsedThisTurn;
 
     protected override IEnumerable<DynamicVar> CanonicalVars => [
@@ -52,7 +57,7 @@ public class FlowerOfDragon : AbstractReedRelic
         {
             if (creature.IsMonster)
             {
-                await ReedAttachCmd.Attach(new ThrowingPlayerChoiceContext(), ModelDb.Card<NormalFlower>(), creature);
+                await ReedAttachCmd.Attach(new ThrowingPlayerChoiceContext(), Owner.Creature.CombatState.CreateCard<NormalFlower>(Owner), creature);
             }
         }
     }
@@ -61,7 +66,7 @@ public class FlowerOfDragon : AbstractReedRelic
     {
         if (creature.IsMonster)
         {
-            await ReedAttachCmd.Attach(new ThrowingPlayerChoiceContext(), ModelDb.Card<NormalFlower>(), creature);
+            await ReedAttachCmd.Attach(new ThrowingPlayerChoiceContext(), Owner.Creature.CombatState.CreateCard<NormalFlower>(Owner), creature);
         }
     }
 

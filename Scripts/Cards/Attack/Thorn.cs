@@ -16,7 +16,7 @@ public class Thorn : AbstractReedCard
 {
     protected override IEnumerable<DynamicVar> CanonicalVars => [
         new CalculationBaseVar(8),
-        new ExtraDamageVar(7),
+        new ExtraDamageVar(12),
         new CalculatedDamageVar(ValueProp.Move).WithMultiplier((card,target)=> {
             if(target!=null && target.IsBurningResistance()){
                 return 1;

@@ -30,7 +30,7 @@ public class Clash : AbstractReedCard
             }
             HashSet<CardType> types = new HashSet<CardType>();
             foreach(CardModel c in PileType.Hand.GetPile(card.Owner).Cards.ToList()){
-                if(c.Type!=CardType.Attack)
+                if(!ReferenceEquals(c,card))
                     types.Add(c.Type);
             }
             return types.Count;

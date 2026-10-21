@@ -16,7 +16,7 @@ namespace Reed.Scripts.Cards.Skill;
 public class LivingElegy : AbstractReedCard
 {
     protected override IEnumerable<DynamicVar> CanonicalVars => [
-       new BurnVar(2)
+       new BurnVar(3)
     ];
 
     protected override IEnumerable<IHoverTip> ExtraHoverTips => [
@@ -28,7 +28,7 @@ public class LivingElegy : AbstractReedCard
         CardKeyword.Exhaust
     ];
 
-    public LivingElegy() : base(1, CardType.Skill, CardRarity.Common, TargetType.AnyAlly)
+    public LivingElegy() : base(1, CardType.Skill, CardRarity.Common, TargetType.AnyEnemy)
     {
         
     }
@@ -45,6 +45,7 @@ public class LivingElegy : AbstractReedCard
 
     protected override void OnUpgrade()
     {
-        DynamicVars.Burn().UpgradeValueBy(2);
+        //DynamicVars.Burn().UpgradeValueBy(1);
+        RemoveKeyword(CardKeyword.Exhaust);
     }
 }

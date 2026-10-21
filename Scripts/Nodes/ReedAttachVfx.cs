@@ -13,6 +13,7 @@ using MegaCrit.Sts2.Core.Nodes.GodotExtensions;
 using MegaCrit.Sts2.Core.Nodes.Rooms;
 using MegaCrit.Sts2.Core.Nodes.Vfx.Cards;
 using MegaCrit.Sts2.Core.TestSupport;
+using Reed.Scripts.Resistance;
 
 namespace Reed.Scripts.Nodes;
 
@@ -107,6 +108,7 @@ public static class ReedAttachVfx
         card.Position = -(1f - maxScale) * half;
         root.AddChild(card);
         card.UpdateVisuals(PileType.Deck, CardPreviewMode.Normal); // 已入树，刷新描述
+        SparkHudDriver.RefreshCardDescription(card); // 上面那次用的是基准值，补一次数值修正
 
         Tween tween = root.CreateTween();
         tween.TweenProperty(card, "scale", Vector2.One * maxScale, PopInSeconds)

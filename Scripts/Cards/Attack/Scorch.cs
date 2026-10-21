@@ -16,7 +16,7 @@ namespace Reed.Scripts.Cards.Attack;
 public class Scorch : AbstractReedCard
 {
     protected override IEnumerable<DynamicVar> CanonicalVars => [
-        new DamageVar(3,ValueProp.Move),
+        new DamageVar(4,ValueProp.Move),
         new RepeatVar(3),
         new BurnVar(2)
     ];

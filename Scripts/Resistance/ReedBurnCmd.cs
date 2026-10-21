@@ -16,6 +16,14 @@ public static class ReedBurnCmd
 {
     /// <summary>灼烧 N：构造一次对目标抗性造成 N 点伤害的命令。</summary>
     public static ReedBurnBuilder Burn(int amount) => new(amount,true);
+
+    /// <summary>
+    /// 灼烧「其全部抗性」：每个目标以各自的<b>当前</b>抗性为灼烧量，逐个单独结算（互不影响，不共用一个数值）。
+    /// 未燃烧且抗性 &gt; 0 的敌人必然被恰好烧进燃烧状态；已燃烧或抗性已归零的敌人灼烧量为 0，
+    /// 被 <see cref="ResistanceSystem.Reduce"/> 的守卫跳过（等于不结算）。
+    /// </summary>
+    public static ReedBurnBuilder BurnAllResistance() => new(0, true, useTargetResistance: true);
+
     public static ReedBurnBuilder Heal(int amount) => new(amount,false);
 }
 
@@ -23,15 +31,17 @@ public static class ReedBurnCmd
 public sealed class ReedBurnBuilder
 {
     private readonly int _amount;
+    private readonly bool _useTargetResistance;
     private CardPlay? _cardPlay;
     private List<Creature> _target = [];
     private bool _isBurn;
     private Creature _source;
 
-    internal ReedBurnBuilder(int amount, bool isBurn)
+    internal ReedBurnBuilder(int amount, bool isBurn, bool useTargetResistance = false)
     {
         _amount = amount;
         _isBurn = isBurn;
+        _useTargetResistance = useTargetResistance;
     }
 
     /// <summary>直接来源。</summary>
@@ -76,12 +86,14 @@ public sealed class ReedBurnBuilder
         }
         foreach(Creature creature in _target)
         {
+            // 灼烧「全部抗性」时，每个目标用自己的当前抗性，逐个单独结算。
+            int amount = _useTargetResistance ? ResistanceSystem.GetCurrent(creature) : _amount;
             foreach(AbstractModel model in creature.CombatState?.IterateHookListeners() ?? [])
             {
                 if(model is IFireFlowerSubscriber sub)
                 {
                     if(_isBurn)
-                        await sub.BeforeBurn(choiceContext, creature, _source, _amount);
+                        await sub.BeforeBurn(choiceContext, creature, _source, amount);
                 }
             }
             if (creature.IsAlive)
@@ -90,11 +102,11 @@ public sealed class ReedBurnBuilder
                 {
                     // 带上出牌上下文：抗性归零会在 Reduce 内部进入燃烧状态，
                     // 并把「进入燃烧」事件派发给订阅者（见 ResistanceSystem.EnterBurning）。
-                    await ResistanceSystem.Reduce(creature, _amount, choiceContext);
+                    await ResistanceSystem.Reduce(creature, amount, choiceContext);
                 }
                 else
                 {
-                    await ResistanceSystem.Restore(creature, _amount, choiceContext);
+                    await ResistanceSystem.Restore(creature, amount, choiceContext);
                 }
             }
             foreach(AbstractModel model in creature.CombatState?.IterateHookListeners() ?? [])
@@ -102,7 +114,7 @@ public sealed class ReedBurnBuilder
                 if(model is IFireFlowerSubscriber sub)
                 {
                     if(_isBurn)
-                        await sub.AfterBurn(choiceContext, creature, _source, _amount);
+                        await sub.AfterBurn(choiceContext, creature, _source, amount);
                 }
             }
         }

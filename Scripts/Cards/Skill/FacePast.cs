@@ -32,6 +32,10 @@ public class FacePast : AbstractReedCard, IMemorySubscriber
     {
         await PowerCmd.Apply<CurseHealPower>(choiceContext,Owner.Creature,1m,Owner.Creature,this);
         int value = cardPlay.Resources.EnergyValue;
+        if (IsUpgraded)
+        {
+            value++;
+        }
 
         for(int i = 1; i <= value; i++)
         {

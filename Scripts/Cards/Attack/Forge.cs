@@ -17,7 +17,7 @@ namespace Reed.Scripts.Cards.Attack;
 public class Forge : AbstractReedCard
 {
     protected override IEnumerable<DynamicVar> CanonicalVars => [
-        new DamageVar(8,ValueProp.Move)
+        new DamageVar(6,ValueProp.Move)
     ];
 
     protected override IEnumerable<IHoverTip> ExtraHoverTips => [
@@ -25,7 +25,7 @@ public class Forge : AbstractReedCard
         HoverTipFactory.FromKeyword(ReedKeywords.Attach)
     ];
 
-    public Forge() : base(1, CardType.Attack, CardRarity.Common, TargetType.AnyEnemy)
+    public Forge() : base(0, CardType.Attack, CardRarity.Common, TargetType.AnyEnemy)
     {
         
     }

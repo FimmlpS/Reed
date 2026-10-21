@@ -9,11 +9,12 @@ using Reed.Scripts.Cards.Flower;
 using MegaCrit.Sts2.Core.HoverTips;
 using Reed.Scripts.Enums;
 using Reed.Scripts.Cards.Status;
+using Reed.Scripts.Patches;
 
 namespace Reed.Scripts.Cards.Skill;
 
 [Pool(typeof(ReedCardPool))]
-public class IgniteLife : AbstractReedCard
+public class IgniteLife : AbstractReedCard, IFullCardSubscriber
 {
     protected override IEnumerable<DynamicVar> CanonicalVars => [
        new CardsVar(1)

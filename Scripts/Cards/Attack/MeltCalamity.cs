@@ -14,7 +14,7 @@ using Reed.Scripts.Resistance;
 namespace Reed.Scripts.Cards.Attack;
 
 [Pool(typeof(ReedCardPool))]
-public class MeltCatamity : AbstractReedCard
+public class MeltCalamity : AbstractReedCard
 {
     private const string _calculatedCardsKey = "CalculatedCards";
 
@@ -30,7 +30,9 @@ public class MeltCatamity : AbstractReedCard
             foreach(CardModel f in ResistanceSystem.SparksOf(target,card.Owner)){
                 if(f is IFireFlower flower){
                     count++;
-                    if(flower.GetUpperCard()==null){
+                    // 进阶形态记作 2 张。走 IFireFlower.IsAdvanced 的显式声明，而不是 GetUpperCard()==null
+                    // 反推 —— 后者只是“没有上级形态”，某张火花忘了声明上级就会被静默当成进阶牌多算一份伤害。
+                    if(flower.IsAdvanced){
                         count++;
                     }
                 }
@@ -44,7 +46,7 @@ public class MeltCatamity : AbstractReedCard
         HoverTipFactory.FromKeyword(ReedKeywords.Step)
     ];
 
-    public MeltCatamity() : base(1, CardType.Attack, CardRarity.Uncommon, TargetType.AnyEnemy)
+    public MeltCalamity() : base(1, CardType.Attack, CardRarity.Uncommon, TargetType.AnyEnemy)
     {
         
     }

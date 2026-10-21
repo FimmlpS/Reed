@@ -13,6 +13,7 @@ using MegaCrit.Sts2.Core.Nodes.Cards;
 using MegaCrit.Sts2.Core.Nodes.Combat;
 using MegaCrit.Sts2.Core.Nodes.HoverTips;
 using MegaCrit.Sts2.Core.Nodes.Rooms;
+using MegaCrit.Sts2.addons.mega_text;
 using Reed.Scripts.Nodes;
 
 namespace Reed.Scripts.Resistance;
@@ -313,6 +314,64 @@ internal sealed partial class SparkHudDriver
 
     // ============ 组装 ============
 
+    /// <summary>
+    /// 火花牌的 DynamicVars 被外部改写后调用（例如「生死之灵」切换形态改写了映耀/灿烂的抽牌数、能量）：
+    /// 重刷本生物上每张已显示火花的牌面文本。卡还在列表里，不必重建，所以不排队列同步。
+    /// </summary>
+    public void RefreshCardVisuals()
+    {
+        if (_detached)
+        {
+            return;
+        }
+        foreach (NCard card in _cards)
+        {
+            card.UpdateVisuals(PileType.Deck, CardPreviewMode.Normal);
+            RefreshCardDescription(card);
+        }
+    }
+
+    /// <summary>
+    /// 把牌面描述换成「跑过一次数值计算」的版本。火花牌不在任何牌堆里，原版 <see cref="NCard.UpdateVisuals"/>
+    /// 传给 <c>UpdateDynamicVarPreview</c> 的 <c>runGlobalHooks</c> 恒为 false，于是格挡/活力这类会被能力
+    /// 修正的数值在牌面上只显示基准值（例如生灵的格挡看不到敏捷加成）。
+    ///
+    /// <para>这里借原版「战斗中的非牌堆卡」的做法（<c>NUpgradePreview</c>）：给一份<b>一次性副本</b>设上
+    /// <c>CardUpgradePreviewType.Combat</c> —— 该值让副本的 <c>CombatState</c> 非空、从而放行 hook —— 跑完
+    /// 预览后<b>只取文本</b>。用 <c>MutableClone</c> 而不是 <c>CardScope.CloneCard</c>：后者会把副本注册进
+    /// 战斗状态、永久留在 <c>_allCards</c> 里；前者哪个状态都不进，也不动本体（本体也不能改：
+    /// <c>UpgradePreviewType</c> 的 setter 是单向的，设过就退不回非预览态）。</para>
+    ///
+    /// <para>凡是要显示火花牌牌面的地方（HUD 卡行、附着特效的飞行卡、追火改写数值后的重刷）都该调它 ——
+    /// 每次 <c>UpdateVisuals</c> 写出来的都是基准值，得在后面补这一下。故为 static：不依赖某个驱动实例。</para>
+    /// </summary>
+    internal static void RefreshCardDescription(NCard card)
+    {
+        if (!GodotObject.IsInstanceValid(card) || !card.IsNodeReady() || card.Model is not { } model)
+        {
+            return;
+        }
+        if (card.GetNodeOrNull<MegaRichTextLabel>("%DescriptionLabel") is not { } label)
+        {
+            return;
+        }
+        // 已化为规范卡的模板（牌库/图鉴的展示卡）读 Owner 会抛 CanonicalModelException，直接放过。
+        if (!model.IsMutable || model.Owner is not Player owner || owner.Creature.CombatState == null)
+        {
+            return; // 没有 owner 或不在战斗中：没有 hook 可跑，UpdateVisuals 刚写好的描述就是正确答案
+        }
+
+        // target 留空：原版手里的牌也是这么预览的 —— CurrentTarget 只在真正打出时才写入，所以
+        // 「目标是谁」的那些 hook（易伤/无形之类）在牌面上从来就没参与过计算，格挡按来源本人算（
+        // Hook.ModifyBlock 收的就是 card.Owner.Creature）。照这个口径走，牌面才和原版手牌一致。
+        CardModel probe = (CardModel)model.MutableClone();
+        probe.UpgradePreviewType = CardUpgradePreviewType.Combat;
+        probe.DynamicVars.ClearPreview();
+        probe.UpdateDynamicVarPreview(CardPreviewMode.Normal, null, probe.DynamicVars);
+        string text = probe.GetDescriptionForPile(PileType.Deck);
+        label.SetTextAutoSize("[center]" + text + "[/center]");
+    }
+
     private void RefreshSparks()
     {
         if (_detached)
@@ -376,6 +435,17 @@ internal sealed partial class SparkHudDriver
         card.Model = model;   // 先设模型：入树时 _Ready→Reload 即以该模型渲染（官方 Create 同款顺序）
         _cardLayer.AddChild(card);
         card.UpdateVisuals(PileType.Deck, CardPreviewMode.Normal);     // 已入树，此处刷新描述文本
+        if (card.IsNodeReady())
+        {
+            RefreshCardDescription(card);
+        }
+        else
+        {
+            // 覆盖层可能还没挂进生物根：此时 AddChild 不触发 _Ready，牌面要等入树后由 _Ready→Reload 渲染
+            // （用的是基准值）。故补一个一次性的 ready 回调，在 Reload 之后再写一次修正值。
+            card.Connect(Node.SignalName.Ready, Callable.From(() => RefreshCardDescription(card)),
+                (uint)GodotObject.ConnectFlags.OneShot);
+        }
         return card;
     }
 

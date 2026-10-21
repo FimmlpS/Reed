@@ -19,6 +19,7 @@ using MegaCrit.Sts2.Core.Nodes.Combat;
 using MegaCrit.Sts2.Core.Nodes.Rooms;
 using MegaCrit.Sts2.Core.Nodes.Vfx;
 using Reed.Scripts.Cards.Attack;
+using Reed.Scripts.Diagnostics;
 using ReedCharacter = Reed.Scripts.Characters.Reed;
 
 namespace Reed.Scripts.Resistance;
@@ -65,9 +66,35 @@ public static class ResistanceSystem
         {
             return;
         }
-        cm.CombatSetUp += OnCombatSetUp;
+        cm.CombatSetUp += HandleCombatSetUp;
         cm.CombatEnded += _ => OnCombatEnded();
         _combatHooked = true;
+    }
+
+    /// <summary>已经跑过 <see cref="OnCombatSetUp"/> 的那场战斗（防重复：CombatSetUp 事件与 Harmony 补丁两条路都可能到）。</summary>
+    private static object? _setupHandledFor;
+
+    /// <summary>
+    /// 战斗开始的统一入口。由 <c>CombatManager.SetUpCombat</c> 的 Harmony 补丁调用
+    /// （见 Scripts/Patches/CombatLifecyclePatch.cs），同一场战斗只执行一次。
+    ///
+    /// <para>以前只有「第一次给某生物建血条（NHealthBar.SetCreature）时惰性订阅 CombatSetUp」这一条路 ——
+    /// 那依赖 UI 建条与本事件谁先谁后，而那个顺序在多人里各客户端并不保证一致：某个客户端一旦错过
+    /// CombatSetUp，它这场的火花表/监听者计数就不会被重置，两个客户端从此各算各的（结算时才炸成
+    /// “State divergence detected”）。Harmony 补丁在宿主与客户端上以相同顺序执行，与 UI 无关。</para>
+    /// </summary>
+    public static void HandleCombatSetUp(CombatState state)
+    {
+        // 诊断探针（幂等）：把 mod 本地状态（火花表/抗性）跟着校验和一起打日志，
+        // 用来定位多人下第一次分叉的那个动作。详见 Scripts/Diagnostics/SparkDigest.cs。
+        SparkDigest.HookForCombat();
+
+        if (state == null || ReferenceEquals(_setupHandledFor, state))
+        {
+            return;
+        }
+        _setupHandledFor = state;
+        OnCombatSetUp(state);
     }
 
     private static void OnCombatSetUp(CombatState state)
@@ -128,7 +155,7 @@ public static class ResistanceSystem
         }
         d.SparkMaxes.Clear();
 
-        d.Max = ResistanceData.MaxForRoom(combat);
+        d.Max = ResistanceData.MaxForRoom(combat, c);
         d.Current = d.Max;
         d.Burning = false;
         d.Changed = false;
@@ -171,6 +198,23 @@ public static class ResistanceSystem
         return d;
     }
 
+    /// <summary>只读查询：与 <see cref="GetData"/> 的区别是<b>不创建</b>数据（没建过就返回 null）。
+    /// 给诊断代码用，避免观察行为本身改变被观察的状态。</summary>
+    internal static ResistanceData? PeekData(Creature creature) => _data[creature];
+
+    /// <summary>
+    /// 一张火花牌"携带的伤害"：按 CalculatedDamage → Damage → OstyDamage 的优先级取第一个存在的动态变量，
+    /// 返回其 <see cref="DynamicVar.BaseValue"/>（即会被各种强化直接改写、且两端可能不一致的那个值）。
+    /// 火花的爆发伤害就是按它算的（见各 Flowe 的 <c>OnBurnt</c>），<see cref="Powers.ChaseFirePower"/> 的加成也写进它。
+    /// </summary>
+    internal static decimal SparkDamageOf(CardModel card)
+    {
+        if (card.DynamicVars.ContainsKey("CalculatedDamage")) { return card.DynamicVars.CalculatedDamage.BaseValue; }
+        if (card.DynamicVars.ContainsKey("Damage")) { return card.DynamicVars.Damage.BaseValue; }
+        if (card.DynamicVars.ContainsKey("OstyDamage")) { return card.DynamicVars.OstyDamage.BaseValue; }
+        return 0m;
+    }
+
     public static int GetCurrent(Creature c) => GetData(c).Current;
     public static int GetMax(Creature c) => GetData(c).Max;
     public static bool IsBurning(Creature c) => GetData(c).Burning;
@@ -206,6 +250,9 @@ public static class ResistanceSystem
 
     /// <summary>当前附着在生物身上的火花牌总数。为 0 时 <see cref="SparkHookListeners"/> 直接空转（hook 派发热路径的廉价守卫）。</summary>
     private static int _attachedSparkCount;
+
+    /// <summary>诊断只读暴露（见 Scripts/Diagnostics/SparkDigest.cs）：全场附着火花总数。</summary>
+    internal static int AttachedSparkCount => _attachedSparkCount;
 
     /// <summary>读取某（生物 × owner）火花上限；没单独设过则返回默认 DefaultSparkMax。</summary>
     public static int GetSparkMax(Creature c, Player owner)
@@ -267,12 +314,39 @@ public static class ResistanceSystem
             return false;
         }
         list.Add(spark);
+        // 多人：火花牌不在任何牌堆里，引擎的 NetCombatCardDb 从没给它分配过网络 id，而所有要把一张卡
+        // 发过网络的路径（队友悬停高亮 HoveredModelData、选择结果 PlayerChoiceResult.combatCards、
+        // PlayCardAction…）都会走 NetCombatCard.FromModel → GetCardId，拿不到 id 就抛
+        // InvalidOperationException —— 这就是「火花牌一爆/一选就炸」。两端按同样顺序补登记，id 才一致。
+        RegisterSparkForNet(spark, owner);
         // 记下它此刻挂在谁身上：火花牌的「持续」效果要据此判断宿主（见 HostOf）。
         _sparkHost[spark] = c;
         _attachedSparkCount++;
         SparksChanged?.Invoke(c);
         SparkAdded?.Invoke(c, owner, spark);
         return true;
+    }
+
+    /// <summary>
+    /// 把一张火花牌登记进本场战斗的网络卡表（<see cref="NetCombatCardDb"/>），让引擎的联网路径能够引用它
+    /// —— 见 <see cref="GiveSpark"/> 里的说明。幂等；两端都在同样的位置调用，因此分配到的 id 一致。
+    /// 只接受「可变且已有主」的卡：NetCombatCardDb 对无主卡只会报错并留空，随后取 id 还会抛异常。
+    /// </summary>
+    public static void RegisterSparkForNet(CardModel? spark, Player? owner)
+    {
+        if (spark == null || owner == null || !spark.IsMutable || spark.Owner == null)
+        {
+            return;
+        }
+        try
+        {
+            // 这是 NetCombatCardDb 唯一的公开「现在给这张卡分配 id」入口（名字带 ForTesting，但行为就是登记）。
+            NetCombatCardDb.Instance.IdCardForTesting(spark);
+        }
+        catch (Exception e)
+        {
+            GD.PushWarning($"[Reed] 火花牌 {spark.Id} 登记网络 id 失败：{e.Message}");
+        }
     }
 
     /// <summary>移除某张火花牌；不存在返回 false。</summary>
@@ -359,9 +433,11 @@ public static class ResistanceSystem
             {
                 continue;
             }
-            foreach (List<CardModel> group in d.Sparks.Values)
+            // 按 owner.NetId 排序而不是按字典枚举顺序：hook 监听者的顺序（进而 ModifyBurnt 之类的链式结算
+            // 顺序）必须与插入顺序无关，多人下两端才一定一致。
+            foreach (ulong ownerId in d.Sparks.Keys.OrderBy(k => k))
             {
-                foreach (CardModel spark in group)
+                foreach (CardModel spark in d.Sparks[ownerId])
                 {
                     yield return spark;
                 }

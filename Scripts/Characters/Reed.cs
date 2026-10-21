@@ -24,7 +24,7 @@ public class Reed : PlaceholderCharacterModel
 
     public override CharacterGender Gender => CharacterGender.Feminine;
 
-    public override int StartingHp => 64;
+    public override int StartingHp => 72;
 
     // 人物模型tscn路径。要自定义见下。
     public override string CustomVisualPath => "res://Reed/scenes/ReedModel.tscn";
@@ -84,7 +84,7 @@ public class Reed : PlaceholderCharacterModel
         ModelDb.Card<Defend>(),
         ModelDb.Card<Defend>(),
         ModelDb.Card<Defend>(),
-        //ModelDb.Card<Defend>(),
+        ModelDb.Card<Defend>(),
         ModelDb.Card<Scorch>(),
         ModelDb.Card<IgniteFire>()
     ];

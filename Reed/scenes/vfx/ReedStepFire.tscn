@@ -1,4 +1,4 @@
-[gd_scene load_steps=19 format=3 uid="uid://dg33fv7t6288v"]
+[gd_scene load_steps=20 format=3 uid="uid://dg33fv7t6288v"]
 
 [ext_resource type="Material" uid="uid://c4ycqv0gdxvmr" path="res://Reed/images/vfx/fire/canvas_item_material_additive_shared.tres" id="1_ukaq4"]
 [ext_resource type="Shader" uid="uid://bbjeb6jjl1x61" path="res://Reed/images/vfx/fire/vfx_stepped_shader_fire_add.tres" id="2_wd1w1"]
@@ -8,12 +8,12 @@
 [ext_resource type="Texture2D" uid="uid://cgqip2t5a2gst" path="res://Reed/images/vfx/fire/basic_fire_noise.png" id="6_j3m0e"]
 [ext_resource type="Texture2D" uid="uid://ncllsbud20ew" path="res://Reed/images/vfx/fire/fire_base_pointy.png" id="7_yxfsd"]
 [ext_resource type="Texture2D" uid="uid://hcjfryu1kjq8" path="res://Reed/images/vfx/fire/cinder_particle.png" id="8_c7fof"]
+[ext_resource type="Shader" path="res://Reed/images/vfx/fire/vfx_stepped_fire_shared.gdshader" id="9_mix"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_664pu"]
 resource_local_to_scene = true
-shader = ExtResource("2_wd1w1")
+shader = ExtResource("9_mix")
 shader_parameter/OuterColor = Color(1, 0.166667, 0, 1)
-shader_parameter/InnerColorStep = Vector2(0.26, 0.75)
 shader_parameter/Noise2Strength = 1.0
 shader_parameter/Noise2Scaling = Vector2(1.4, 1.4)
 shader_parameter/Noise2Panning = Vector2(-0.2, 0.9)
@@ -38,9 +38,17 @@ shader_parameter/DistortionMaskScale = Vector2(1, 1.03)
 shader_parameter/DistortionMaskOffset = Vector2(0, 0.07)
 shader_parameter/DistortionMask = ExtResource("5_qmu23")
 shader_parameter/InnerColor = Color(0.9, 0.40125, 0.045, 1)
-shader_parameter/OuterStep = Vector2(0.135, 0.175)
+shader_parameter/OuterStep = Vector2(0.110, 0.220)
+shader_parameter/InnerColorStep = Vector2(0.35, 0.80)
+shader_parameter/BottomMask = ExtResource("5_qmu23")
+shader_parameter/CoreStrength = 0.3
+shader_parameter/FillWeight = 0.7
+shader_parameter/NoiseWeight = 0.45
+shader_parameter/HeightMix = 0.28
+shader_parameter/AlphaScale = 0.85
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_uk2t4"]
+resource_local_to_scene = true
 shader = ExtResource("2_wd1w1")
 shader_parameter/OuterColor = Color(0.33, 0.1045, 0, 1)
 shader_parameter/InnerColorStep = Vector2(0.745, 0.995)
@@ -71,6 +79,7 @@ shader_parameter/InnerColor = Color(0.68, 0.561, 0.476, 1)
 shader_parameter/OuterStep = Vector2(0.335, 0.92)
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_yfq86"]
+resource_local_to_scene = true
 shader = ExtResource("2_wd1w1")
 shader_parameter/OuterColor = Color(0.8, 0.5936, 0.512, 1)
 shader_parameter/InnerColorStep = Vector2(0.975, 0.99)
@@ -154,6 +163,7 @@ scale = Vector2(1.14924, 1.14924)
 texture = ExtResource("7_yxfsd")
 
 [node name="SteppedFireAdd" type="Sprite2D" parent="."]
+visible = false
 self_modulate = Color(1, 1, 1, 0.627451)
 material = SubResource("ShaderMaterial_uk2t4")
 position = Vector2(-17, -223)
@@ -161,6 +171,7 @@ scale = Vector2(1.11663, 1.07664)
 texture = ExtResource("7_yxfsd")
 
 [node name="SteppedFireAdd1" type="Sprite2D" parent="."]
+visible = false
 self_modulate = Color(1, 1, 1, 0.627451)
 material = SubResource("ShaderMaterial_yfq86")
 position = Vector2(-12, -179)

@@ -8,22 +8,14 @@ namespace Reed.Scripts.Resistance;
 
 /// <summary>
 /// “常驻火焰”驱动器。原版所有火焰特效（NFireBurningVfx / NFireSmokePuffVfx / NGroundFireVfx…）
+/// 都只是“触发一次、播完即走”，没有与血量/体型绑定的常驻版本，所以这里自己维护一个
+/// <see cref="NReedGroundFireVfx"/> 的生命周期：燃烧开始生成，燃烧结束交给特效自己淡出。
 /// </summary>
 internal sealed class BurningFireDriver
 {
-    /// <summary>火焰特效设计基准宽度（像素）。血条正好这么宽时缩放为 1。见 <see cref="RefreshScale"/>。</summary>
-    private const float BaseWidth = 240f;
-
-    /// <summary>
-    /// 宽血条的放缓指数：宽度超出 <see cref="BaseWidth"/> 后，缩放按 (血条宽 / 240) 的该次幂增长。
-    /// 取 1 就是原来的线性；越小增长越慢。0.65 是「明显放缓、但比 ln 那种程度强」的取值：
-    /// 480 宽 ×1.57（线性 2.0）、720 宽 ×2.04（3.0）、1200 宽 ×2.85（5.0）。
-    /// </summary>
-    private const float ScaleExponent = 0.65f;
-
     private readonly Creature _creature;
     private readonly Control _scheduler;   // 借用抗性条根节点：其 Size.X 恒与血条当前宽度同步（几何钩子保证）
-    private NReedGroundFireVfx? _vfx;      // 当前活着的火焰（用于宽度变化时实时重缩放）
+    private NReedGroundFireVfx? _vfx;      // 当前活着的火焰（用于宽度变化时重新铺开）
     private bool _hooked;                  // Resized 订阅是否已挂
 
     public bool Active { get; private set; }
@@ -57,7 +49,7 @@ internal sealed class BurningFireDriver
         if (vfx != null)
         {
             _vfx = vfx;
-            RefreshScale();
+            RefreshFootprint();
             _creature.GetVfxContainer()?.AddChildSafely(vfx);
         }
     }
@@ -76,11 +68,10 @@ internal sealed class BurningFireDriver
     }
 
     /// <summary>
-    /// 按当前血条宽度重缩放存活的火焰。缩放 = (血条宽 / 240) 的 <see cref="ScaleExponent"/> 次幂——
-    /// 比线性增长慢，且血条越宽越慢，所以大血条不会顶着巨大的火。基准宽（240）处恰好为 1，
-    /// 更窄的条保持原等比映射不变；宽度为 0（尚未布局）时保持上次值；极端值限幅防爆。
+    /// 把当前血条宽度交给火焰特效：由特效自己决定铺几个火簇、横向铺多宽、纵向长多高。
+    /// 这里不再对整个特效做等比缩放——那会让大体型怪身上的火焰高得挡住视线。
     /// </summary>
-    private void RefreshScale()
+    private void RefreshFootprint()
     {
         if (_vfx == null || !GodotObject.IsInstanceValid(_vfx))
         {
@@ -91,14 +82,12 @@ internal sealed class BurningFireDriver
         {
             return;
         }
-        float ratio = barWidth / BaseWidth;
-        float scale = ratio <= 1f ? ratio : Mathf.Pow(ratio, ScaleExponent);
-        _vfx.Scale = Vector2.One * Mathf.Clamp(scale, 0.2f, 5f);
+        _vfx.SetFootprintWidth(barWidth);
     }
 
     /// <summary>
     /// 订阅抗性条根节点的 Resized：战斗中途生物改宽（SL 恢复、巨型怪生长…）时，血条宽一变，
-    /// 抗性条在几何钩子里被重排 → 这里随之把火焰缩放到新宽度。
+    /// 抗性条在几何钩子里被重排 → 这里随之重新铺开火焰。
     /// </summary>
     private void HookScheduler()
     {
@@ -107,7 +96,7 @@ internal sealed class BurningFireDriver
             return;
         }
         _hooked = true;
-        _scheduler.Resized += RefreshScale;
+        _scheduler.Resized += RefreshFootprint;
         _scheduler.TreeExited += OnSchedulerExited;
     }
 
@@ -120,7 +109,7 @@ internal sealed class BurningFireDriver
         _hooked = false;
         if (GodotObject.IsInstanceValid(_scheduler))
         {
-            _scheduler.Resized -= RefreshScale;
+            _scheduler.Resized -= RefreshFootprint;
             _scheduler.TreeExited -= OnSchedulerExited;
         }
     }

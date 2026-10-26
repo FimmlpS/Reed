@@ -144,7 +144,8 @@ public sealed class RecallCmd
     /// 就会以那个回合为基准继续往前追 —— 这正是**递归追忆**的支点：</para>
     /// <code>
     ///     // EmperorTravel：追忆完攻击牌后，把「此牌」视为上一回合再追忆一次。
-    ///     // 复制品里再走一遍同样的逻辑 → 回合数逐层 -1，直到没有牌可追忆（回合 &lt; 1）自然停下。
+    ///     // 复制品里再走一遍同样的逻辑 → 回合数逐层 -1，直到低于 MemorySystem.MinRound
+    ///     //（通常就是第 0 回合）才自然停下。
     ///     await RecallCmd.Recall(choiceContext, Owner)
     ///         .FromPlay(cardPlay)
     ///         .Offset(-1)
@@ -204,19 +205,20 @@ public sealed class RecallCmd
         // 回合解析：绝对回合优先，否则以「这次出牌视为打出的回合」为基准；最后统一叠加偏移。
         int baseRound = _absoluteRound ?? (_fromPlay != null ? _fromPlay.PlayedRound(combat) : combat.RoundNumber);
         int round = baseRound + _offset;
-        if (round < 1)
+        PlayerMemory memory = MemorySystem.Of(combat, _player);
+        // 越界闸门：没有第 0 回合（= 没持有「无名诗集」）时下限仍是 1，递归追忆（.Card(this)）照旧在
+        // 「再往前一回合」处停下；有第 0 回合时才会真的把上一场战斗最后一回合的回忆打出来。
+        if (round < MemorySystem.MinRound(combat, _player))
         {
-            return null; // 越界（比如第 1 回合再往上追忆）
+            return null;
         }
 
         // 【指定卡牌】不查回忆、不弹选择屏：直接造一份副本打成「视为第 round 回合打出」。
-        // 递归追忆的终止条件就藏在上面那句 round < 1 里。
+        // 递归追忆的终止条件就藏在上面那句闸门里。
         if (_template != null)
         {
             return await Play(combat, _template, round, context);
         }
-
-        PlayerMemory memory = MemorySystem.Of(combat, _player);
 
         // 用 PeekRound（不创建）取候选：该回合没有任何回忆时直接 no-op。
         List<RememberedCard> entries = memory.PeekRound(round)
@@ -297,14 +299,14 @@ public sealed class RecallCmd
         int round,
         Func<CardModel, bool>? filter = null)
     {
-        if (choiceContext == null || player == null || round < 1)
+        if (choiceContext == null || player == null)
         {
             return 0;
         }
         ICombatState? combat = player.Creature?.CombatState;
-        if (combat == null)
+        if (combat == null || round < MemorySystem.MinRound(combat, player))
         {
-            return 0;
+            return 0; // 第 0 回合只在「无名诗集」或账本（「向大地诉说」）给过牌时存在，闸门自动跟着走
         }
 
         // 快照：PeekRound 只读不建桶；ToList 之后列表再被改也不影响这一趟的遍历。

@@ -1,5 +1,6 @@
 using HarmonyLib;
 using MegaCrit.Sts2.Core.Combat;
+using Reed.Scripts.Memory;
 using Reed.Scripts.Resistance;
 
 namespace Reed.Scripts.Patches;
@@ -21,5 +22,10 @@ internal static class CombatSetupPatch
     private static void Postfix(CombatState state)
     {
         ResistanceSystem.HandleCombatSetUp(state);
+
+        // 玩家级的「常驻第 0 回合」账本（「向大地诉说」记下的牌）也在这里重建：
+        // 回忆表刚被 CombatSetUp 清空，此刻写进去的不会被打扫掉；又早于 BeforeCombatStart，
+        // 「无名诗集」随后往同一个桶里加它搬来的牌，两者共存。
+        RoundZeroLedger.RestoreAll(state);
     }
 }

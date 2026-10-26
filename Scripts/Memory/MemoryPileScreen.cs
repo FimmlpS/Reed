@@ -805,9 +805,14 @@ internal sealed partial class MemoryPileScreen : Control, ICapstoneScreen, IScre
     /// <summary>回合标题文案；本地化缺失时退回英文，绝不因为一个文案把整个界面搞崩。</summary>
     private static string RoundHeaderText(int round)
     {
-        LocString loc = new LocString("static_hover_tips", "REED-RECALL.round.header");
+        // 第 0 回合 = 战斗开始前就存在的回忆（「无名诗集」搬来的上一场，以及「向大地诉说」记下的账本），
+        // 标题单独解释一句。
+        bool carried = round == MemorySystem.CarriedRound;
+        LocString loc = new LocString(
+            "static_hover_tips",
+            carried ? "REED-RECALL.round.carried.header" : "REED-RECALL.round.header");
         loc.Add("Round", round);
-        return FormatLoc(loc, $"Round {round}");
+        return FormatLoc(loc, carried ? "Round 0 (before combat)" : $"Round {round}");
     }
 
     private static string LocOrDefault(string key, string fallback)

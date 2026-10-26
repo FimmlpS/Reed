@@ -1,0 +1,10 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="PackedScene" path="res://Reed/scenes/vfx/lab/ReedGroundFire_Lab.tscn" id="1_lab"]
+
+[node name="ReedGroundFire_Preview" type="Node2D"]
+position = Vector2(576, 580)
+
+[node name="Lab" parent="." instance=ExtResource("1_lab")]
+footprint = 240.0
+creature_height = 300.0

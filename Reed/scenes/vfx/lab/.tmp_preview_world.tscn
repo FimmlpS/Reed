@@ -1,0 +1,31 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="PackedScene" path="res://Reed/scenes/vfx/lab/ReedGroundFire_Lab.tscn" id="1_lab"]
+[ext_resource type="Script" path="res://Reed/scenes/vfx/lab/.tmp_shot.gd" id="2_shot"]
+
+[node name="WorldTuned" type="Node2D"]
+position = Vector2(576, 600)
+
+[node name="Lab" parent="." instance=ExtResource("1_lab")]
+footprint = 700.0
+creature_height = 420.0
+shared_shader = true
+add_layers = false
+core_strength = 0.65
+mix_outer_step = Vector2(0.06, 0.34)
+shared_inner_step = Vector2(0.45, 0.9)
+fill_weight = 0.85
+noise_weight = 1.0
+height_mix = 0.35
+alpha_scale = 1.0
+cluster_width_scale = 0.85
+spread_ratio = 0.85
+color_from_v = false
+
+rim_softness = 0.85
+rim_darken = 0.42
+
+[node name="Shot" type="Node" parent="."]
+script = ExtResource("2_shot")
+out_path = "res://.tmp_shot_world2.png"
+delay = 1.5

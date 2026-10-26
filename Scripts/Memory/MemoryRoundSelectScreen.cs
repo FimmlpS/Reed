@@ -239,7 +239,7 @@ internal sealed partial class MemoryRoundSelectScreen : Control, IOverlayScreen,
         List<int> rounds = new();
         foreach (int round in memory.Rounds)
         {
-            if (round >= 1 && memory.PeekRound(round).Any(e => e.Card != null && (filter == null || filter(e.Card))))
+            if (round >= MemorySystem.CarriedRound && memory.PeekRound(round).Any(e => e.Card != null && (filter == null || filter(e.Card))))
             {
                 rounds.Add(round);
             }
@@ -256,9 +256,9 @@ internal sealed partial class MemoryRoundSelectScreen : Control, IOverlayScreen,
 
     // 手柄焦点：没选中回合之前不给锚点（确认键此刻是禁用的，把它当默认焦点会让焦点环卡在禁用控件上）；
     // 选中之后再把焦点交给确认键 —— 手柄玩家按 A 就是「第二次确认」。
-    public Control? DefaultFocusedControl => _selected >= 1 ? _confirmButton : null;
+    public Control? DefaultFocusedControl => _selected >= 0 ? _confirmButton : null;
 
-    public Control? FocusedControlFromTopBar => _selected >= 1 ? _confirmButton : null;
+    public Control? FocusedControlFromTopBar => _selected >= 0 ? _confirmButton : null;
 
     public void AfterOverlayOpened()
     {
@@ -365,7 +365,7 @@ internal sealed partial class MemoryRoundSelectScreen : Control, IOverlayScreen,
         }
         // 确认键被禁用时，回车用来「选中光标行」——按钮的热键此刻没生效，事件能落到这里，
         // 所以不会和按钮的确认动作重复触发。
-        if (@event.IsActionPressed(MegaInput.confirm) && _selected < 1 && _hovered >= 1)
+        if (@event.IsActionPressed(MegaInput.confirm) && _selected < 0 && _hovered >= 0)
         {
             SelectRound(_hovered, scrollIntoView: false);
             GetViewport()?.SetInputAsHandled();
@@ -377,7 +377,7 @@ internal sealed partial class MemoryRoundSelectScreen : Control, IOverlayScreen,
         int index = Mathf.Clamp((IndexOfRound(_selected) ?? IndexOfRound(_hovered) ?? 0) + step, 0, _rows.Count - 1);
         int round = _rows[index].Round;
         _hovered = round;
-        if (_selected >= 1)
+        if (_selected >= 0)
         {
             _selected = round; // 已选中：方向键直接改选，不需要再点一次
             _confirmButton.Enable();
@@ -508,7 +508,7 @@ internal sealed partial class MemoryRoundSelectScreen : Control, IOverlayScreen,
         // 前提是父节点铺满屏幕且原点在 (0, 0)。入树后它的 _Ready 已经把自己置为禁用（滑出屏幕）。
         this.AddChildSafely(_confirmButton);
         _confirmButton.Disable();
-        _confirmButton.Connect(NClickableControl.SignalName.Released, Callable.From<NButton>(_ => Complete(_selected >= 1 ? _selected : null)));
+        _confirmButton.Connect(NClickableControl.SignalName.Released, Callable.From<NButton>(_ => Complete(_selected >= 0 ? _selected : null)));
     }
 
     private void BuildBackButton()
@@ -566,7 +566,7 @@ internal sealed partial class MemoryRoundSelectScreen : Control, IOverlayScreen,
     private List<RememberedCard> FilteredEntries(int round)
     {
         PlayerMemory? memory = MemoryOf();
-        if (memory == null || round < 1)
+        if (memory == null || round < MemorySystem.CarriedRound)
         {
             return new List<RememberedCard>();
         }
@@ -718,7 +718,7 @@ internal sealed partial class MemoryRoundSelectScreen : Control, IOverlayScreen,
         ApplyRowStyles();
         RefreshPreview();
 
-        if (_selected >= 1)
+        if (_selected >= 0)
         {
             _confirmButton.Enable();
             if (scrollIntoView)
@@ -776,7 +776,7 @@ internal sealed partial class MemoryRoundSelectScreen : Control, IOverlayScreen,
     // ============ 右栏：预览 ============
 
     /// <summary>要展示的回合：优先鼠标悬停的那行（「及时提示」），否则已选中的那行，都没有就不展示。</summary>
-    private int PreviewRound => _hovered >= 1 ? _hovered : _selected;
+    private int PreviewRound => _hovered >= 0 ? _hovered : _selected;
 
     private void RefreshPreview()
     {
@@ -911,7 +911,7 @@ internal sealed partial class MemoryRoundSelectScreen : Control, IOverlayScreen,
             _backButton.Enable();
         }
         // 确认键只在「确实选中了某个回合」时才收回来的位置上；取消选中过就不该再亮。
-        if (_confirmButton != null && GodotObject.IsInstanceValid(_confirmButton) && _selected >= 1)
+        if (_confirmButton != null && GodotObject.IsInstanceValid(_confirmButton) && _selected >= 0)
         {
             _confirmButton.Enable();
         }
@@ -982,9 +982,12 @@ internal sealed partial class MemoryRoundSelectScreen : Control, IOverlayScreen,
 
     private static string RoundHeaderText(int round)
     {
-        LocString loc = new("static_hover_tips", "REED-RECALL.round.header");
+        // 第 0 回合 = 战斗开始前就存在的回忆（「无名诗集」搬来的上一场，以及「向大地诉说」记下的账本），
+        // 标题单独解释一句。
+        bool carried = round == MemorySystem.CarriedRound;
+        LocString loc = new("static_hover_tips", carried ? "REED-RECALL.round.carried.header" : "REED-RECALL.round.header");
         loc.Add("Round", round);
-        return FormatLoc(loc, $"第 {round} 回合");
+        return FormatLoc(loc, carried ? "第 0 回合（战前）" : $"第 {round} 回合");
     }
 
     private static string CountText(int count)

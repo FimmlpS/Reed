@@ -5,5 +5,9 @@
 
     "REED-TEAR_OF_DRAGON.title":"龙泪",
     "REED-TEAR_OF_DRAGON.description":"所有敌人初始[gold]附着[/gold]一张[gold]灼痕[/gold]火花。你每回合首次攻击时，对目标[gold]灼烧[/gold]{Reed_Burn:diff()}。",
-    "REED-TEAR_OF_DRAGON.flavor":""
+    "REED-TEAR_OF_DRAGON.flavor":"",
+
+    "REED-NAMELESS_POEM.title":"无名诗集",
+    "REED-NAMELESS_POEM.description":"[gold]回忆[/gold]会将上一场战斗最后一回合的记录作为第0回合的回忆而存在。战斗开始时，从第0回合的回忆中[gold]追忆[/gold]一张攻击牌或技能牌。",
+    "REED-NAMELESS_POEM.flavor":""
 }

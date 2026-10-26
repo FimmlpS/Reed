@@ -1,0 +1,28 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="PackedScene" path="res://Reed/scenes/vfx/lab/ReedGroundFire_Lab.tscn" id="1_lab"]
+[ext_resource type="Script" path="res://Reed/scenes/vfx/lab/.tmp_shot.gd" id="2_shot"]
+
+[node name="LegacyVsShared" type="Node2D"]
+
+[node name="LabLegacy" parent="." instance=ExtResource("1_lab")]
+position = Vector2(285, 610)
+footprint = 520.0
+creature_height = 430.0
+legacy_mix = true
+add_layers = false
+
+[node name="LabNew" parent="." instance=ExtResource("1_lab")]
+position = Vector2(870, 610)
+footprint = 520.0
+creature_height = 430.0
+shared_shader = true
+add_layers = false
+core_strength = 0.55
+mix_outer_step = Vector2(0.11, 0.22)
+shared_inner_step = Vector2(0.40, 0.85)
+
+[node name="Shot" type="Node" parent="."]
+script = ExtResource("2_shot")
+out_path = "res://.tmp_shot_legacy.png"
+delay = 1.5

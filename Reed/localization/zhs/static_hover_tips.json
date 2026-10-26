@@ -10,11 +10,14 @@
     "REED-RECALL.pile.empty":"这场战斗还没有留下任何回忆。",
     "REED-RECALL.pile.info":"回忆：本场战斗中你[gold]手动打出[/gold]过的牌，按回合归档。\n[gold]（点击卡牌可放大查看，点右侧刻度可跳到该回合）[/gold]",
     "REED-RECALL.round.header":"第 {Round} 回合",
+    "REED-RECALL.round.carried.header":"第 0 回合（战前）",
     "REED-RECALL.sort.desc":"时间逆序",
     "REED-RECALL.sort.asc":"时间顺序",
 
     "REED-RECORD.select.title":"记录一张牌",
     "REED-RECORD.select.round.title":"将一张牌记录到[blue]第 {Round} 回合[/blue]的回忆",
+
+    "REED-SPEAK_TO_TERRA.select.title":"选择一张手牌记入[blue]第 0 回合[/blue]的回忆（之后的每场战斗都会有它）",
 
     "REED-HERO_EPIC.select.title":"重现一段过往",
     "REED-HERO_EPIC.select.empty":"没有可以重现的回忆。\n（确认键已禁用，只能取消）",

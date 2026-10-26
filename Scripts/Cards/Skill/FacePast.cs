@@ -31,7 +31,7 @@ public class FacePast : AbstractReedCard, IMemorySubscriber
     protected override async Task OnPlay(PlayerChoiceContext choiceContext, CardPlay cardPlay)
     {
         await PowerCmd.Apply<CurseHealPower>(choiceContext,Owner.Creature,1m,Owner.Creature,this);
-        int value = cardPlay.Resources.EnergyValue;
+        int value = ResolveEnergyXValue();
         if (IsUpgraded)
         {
             value++;

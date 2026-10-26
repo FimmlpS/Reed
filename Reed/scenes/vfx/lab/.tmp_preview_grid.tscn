@@ -1,0 +1,51 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="PackedScene" path="res://Reed/scenes/vfx/lab/ReedGroundFire_Lab.tscn" id="1_lab"]
+[ext_resource type="Script" path="res://Reed/scenes/vfx/lab/.tmp_shot.gd" id="2_shot"]
+
+[node name="Grid" type="Node2D"]
+
+[node name="G1" parent="." instance=ExtResource("1_lab")]
+position = Vector2(290, 300)
+footprint = 300.0
+creature_height = 280.0
+shared_shader = true
+add_layers = false
+core_strength = 0.30
+mix_outer_step = Vector2(0.11, 0.22)
+shared_inner_step = Vector2(0.26, 0.75)
+
+[node name="G2" parent="." instance=ExtResource("1_lab")]
+position = Vector2(860, 300)
+footprint = 300.0
+creature_height = 280.0
+shared_shader = true
+add_layers = false
+core_strength = 0.35
+mix_outer_step = Vector2(0.11, 0.22)
+shared_inner_step = Vector2(0.45, 0.90)
+
+[node name="G3" parent="." instance=ExtResource("1_lab")]
+position = Vector2(290, 620)
+footprint = 300.0
+creature_height = 280.0
+shared_shader = true
+add_layers = false
+core_strength = 0.50
+mix_outer_step = Vector2(0.13, 0.20)
+shared_inner_step = Vector2(0.45, 0.90)
+
+[node name="G4" parent="." instance=ExtResource("1_lab")]
+position = Vector2(860, 620)
+footprint = 300.0
+creature_height = 280.0
+shared_shader = true
+add_layers = false
+core_strength = 0.30
+mix_outer_step = Vector2(0.11, 0.22)
+shared_inner_step = Vector2(0.60, 0.95)
+
+[node name="Shot" type="Node" parent="."]
+script = ExtResource("2_shot")
+out_path = "res://.tmp_shot_grid.png"
+delay = 1.5

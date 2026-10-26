@@ -1,154 +1,152 @@
-[gd_scene load_steps=19 format=3 uid="uid://dgr66uf8v07bv"]
+[gd_scene load_steps=16 format=3 uid="uid://dgr66uf8v07bv"]
 
-[ext_resource type="Texture2D" uid="uid://b7thoupef0fpj" path="res://Reed/images/vfx/fire/ash_particle.png" id="1_ah2sk"]
-[ext_resource type="Script" uid="uid://bw1a8xqlm14ts" path="res://Scripts/Nodes/NReedGroundFireVfx.cs" id="1_c3ilj"]
-[ext_resource type="Texture2D" uid="uid://bfuumjrnckvru" path="res://Reed/images/vfx/fire/fire_flame_sprites.png" id="2_c3ilj"]
-[ext_resource type="Texture2D" uid="uid://bpaq6e61fs622" path="res://Reed/images/vfx/fire/flame_gradient_mask.png" id="3_ole5k"]
-[ext_resource type="PackedScene" uid="uid://dg33fv7t6288v" path="res://Reed/scenes/vfx/ReedStepFire.tscn" id="4_8gx18"]
+[ext_resource type="Texture2D" uid="uid://b7thoupef0fpj" path="res://Reed/images/vfx/fire/ash_particle.png" id="1_ash"]
+[ext_resource type="Script" uid="uid://bw1a8xqlm14ts" path="res://Scripts/Nodes/NReedGroundFireVfx.cs" id="2_script"]
+[ext_resource type="Texture2D" uid="uid://hcjfryu1kjq8" path="res://Reed/images/vfx/fire/cinder_particle.png" id="3_cinder"]
+[ext_resource type="Texture2D" path="res://Reed/images/vfx/fire/common_glow.png" id="5_glow"]
+[ext_resource type="Material" uid="uid://c4ycqv0gdxvmr" path="res://Reed/images/vfx/fire/canvas_item_material_additive_shared.tres" id="6_add"]
+[ext_resource type="PackedScene" path="res://Reed/scenes/vfx/ReedFireCluster.tscn" id="7_cluster"]
 
-[sub_resource type="Curve" id="Curve_sdyaf"]
-_data = [Vector2(0, 0), 0.0, 5.81838, 0, 0, Vector2(0.501047, 0.998105), -1.16168e-06, -1.16168e-06, 0, 0, Vector2(1, 0), -5.23103, 0.0, 0, 0]
-point_count = 3
+[sub_resource type="Gradient" id="Gradient_cinder"]
+offsets = PackedFloat32Array(0, 0.12, 0.55, 1)
+colors = PackedColorArray(1, 0.95, 0.6, 1, 1, 0.62, 0.12, 1, 0.75, 0.16, 0.02, 0.85, 0.15, 0.03, 0, 0)
 
-[sub_resource type="CurveTexture" id="CurveTexture_11ec5"]
-width = 128
-curve = SubResource("Curve_sdyaf")
+[sub_resource type="GradientTexture1D" id="GradientTexture_cinder"]
+gradient = SubResource("Gradient_cinder")
 
-[sub_resource type="Gradient" id="Gradient_ejpkh"]
-offsets = PackedFloat32Array(0.625, 0.71087)
-colors = PackedColorArray(0.05, 0.05, 0.05, 1, 1, 1, 1, 1)
-
-[sub_resource type="GradientTexture1D" id="GradientTexture1D_o3agk"]
-gradient = SubResource("Gradient_ejpkh")
-
-[sub_resource type="Curve" id="Curve_rqiue"]
-_data = [Vector2(0, 1), 0.0, 0.0, 0, 0, Vector2(0.99999, 0.253902), 0.0, 0.0, 0, 0, Vector2(1, 0), 0.0, 0.0, 0, 0]
-point_count = 3
-
-[sub_resource type="CurveTexture" id="CurveTexture_lgjq2"]
-width = 128
-curve = SubResource("Curve_rqiue")
-
-[sub_resource type="Curve" id="Curve_58c0k"]
-_data = [Vector2(0, 1), 0.0, 0.0, 0, 0, Vector2(1, 0.0733236), -2.94131, 0.0, 0, 0]
-point_count = 2
-
-[sub_resource type="CurveTexture" id="CurveTexture_1a1ar"]
-curve = SubResource("Curve_58c0k")
-
-[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_1yqed"]
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_cinder"]
+lifetime_randomness = 0.6
 particle_flag_disable_z = true
-emission_shape_scale = Vector3(128, 128, 1)
-emission_shape = 6
-emission_ring_axis = Vector3(0, 0, 1)
-emission_ring_height = 1.0
-emission_ring_radius = 1.0
-emission_ring_inner_radius = 0.0
-emission_ring_cone_angle = 90.0
-angle_min = -180.0
-angle_max = 180.0
-direction = Vector3(1, -1, 0)
-spread = 180.0
-initial_velocity_min = 25.0
-initial_velocity_max = 100.0
-angular_velocity_min = -10.0
-angular_velocity_max = 9.99998
-radial_velocity_min = -100.0
-radial_velocity_max = 100.0
-radial_velocity_curve = SubResource("CurveTexture_lgjq2")
-gravity = Vector3(0, -98, 0)
-scale_min = 0.35
-scale_max = 0.7
-scale_curve = SubResource("CurveTexture_1a1ar")
-color = Color(1, 0.766667, 0, 1)
-color_ramp = SubResource("GradientTexture1D_o3agk")
-alpha_curve = SubResource("CurveTexture_11ec5")
-hue_variation_min = -0.08
-hue_variation_max = 0.08
-turbulence_enabled = true
-turbulence_noise_strength = 10.0
-turbulence_influence_min = 0.0
-turbulence_initial_displacement_min = 0.100001
-turbulence_initial_displacement_max = 0.100001
-
-[sub_resource type="CanvasItemMaterial" id="CanvasItemMaterial_56nu1"]
-blend_mode = 1
-particles_animation = true
-particles_anim_h_frames = 2
-particles_anim_v_frames = 2
-particles_anim_loop = false
-
-[sub_resource type="Curve" id="Curve_j85yv"]
-_data = [Vector2(0, 1), 0.0, 0.0, 0, 0, Vector2(0.803247, 0), -2.64426, 0.0, 0, 0]
-point_count = 2
-
-[sub_resource type="CurveTexture" id="CurveTexture_qg8fg"]
-width = 32
-curve = SubResource("Curve_j85yv")
-
-[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_we8qq"]
-lifetime_randomness = 0.8
-particle_flag_disable_z = true
-emission_shape_offset = Vector3(0, 12, 0)
-emission_shape_scale = Vector3(192, 220, 1)
-emission_shape = 6
-emission_ring_axis = Vector3(0, 0, 1)
-emission_ring_height = 1.0
-emission_ring_radius = 1.0
-emission_ring_inner_radius = 0.0
-emission_ring_cone_angle = 90.0
-angle_min = -180.0
-angle_max = 180.0
+emission_shape = 3
+emission_box_extents = Vector3(180, 16, 1)
 direction = Vector3(0, -1, 0)
-spread = 0.0
-initial_velocity_min = 100.0
-initial_velocity_max = 200.0
-gravity = Vector3(0, -300, 0)
-scale_max = 4.0
-color = Color(1, 0.693333, 0.08, 1)
-alpha_curve = SubResource("CurveTexture_qg8fg")
-hue_variation_min = -0.05
-hue_variation_max = 0.02
-anim_offset_max = 1.0
+spread = 35.0
+initial_velocity_min = 25.0
+initial_velocity_max = 80.0
+gravity = Vector3(0, -90, 0)
+scale_min = 0.18
+scale_max = 0.45
+color_ramp = SubResource("GradientTexture_cinder")
+hue_variation_min = -0.03
+hue_variation_max = 0.03
+turbulence_enabled = true
+turbulence_noise_strength = 8.0
+turbulence_noise_scale = 2.5
+
+[sub_resource type="Gradient" id="Gradient_spark"]
+offsets = PackedFloat32Array(0, 0.2, 0.6, 1)
+colors = PackedColorArray(1, 1, 0.85, 1, 1, 0.8, 0.3, 1, 1, 0.45, 0.05, 0.8, 0.4, 0.1, 0, 0)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture_spark"]
+gradient = SubResource("Gradient_spark")
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_spark"]
+lifetime_randomness = 0.7
+particle_flag_disable_z = true
+emission_shape = 3
+emission_box_extents = Vector3(160, 20, 1)
+direction = Vector3(0, -1, 0)
+spread = 60.0
+initial_velocity_min = 70.0
+initial_velocity_max = 180.0
+gravity = Vector3(0, -260, 0)
+scale_min = 0.18
+scale_max = 0.4
+color_ramp = SubResource("GradientTexture_spark")
+
+[sub_resource type="Gradient" id="Gradient_ember"]
+offsets = PackedFloat32Array(0, 0.15, 0.5, 1)
+colors = PackedColorArray(1, 0.9, 0.55, 1, 1, 0.55, 0.12, 1, 0.6, 0.12, 0.02, 0.8, 0.1, 0.02, 0, 0)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture_ember"]
+gradient = SubResource("Gradient_ember")
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_ember"]
+lifetime_randomness = 0.6
+particle_flag_disable_z = true
+emission_shape = 3
+emission_box_extents = Vector3(170, 10, 1)
+direction = Vector3(0, -1, 0)
+spread = 180.0
+initial_velocity_min = 20.0
+initial_velocity_max = 120.0
+gravity = Vector3(0, -90, 0)
+scale_min = 0.3
+scale_max = 0.7
+color_ramp = SubResource("GradientTexture_ember")
+turbulence_enabled = true
+turbulence_noise_strength = 8.0
 
 [node name="ReedGroundFire" type="Node2D"]
 modulate = Color(1, 1, 1, 0.8235294)
-script = ExtResource("1_c3ilj")
+script = ExtResource("2_script")
+
+[node name="GroundGlow" type="Sprite2D" parent="."]
+material = ExtResource("6_add")
+position = Vector2(0, -4)
+scale = Vector2(3.2, 0.32)
+modulate = Color(1, 0.35, 0.06, 0.32)
+texture = ExtResource("5_glow")
+
+[node name="FlameRow" type="Node2D" parent="."]
+
+[node name="Flame1" parent="FlameRow" instance=ExtResource("7_cluster")]
+visible = false
+position = Vector2(-260, 0)
+scale = Vector2(1, 1)
+
+[node name="Flame2" parent="FlameRow" instance=ExtResource("7_cluster")]
+visible = false
+position = Vector2(-130, 0)
+scale = Vector2(1, 1)
+
+[node name="Flame3" parent="FlameRow" instance=ExtResource("7_cluster")]
+visible = false
+position = Vector2(0, 0)
+scale = Vector2(1, 1)
+
+[node name="Flame4" parent="FlameRow" instance=ExtResource("7_cluster")]
+visible = false
+position = Vector2(130, 0)
+scale = Vector2(1, 1)
+
+[node name="Flame5" parent="FlameRow" instance=ExtResource("7_cluster")]
+visible = false
+position = Vector2(260, 0)
+scale = Vector2(1, 1)
+
+[node name="Cinders" type="GPUParticles2D" parent="."]
+material = ExtResource("6_add")
+position = Vector2(0, -50)
+amount = 10
+texture = ExtResource("3_cinder")
+lifetime = 2.2
+randomness = 0.6
+fixed_fps = 30
+visibility_rect = Rect2(-500, -600, 1000, 800)
+process_material = SubResource("ParticleProcessMaterial_cinder")
+
+[node name="Sparks" type="GPUParticles2D" parent="."]
+material = ExtResource("6_add")
+position = Vector2(0, -150)
+amount = 6
+texture = ExtResource("3_cinder")
+lifetime = 0.9
+randomness = 1.0
+fixed_fps = 30
+visibility_rect = Rect2(-500, -600, 1000, 800)
+process_material = SubResource("ParticleProcessMaterial_spark")
 
 [node name="Ember" type="GPUParticles2D" parent="."]
-position = Vector2(-2, -162)
+position = Vector2(0, -40)
 emitting = false
-amount = 16
-texture = ExtResource("1_ah2sk")
-lifetime = 2.0
+amount = 20
+texture = ExtResource("1_ash")
+lifetime = 1.6
 one_shot = true
-speed_scale = 2.0
-explosiveness = 0.5
-randomness = 0.8
-fixed_fps = 60
-process_material = SubResource("ParticleProcessMaterial_1yqed")
-
-[node name="FlameSprites" type="GPUParticles2D" parent="."]
-material = SubResource("CanvasItemMaterial_56nu1")
-position = Vector2(0, -201)
-amount = 2
-texture = ExtResource("2_c3ilj")
-lifetime = 0.3
-explosiveness = 0.5
-randomness = 0.5
-visibility_rect = Rect2(-256, -256, 512, 512)
-process_material = SubResource("ParticleProcessMaterial_we8qq")
-
-[node name="MainFire" type="Sprite2D" parent="."]
-unique_name_in_owner = true
-modulate = Color(1, 1, 1, 0.752941)
-clip_children = 1
-position = Vector2(24, -15)
-scale = Vector2(4, 4)
-skew = -0.0872665
-texture = ExtResource("3_ole5k")
-offset = Vector2(3, -57.25)
-
-[node name="ReedStepFire" parent="MainFire" instance=ExtResource("4_8gx18")]
-position = Vector2(-1, 24.75)
-scale = Vector2(0.3, 0.3)
+speed_scale = 1.6
+explosiveness = 0.85
+randomness = 0.7
+fixed_fps = 30
+visibility_rect = Rect2(-500, -600, 1000, 800)
+process_material = SubResource("ParticleProcessMaterial_ember")

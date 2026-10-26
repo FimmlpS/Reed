@@ -10,6 +10,8 @@ using MegaCrit.Sts2.Core.Entities.Cards;
 using MegaCrit.Sts2.Core.Entities.Players;
 using MegaCrit.Sts2.Core.GameActions.Multiplayer;
 using MegaCrit.Sts2.Core.Models;
+using MegaCrit.Sts2.Core.Runs;
+using MegaCrit.Sts2.Core.Saves.Runs;
 
 namespace Reed.Scripts.Memory;
 
@@ -403,6 +405,112 @@ public static class MemorySystem
             await NotifyRememberedAsync(choiceContext, player, entry.Card);
         }
         return entry;
+    }
+
+    // ============ 跨战斗：第 0 回合（战斗开始前就存在的回忆） ============
+
+    /// <summary>
+    /// 「第 0 回合」的回合号：战斗开始前就存在的回忆都搬进这个桶 —— 遗物「无名诗集」搬来
+    /// 上一场战斗的最后一回合，<see cref="RoundZeroLedger"/> 搬来「向大地诉说」记下的牌。
+    ///
+    /// <para><b>普通战斗里这个桶通常是空的</b>：<see cref="Record"/>（以及 <c>RecordCmd</c>）只接受
+    /// <c>round &gt;= 1</c>，唯一会写入它的入口是本类的 <see cref="RestoreCarriedRound"/>
+    /// （两处调用方见上）。所以「本场战斗有没有第 0 回合」直接用
+    /// <c>Of(combat, player).HasRound(0)</c> 判断即可，不需要问遗物 / 账本在不在 ——
+    /// 这一层把「谁允许创建第 0 回合」收在了唯一一处。</para>
+    /// </summary>
+    public const int CarriedRound = 0;
+
+    /// <summary>
+    /// 这个玩家在本场战斗里<b>最早能追忆到</b>的回合：有第 0 回合时是 <see cref="CarriedRound"/>，否则是 1。
+    ///
+    /// <para><see cref="RecallCmd"/> 用它当越界闸门。于是递归追忆（<c>.Card(this)</c>）的终止条件
+    /// 自动跟着走：没有第 0 回合时照旧在第 0 回合停下，有第 0 回合时才会真的把第 0 回合的牌打出来。</para>
+    /// </summary>
+    public static int MinRound(ICombatState? combat, Player? player)
+    {
+        return player != null && Of(combat, player).HasRound(CarriedRound) ? CarriedRound : 1;
+    }
+
+    /// <summary>
+    /// 把某一回合的回忆<b>导出成可跨战斗保存的快照</b>（Id / 升级 / 附魔 / 进牌堆楼层）。
+    ///
+    /// <para>战斗内才有的东西（当前 <c>Props</c> 里的动态数值、痛苦、临时关键词）不保留：
+    /// 下一场战斗里它只是一张「同样的牌」，不是同一张牌。空回合 / 无战斗上下文返回空表。</para>
+    /// </summary>
+    public static List<SerializableCard> ExportRound(ICombatState? combat, Player? player, int round)
+    {
+        List<SerializableCard> saves = new();
+        if (combat == null || player == null)
+        {
+            return saves;
+        }
+        foreach (RememberedCard entry in Of(combat, player).PeekRound(round))
+        {
+            try
+            {
+                if (entry.Card != null)
+                {
+                    saves.Add(entry.Card.ToSerializable());
+                }
+            }
+            catch (Exception e)
+            {
+                GD.PushWarning($"[MemorySystem] 导出回忆失败（{entry.Card?.Id}）：{e.Message}");
+            }
+        }
+        return saves;
+    }
+
+    /// <summary>
+    /// 把战斗外留下的快照<b>重建成本场战斗的 <see cref="CarriedRound"/> 回忆</b>，返回实际重建的每一条记录。
+    /// 两个调用方：遗物「无名诗集」（上一场战斗的最后一回合）与
+    /// <see cref="RoundZeroLedger"/>（「向大地诉说」记下的账本，每场战斗开始时整段重建）。
+    ///
+    /// <para>重建出来的牌**不是**来源那一场的对象（那些对象属于已经结束的战斗）：先用
+    /// <see cref="CardModel.FromSerializable"/> 造可变卡，再 <c>ICardScope.AddCard</c> 注册进本场战斗。
+    /// 注册后它们和手动记录的快照一样<b>不进任何牌堆</b> —— 不显示、不吃牌堆相关的 hook，
+    /// 只躺在回忆里等着被追忆。</para>
+    ///
+    /// <para>调用时机必须是战斗开始（<c>CombatSetUp</c> 之后）：<c>CombatSetUp</c> 会清空回忆表，
+    /// 在那之前写进去的会被抹掉。这里**只**广播同步的 <see cref="MemoryChanged"/>（UI 刷新），
+    /// 不广播 <see cref="Remembered"/> / <see cref="IMemoryEventSubscriber"/> —— 那是「玩家主动记录」的口径，
+    /// 需要的话由调用方自己补（见 <see cref="RoundZeroLedger.AddAsync"/>）。</para>
+    /// </summary>
+    public static List<RememberedCard> RestoreCarriedRound(ICombatState? combat, Player? player, IReadOnlyList<SerializableCard>? saves)
+    {
+        List<RememberedCard> restored = new();
+        if (combat is not ICardScope scope || player == null || saves == null || saves.Count == 0)
+        {
+            return restored;
+        }
+
+        foreach (SerializableCard save in saves)
+        {
+            try
+            {
+                if (save?.Id == null)
+                {
+                    continue;
+                }
+                CardModel card = CardModel.FromSerializable(save);
+                scope.AddCard(card, player);
+                card.AfterCreated(); // 与 ICardScope.CreateCard 的建卡流程保持一致
+                RememberedCard entry = MakeEntry(card, CarriedRound);
+                Of(combat, player).GetRound(CarriedRound).Add(entry);
+                restored.Add(entry);
+            }
+            catch (Exception e)
+            {
+                GD.PushWarning($"[MemorySystem] 第 0 回合重建失败（{save?.Id}）：{e.Message}");
+            }
+        }
+
+        if (restored.Count > 0)
+        {
+            MemoryChanged?.Invoke(player);
+        }
+        return restored;
     }
 
     // ============ 事件分发：牌进出回忆（IMemoryEventSubscriber） ============

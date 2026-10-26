@@ -18,8 +18,8 @@ namespace Reed.Scripts.Cards.Attack;
 public class ForeverFlame : AbstractReedCard
 {
     protected override IEnumerable<DynamicVar> CanonicalVars => [
-        new DamageVar(9,ValueProp.Move),
-        new BurnVar(2)
+        new DamageVar(7,ValueProp.Move),
+        new BurnVar(1)
     ];
 
     protected override IEnumerable<IHoverTip> ExtraHoverTips => [
@@ -44,18 +44,27 @@ public class ForeverFlame : AbstractReedCard
         .Targeting(cardPlay.Target)
         .Execute(choiceContext);
 
-        if (!cardPlay.Target.IsBurningResistance() && CombatState.HittableEnemies.Count>0)
-        {
-            Creature target = CombatState.HittableEnemies.TakeRandom(1,CombatState.RunState.Rng.CombatTargets).First();
-            await DamageCmd.Attack(DynamicVars.Damage.BaseValue)
-            .FromCard(this, cardPlay)
-            .Targeting(target)
-            .Execute(choiceContext);
+        Creature lastTarget = cardPlay.Target;
 
-            await ReedBurnCmd.Burn(DynamicVars.Burn().IntValue)
-            .FromCard(this, cardPlay)
-            .Targeting(target)
-            .Execute(choiceContext);
+        for(int i = 0; i < 2; i++)
+        {
+            if (!lastTarget.IsBurningResistance() && CombatState.HittableEnemies.Count>0)
+            {
+                lastTarget = CombatState.HittableEnemies.TakeRandom(1,CombatState.RunState.Rng.CombatTargets).First();
+                await DamageCmd.Attack(DynamicVars.Damage.BaseValue)
+                .FromCard(this, cardPlay)
+                .Targeting(lastTarget)
+                .Execute(choiceContext);
+
+                await ReedBurnCmd.Burn(DynamicVars.Burn().IntValue)
+                .FromCard(this, cardPlay)
+                .Targeting(lastTarget)
+                .Execute(choiceContext);
+            }
+            else
+            {
+                break;
+            }
         }
     }
 

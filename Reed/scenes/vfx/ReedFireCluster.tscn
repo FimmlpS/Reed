@@ -1,0 +1,20 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Texture2D" path="res://Reed/images/vfx/fire/flame_gradient_mask.png" id="1_mask"]
+[ext_resource type="PackedScene" path="res://Reed/scenes/vfx/ReedStepFire.tscn" id="2_step"]
+
+[node name="FireCluster" type="Node2D"]
+
+[node name="Mask" type="Sprite2D" parent="."]
+self_modulate = Color(0, 0, 0, 1)
+modulate = Color(1, 1, 1, 0.752941)
+clip_children = 1
+position = Vector2(24, -15)
+scale = Vector2(4, 4)
+skew = -0.0872665
+texture = ExtResource("1_mask")
+offset = Vector2(3, -57.25)
+
+[node name="StepFire" parent="Mask" instance=ExtResource("2_step")]
+position = Vector2(-1, 24.75)
+scale = Vector2(0.3, 0.3)

@@ -30,8 +30,10 @@ public class ToDust : AbstractReedCard, IMemorySubscriber
 
     protected override async Task OnPlay(PlayerChoiceContext choiceContext, CardPlay cardPlay)
     {
-        int round = 1;
         PlayerMemory memory = MemorySystem.Of(Owner);
+        // 「每一回合」= 本场战斗回忆里最早的那个回合起：通常是第 1 回合；有「无名诗集」或
+        // 「向大地诉说」记下的账本时，第 0 回合（战前）也在这里面。
+        int round = MemorySystem.MinRound(CombatState, Owner);
         while (memory.HasRound(round))
         {
             CardModel reRecord = memory.PeekRound(round).TakeRandom(1, CombatState.RunState.Rng.CombatCardSelection).FirstOrDefault()?.Card;

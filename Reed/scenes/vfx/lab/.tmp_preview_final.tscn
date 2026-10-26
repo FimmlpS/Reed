@@ -1,0 +1,31 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="PackedScene" path="res://Reed/scenes/vfx/lab/ReedGroundFire_Lab.tscn" id="1_lab"]
+[ext_resource type="Script" path="res://Reed/scenes/vfx/lab/.tmp_shot.gd" id="2_shot"]
+
+[node name="Final" type="Node2D"]
+
+[node name="Medium" parent="." instance=ExtResource("1_lab")]
+position = Vector2(285, 620)
+footprint = 520.0
+creature_height = 430.0
+shared_shader = true
+add_layers = false
+core_strength = 0.3
+mix_outer_step = Vector2(0.11, 0.22)
+shared_inner_step = Vector2(0.35, 0.80)
+
+[node name="Large" parent="." instance=ExtResource("1_lab")]
+position = Vector2(870, 620)
+footprint = 800.0
+creature_height = 600.0
+shared_shader = true
+add_layers = false
+core_strength = 0.3
+mix_outer_step = Vector2(0.11, 0.22)
+shared_inner_step = Vector2(0.35, 0.80)
+
+[node name="Shot" type="Node" parent="."]
+script = ExtResource("2_shot")
+out_path = "res://.tmp_shot_final.png"
+delay = 1.5

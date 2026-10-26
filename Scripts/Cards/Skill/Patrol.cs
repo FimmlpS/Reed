@@ -39,7 +39,7 @@ public class Patrol : AbstractReedCard
     protected override async Task OnPlay(PlayerChoiceContext choiceContext, CardPlay cardPlay)
     {
         await CreatureCmd.GainBlock(Owner.Creature, DynamicVars.Block, cardPlay);
-        int energyCost = cardPlay.Resources.EnergyValue;
+        int energyCost = ResolveEnergyXValue();
         for(int i = 0; i < energyCost; i++)
         {
             await ReedAttachCmd.Attach(choiceContext, this.CreateFireFlower<NormalFlower>(), cardPlay.Target);

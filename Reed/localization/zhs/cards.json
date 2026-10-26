@@ -64,6 +64,9 @@
 	"REED-DRAGON_OATH.title":"红龙的誓言",
 	"REED-DRAGON_OATH.description":"造成{Damage:diff()}点伤害。{IfUpgraded:show:\n[gold]附着[/gold]一张[gold]灼痕[/gold]火花。\n将此牌[blue]降级[/blue]。|\n[gold]引爆[/gold]一张火花牌。\n将此牌[gold]升级[/gold]。}",
 
+	"REED-LAST_PAGE.title":"尾页",
+	"REED-LAST_PAGE.description":"获得{Block:diff()}点[gold]格挡[/gold]。\n获得{Energy:energyIcons()}。\n增加此牌1点耗能和1点{energyPrefix:energyIcons(1)}获得量。",
+
 	"COMMON-UNCOMMON":"",
 
 	"REED-BACKGROUND.title":"身世",
@@ -162,10 +165,13 @@
 	"REED-THE_DUBLIN.description":"获得{RecallPower:diff()}层[gold]待忆[/gold]。\n这张牌被[gold]追忆[/gold]时，复制到你的弃牌堆。",
 
 	"REED-FOREVER_FLAME.title":"溺火",
-	"REED-FOREVER_FLAME.description":"造成{Damage:diff()}点伤害并[gold]灼烧[/gold]{Reed_Burn:diff()}。\n如果它仍未处于[red]燃烧状态[/red]，再对随机敌人造成一次。",
+	"REED-FOREVER_FLAME.description":"造成{Damage:diff()}点伤害并[gold]灼烧[/gold]{Reed_Burn:diff()}。\n如果它仍未处于[red]燃烧状态[/red]，再对随机敌人造成一次，至多重复2次。",
 
 	"REED-DRAGON_CROWN.title":"赠予红龙的花冠",
 	"REED-DRAGON_CROWN.description":"每回合限{DragonCrownPower:diff()}张，你可以打出并[gold]消耗[/gold]手中的[gold]状态牌[/gold]并抽一张牌，无论其是否可以打出。",
+
+	"REED-WISH_AND_CURSE.title":"祝福与诅咒",
+	"REED-WISH_AND_CURSE.description":"丢弃任意张手牌并抽等量张牌，如果弃牌的类型各不相同，改为将它们[gold]消耗[/gold]。",
 
 	"UNCOMMON-RARE":"",
 
@@ -196,8 +202,8 @@
 	"REED-CLASH.title":"残脉",
 	"REED-CLASH.description":"其他手牌中每有一种类型，造成{Damage:diff()}点伤害并[gold]灼烧[/gold]{Reed_Burn:diff()}。{InCombat:\n（攻击{CalculatedCards:diff()}次）|}",
 
-	"REED-SPEAK_TO_TERRA.title":"向大地诉说TODO",
-	"REED-SPEAK_TO_TERRA.description":"",
+	"REED-SPEAK_TO_TERRA.title":"向大地诉说",
+	"REED-SPEAK_TO_TERRA.description":"记录一张手牌到所有战斗[blue]第0回合[/blue]的回忆中，并从中[gold]追忆[/gold]一张{IfUpgraded:show:攻击牌或}技能牌。",
 
 	"REED-AS_NIGHT_ENDS.title":"夜尽之时",
 	"REED-AS_NIGHT_ENDS.description":"使一名敌人下次进入[red]燃烧状态[/red]时，[gold]火花牌[/gold]额外爆发X次。\n将{IfUpgraded:show:X+2|X}张[gold]焰影[/gold]加入手牌。",

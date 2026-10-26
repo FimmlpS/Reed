@@ -1,0 +1,35 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="PackedScene" path="res://Reed/scenes/vfx/lab/ReedGroundFire_Lab.tscn" id="1_lab"]
+[ext_resource type="Script" path="res://Reed/scenes/vfx/lab/.tmp_shot.gd" id="2_shot"]
+
+[node name="ColorAB" type="Node2D"]
+
+[node name="FromV" parent="." instance=ExtResource("1_lab")]
+position = Vector2(285, 610)
+footprint = 520.0
+creature_height = 430.0
+shared_shader = true
+add_layers = false
+core_strength = 0.5
+mix_outer_step = Vector2(0.11, 0.22)
+shared_inner_step = Vector2(0.45, 0.90)
+color_from_v = true
+
+[node name="World" parent="." instance=ExtResource("1_lab")]
+position = Vector2(870, 610)
+footprint = 520.0
+creature_height = 430.0
+shared_shader = true
+add_layers = false
+core_strength = 0.5
+mix_outer_step = Vector2(0.11, 0.22)
+shared_inner_step = Vector2(0.45, 0.90)
+color_from_v = false
+rim_softness = 0.85
+rim_darken = 0.5
+
+[node name="Shot" type="Node" parent="."]
+script = ExtResource("2_shot")
+out_path = "res://.tmp_shot_color.png"
+delay = 1.5

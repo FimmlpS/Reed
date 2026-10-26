@@ -225,6 +225,8 @@ func _process(delta: float) -> void:
 		WebSocketPeer.STATE_CONNECTING:
 			pass
 
+func get_session_id() -> String:
+	return _session_id
 
 ## Drain up to PACKET_DRAIN_CAP_PER_TICK inbound packets and dispatch each
 ## via `_handle_message`. Anything past the cap stays in the peer's queue
@@ -707,8 +709,9 @@ const _SERVICE_REJECT_LOG_EVERY := 100
 ## Service the WebSocket transport from inside a long synchronous handler
 ## (an "exclusive run" — the test runner). The editor main thread is
 ## blocked, so `_process` cannot poll; without this the server keepalive
-## (20s ping interval / 20s timeout) closes the session mid-run. See
-## docs/test-run-transport-starvation-plan.md.
+## (`DEFAULT_KEEPALIVE_PING_INTERVAL_SECONDS` / `_PING_TIMEOUT_SECONDS` in
+## `transport/websocket.py` — 20s interval, 60s pong deadline since #958)
+## closes the session mid-run. See docs/test-run-transport-starvation-plan.md.
 ##
 ## Contract — do NOT extend this method to dispatch:
 ## - `WebSocketPeer.poll()` has no heartbeat-only mode; it also buffers
@@ -886,14 +889,24 @@ func _check_state_changes() -> void:
 				log_buffer.log("[event] readiness -> %s" % readiness, false)
 
 
-## Playing→stopped edge for game-run bookkeeping. Runs every process tick
-## (any socket state) so a self-quit game's run ends even while the
-## transport is down or reconnecting.
+## Stopped↔playing edge handler for game-run bookkeeping. Handles both the
+## stopped→playing edge (adopting editor-started runs) and the playing→stopped
+## edge (ending runs). Runs every process tick (any socket state) so a
+## self-quit game's run ends even while the transport is down or reconnecting.
 func _check_game_run_play_state(playing: bool) -> void:
 	if playing == _last_play_state_for_run:
 		return
-	if not playing and debugger_plugin != null:
-		debugger_plugin.note_editor_play_stopped()
+	if debugger_plugin != null:
+		if playing:
+			## #891: adopt a play the user started from the editor. The
+			## debugger session's own adoption in `_setup_session` only fires
+			## when `is_playing_scene()` is already true when the session
+			## attaches, which an F5/F6 launch routinely misses; this edge is
+			## the other half of that race. Polled every tick regardless of
+			## socket state, same as the stop edge below.
+			debugger_plugin.note_editor_play_started()
+		else:
+			debugger_plugin.note_editor_play_stopped()
 	_last_play_state_for_run = playing
 
 

@@ -67,6 +67,9 @@
 	"REED-LAST_PAGE.title":"尾页",
 	"REED-LAST_PAGE.description":"获得{Block:diff()}点[gold]格挡[/gold]。\n获得{Energy:energyIcons()}。\n增加此牌1点耗能和1点{energyPrefix:energyIcons(1)}获得量。",
 
+	"REED-LATENT_DETECTION.title":"潜意",
+	"REED-LATENT_DETECTION.description":"造成{Damage:diff()}点伤害。\n非追忆打出时，在接下来{Repeat:diff()}个回合的[gold]回忆[/gold]中记录此牌。对应回合开始时[gold]追忆[/gold]此记录。",
+
 	"COMMON-UNCOMMON":"",
 
 	"REED-BACKGROUND.title":"身世",
@@ -173,6 +176,12 @@
 	"REED-WISH_AND_CURSE.title":"祝福与诅咒",
 	"REED-WISH_AND_CURSE.description":"丢弃任意张手牌并抽等量张牌，如果弃牌的类型各不相同，改为将它们[gold]消耗[/gold]。",
 
+	"REED-ENDER_WALKER.title":"末路",
+	"REED-ENDER_WALKER.description":"获得{Block:diff()}点[gold]格挡[/gold]。\n非追忆打出时，在接下来{Repeat:diff()}个回合的[gold]回忆[/gold]中记录此牌。对应回合开始时[gold]追忆[/gold]此记录。",
+
+	"REED-INC_FIRE.title":"薪燃",
+	"REED-INC_FIRE.description":"造成{Damage:diff()}点[gold]伤害[/gold]。\n目标在本回合每受到1点[gold]灼烧[/gold]，使其随机火花牌提升{IncFirePower:diff()}点伤害。",
+
 	"UNCOMMON-RARE":"",
 
 	"REED-DYING_FIRE.title":"将熄的火",
@@ -255,10 +264,10 @@
 	"REED-END_FLOWER.description":"[gold]爆发[/gold]：受到{Damage:diff()}点伤害{Alive:，令来源获得{Block:diff()}点[gold]格挡[/gold]|}{Dead:，令来源获得{VigorPower:diff()}点[gold]活力[/gold]|}。",
 
 	"REED-SHINE_FLOWER.title":"[火花]映耀",
-	"REED-SHINE_FLOWER.description":"[gold]爆发[/gold]：受到{Damage:diff()}点伤害，令来源抽{Cards:diff()}张牌。",
+	"REED-SHINE_FLOWER.description":"[gold]爆发[/gold]：受到{Damage:diff()}点伤害，令来源抽{Cards:diff()}张牌{Alive:，使其中的技能牌本回合耗能-1|}{Dead:，使其中的攻击牌本回合耗能-2|}。",
 
 	"REED-SPLENDID_FLOWER.title":"[火花]灿烂",
-	"REED-SPLENDID_FLOWER.description":"[gold]爆发[/gold]：受到{Damage:diff()}点伤害，令来源抽{Cards:diff()}张牌并获得{Energy:energyIcons()}",
+	"REED-SPLENDID_FLOWER.description":"[gold]爆发[/gold]：受到{Damage:diff()}点伤害，令来源抽{Cards:diff()}张牌并获得{Energy:energyIcons()}{Alive:，使其中的技能牌本回合耗能-1|}{Dead:，使其中的攻击牌本回合耗能-2|}。",
 
 	"REED-BURN_MARK_FLOWER.title":"[火花]灼痕",
 	"REED-BURN_MARK_FLOWER.description":"[gold]爆发[/gold]：受到{Damage:diff()}点伤害。\n[gold]持续[/gold]：造成的攻击伤害降低{Alive:40|25}％，受到的攻击伤害提升{Dead:40|25}％。",

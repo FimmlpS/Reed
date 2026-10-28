@@ -43,4 +43,23 @@ public interface IMemoryEventSubscriber
     /// 在这个事件里回忆条目**已经被消耗掉**了（<c>RecallCmd</c> 先移除再打出）。
     /// </summary>
     Task AfterRecalled(PlayerChoiceContext choiceContext, Player player, CardModel card) => Task.CompletedTask;
+
+    /// <summary>
+    /// **玩家回合开始**（<c>Hook.AfterPlayerTurnStart</c>：牌已经抽完、出牌阶段之前）时，
+    /// 为回忆里的**每一条记录**各广播一次 —— <paramref name="entry"/> 就是那条记录
+    /// （<see cref="RememberedCard.RoundNumber"/> + 快照卡）。
+    ///
+    /// <para>为什么按「每条记录」而不是「每个回合」广播：记录里躺着的正是卡牌快照本身，而快照不进任何牌堆，
+    /// 收不到原版 hook；「记录所在回合 == 当前回合时才做事」（<c>LatentDetection</c> 的到期追忆）
+    /// 只能靠这一拨广播自证 —— <c>ReferenceEquals(entry.Card, this)</c> 认领自己那一份，
+    /// 再看 <c>entry.RoundNumber ==</c> 当前回合。别人的、还没到期的记录直接忽略。</para>
+    ///
+    /// <para><b>拿当前回合不要用 <c>this.CombatState</c></b>：回忆快照不进任何牌堆，
+    /// <c>CardModel.CombatState</c> 只对「在战斗牌堆里」的牌返回非 null，对快照恒为 null ——
+    /// 要用 <c>player.Creature.CombatState</c>（广播参数里的 <paramref name="player"/> 就是回忆的主人）。</para>
+    ///
+    /// <para>和其他事件一样会被 <c>await</c>，里面可以放心追忆（<see cref="RecallCmd"/>）、自动出牌。
+    /// 写进**未来回合**的记录也会收到广播（那几份就是「还没到期」的）。</para>
+    /// </summary>
+    Task AfterRoundStarted(PlayerChoiceContext choiceContext, Player player, RememberedCard entry) => Task.CompletedTask;
 }

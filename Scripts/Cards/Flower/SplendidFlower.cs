@@ -40,22 +40,11 @@ public class SplendidFlower : AbstractReedCard, IFireFlower
 
         for(int i = 0; i < fireBurnt.Times; i++)
         {
-            await CardPileCmd.Draw(playerChoiceContext,DynamicVars.Cards.BaseValue, Owner);
+            IEnumerable<CardModel> drawn = await CardPileCmd.Draw(playerChoiceContext,DynamicVars.Cards.BaseValue, Owner);
             await PlayerCmd.GainEnergy(DynamicVars.Energy.BaseValue,Owner);
+            // 形态奖励现读：生灵 → 抽到的技能牌本回合耗能-1；死灵 → 抽到的攻击牌。普通形态只抽牌+回能。
+            LivingForm.DiscountDrawn(this, drawn);
         }
-    }
-
-    void IFireFlower.ApplyLivingForm(WhichLivingForm form)
-    {
-        // 生灵：抽牌 2 → 4；死灵：能量 1 → 2。另一项保持基准；普通形态两项都回基准值。
-        // 两项都从 canonical 的数值重算（而不是在现值上加减），形态来回切换才不会越叠越多。
-        SplendidFlower template = ModelDb.Card<SplendidFlower>();
-        DynamicVars.Cards.BaseValue = form == WhichLivingForm.Alive
-            ? template.DynamicVars.Cards.BaseValue + 2m
-            : template.DynamicVars.Cards.BaseValue;
-        DynamicVars.Energy.BaseValue = form == WhichLivingForm.Dead
-            ? template.DynamicVars.Energy.BaseValue + 1m
-            : template.DynamicVars.Energy.BaseValue;
     }
 
     bool IFireFlower.IsAdvanced => true; // 二阶花（24 伤害）；最高阶，无上级

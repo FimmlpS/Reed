@@ -2,6 +2,7 @@ using System.Threading.Tasks;
 using HarmonyLib;
 using MegaCrit.Sts2.Core.Combat;
 using MegaCrit.Sts2.Core.Entities.Cards;
+using MegaCrit.Sts2.Core.Entities.Players;
 using MegaCrit.Sts2.Core.GameActions.Multiplayer;
 using MegaCrit.Sts2.Core.Hooks;
 using Reed.Scripts.Memory;
@@ -67,5 +68,40 @@ public static class MemoryCapturePatch
     {
         await hook;
         await MemorySystem.CaptureAsync(combatState, choiceContext, cardPlay);
+    }
+}
+
+/// <summary>
+/// 「回合开始」的回忆事件（见 <see cref="MemorySystem.NotifyRoundStartedAsync"/>）：
+/// <see cref="Hook.AfterPlayerTurnStart"/> **整个跑完之后**（此时牌已经抽完、出牌阶段之前），
+/// 把回忆里的每条记录广播给 <see cref="IMemoryEventSubscriber.AfterRoundStarted"/>。
+///
+/// <para>为什么挂在 hook 上、而不是 <c>CombatManager.TurnStarted</c> 事件：后者是同步的
+/// <c>Action&lt;CombatState&gt;</c>，既没有 <see cref="PlayerChoiceContext"/>，也没法 await ——
+/// 而到期的追忆要 await 一整次自动出牌（弹屏 / VFX / 伤害结算）。
+/// <see cref="Hook.AfterPlayerTurnStart"/> 正好在 <c>CombatManager.SetupPlayerTurn</c> 的
+/// <c>CardPileCmd.Draw</c> 之后，且带 context、被调用方 await，包 Task 的手法与
+/// <see cref="MemoryCapturePatch"/> 完全一致。</para>
+/// </summary>
+[HarmonyPatch(typeof(Hook), nameof(Hook.AfterPlayerTurnStart))]
+public static class MemoryRoundStartPatch
+{
+    [HarmonyPostfix]
+    private static void Postfix(ref Task __result, PlayerChoiceContext choiceContext, Player player)
+    {
+        Task hook = __result;
+        __result = DispatchWhenHookCompletes(hook, choiceContext, player);
+    }
+
+    /// <summary>
+    /// 替换掉 <see cref="Hook.AfterPlayerTurnStart"/> 的返回任务：先让原 hook 完整跑完
+    ///（含全部 <c>AfterPlayerTurnStart</c> / <c>AfterPlayerTurnStartLate</c> 监听者），再派发回合开始事件。
+    /// 原 hook 抛异常时异常原样向上传播，派发不执行。
+    /// </summary>
+    private static async Task DispatchWhenHookCompletes(
+        Task hook, PlayerChoiceContext choiceContext, Player player)
+    {
+        await hook;
+        await MemorySystem.NotifyRoundStartedAsync(choiceContext, player);
     }
 }

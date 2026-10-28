@@ -61,5 +61,9 @@
 
     "REED-DRAGON_CROWN_POWER.title":"赠予红龙的花冠",
 	"REED-DRAGON_CROWN_POWER.description":"你可以打出并[gold]消耗[/gold]手中的[gold]状态牌[/gold]并抽一张牌，无论其是否可以打出。",
-    "REED-DRAGON_CROWN_POWER.smartDescription":"每回合限{Amount}张，你可以打出并[gold]消耗[/gold]手中的[gold]状态牌[/gold]并抽一张牌，无论其是否可以打出。"
+    "REED-DRAGON_CROWN_POWER.smartDescription":"每回合限{Amount}张，你可以打出并[gold]消耗[/gold]手中的[gold]状态牌[/gold]并抽一张牌，无论其是否可以打出。",
+
+    "REED-INC_FIRE_POWER.title":"薪燃",
+	"REED-INC_FIRE_POWER.description":"本回合每受到1点[gold]灼烧[/gold]，使其随机火花牌提升1点伤害。",
+    "REED-INC_FIRE_POWER.smartDescription":"本回合每受到1点[gold]灼烧[/gold]，使其随机火花牌提升{Amount}点伤害。"
 }

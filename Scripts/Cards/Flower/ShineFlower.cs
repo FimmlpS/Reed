@@ -40,21 +40,15 @@ public class ShineFlower : AbstractReedCard, IFireFlower
 
         for(int i = 0; i < fireBurnt.Times; i++)
         {
-            await CardPileCmd.Draw(playerChoiceContext,DynamicVars.Cards.BaseValue, Owner);
+            IEnumerable<CardModel> drawn = await CardPileCmd.Draw(playerChoiceContext,DynamicVars.Cards.BaseValue, Owner);
+            // 形态奖励现读：生灵 → 抽到的技能牌本回合耗能-1；死灵 → 抽到的攻击牌。普通形态只抽牌。
+            LivingForm.DiscountDrawn(this, drawn);
         }
     }
 
     CardModel IFireFlower.GetUpperCard()
     {
         return ModelDb.Card<SplendidFlower>();
-    }
-
-    void IFireFlower.ApplyLivingForm(WhichLivingForm form)
-    {
-        // 生灵/死灵都一样：抽牌 1 → 2。普通形态回到基准值 1。
-        // 每次都从 canonical 的数值重算（而不是在现值上 +1），形态来回切换才不会越叠越多。
-        DynamicVars.Cards.BaseValue = ModelDb.Card<ShineFlower>().DynamicVars.Cards.BaseValue
-            + (form == WhichLivingForm.None ? 0m : 1m);
     }
 
     bool IFireFlower.IsAdvanced => false; // 一阶花（8 伤害）；上级是 SplendidFlower

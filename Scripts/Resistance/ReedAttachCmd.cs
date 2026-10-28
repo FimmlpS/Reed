@@ -168,7 +168,8 @@ public static class ReedAttachCmd
     /// 火花正式挂到目标身上之后的统一收尾（<see cref="Attach"/> 与 <see cref="UpgradeSpark"/> 都走这里）。
     /// 目前两件事：通知火花自身 <see cref="IFireFlower.OnAttached"/>；让它跟上 owner 当前的「形态」
     /// （见 <see cref="IFireFlower.ApplyLivingForm"/> —— 物化出来的新副本带的是 canonical 的基础数值，
-    /// 玩家在它挂上来之前就已经处于生灵/死灵时得在这里补一次；幂等，没形态或形态无影响时是空操作）。
+    /// 如果将来有花的<b>牌面数值</b>随形态变，玩家在它挂上来之前就处于生灵/死灵时得在这里补一次；
+    /// 幂等，当前没有花用到它，因此是空操作）。
     /// </summary>
     private static async Task OnSparkAttached(PlayerChoiceContext? choiceContext, CardModel spark, Creature target)
     {

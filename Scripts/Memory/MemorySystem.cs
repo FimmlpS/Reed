@@ -530,6 +530,59 @@ public static class MemorySystem
         => DispatchAsync(recalled: true, choiceContext, player, card);
 
     /// <summary>
+    /// 广播「玩家回合开始」—— 由 <c>MemoryRoundStartPatch</c>（<c>Hook.AfterPlayerTurnStart</c> 的 postfix）
+    /// 在抽完牌、出牌阶段之前调用。**每条回忆各广播一次**（未来回合、第 0 回合的记录也算），
+    /// 由订阅者自己按 <see cref="RememberedCard.RoundNumber"/> 判断到期与否，理由见
+    /// <see cref="IMemoryEventSubscriber.AfterRoundStarted"/>。
+    ///
+    /// <para>先把整份回忆**快照**再派发：派发过程中条目会被追忆消耗（<see cref="Forget"/> 改的是活体集合），
+    /// 边枚举边改会抛异常；已经被前面某条吃掉的记录，由订阅者拿 <see cref="Forget"/> 的返回值自己兜住。</para>
+    /// </summary>
+    public static async Task NotifyRoundStartedAsync(PlayerChoiceContext? choiceContext, Player? player)
+    {
+        if (choiceContext == null || player == null)
+        {
+            return;
+        }
+        ICombatState? combat = player.Creature?.CombatState;
+        if (combat == null)
+        {
+            return;
+        }
+
+        PlayerMemory memory = Of(combat, player);
+        List<RememberedCard> entries = new();
+        foreach (int round in memory.Rounds.ToList())
+        {
+            entries.AddRange(memory.PeekRound(round));
+        }
+        if (entries.Count == 0)
+        {
+            return;
+        }
+
+        List<AbstractModel> subscribers = CollectSubscribers(player);
+        foreach (RememberedCard entry in entries)
+        {
+            foreach (AbstractModel model in subscribers)
+            {
+                if (model is not IMemoryEventSubscriber subscriber)
+                {
+                    continue;
+                }
+                try
+                {
+                    await subscriber.AfterRoundStarted(choiceContext, player, entry);
+                }
+                catch (Exception e)
+                {
+                    GD.PushWarning($"[MemorySystem] 回合开始事件订阅者失败（{model.Id}）：{e.Message}");
+                }
+            }
+        }
+    }
+
+    /// <summary>
     /// 遍历**本次事件要通知的所有模型**（见 <see cref="CollectSubscribers"/>），挨个 await 实现了
     /// <see cref="IMemoryEventSubscriber"/> 的那个方法。
     ///

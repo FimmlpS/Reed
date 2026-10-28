@@ -1,5 +1,6 @@
 using MegaCrit.Sts2.Core.Combat;
 using MegaCrit.Sts2.Core.Commands;
+using MegaCrit.Sts2.Core.Entities.Cards;
 using MegaCrit.Sts2.Core.Entities.Creatures;
 using MegaCrit.Sts2.Core.Entities.Players;
 using MegaCrit.Sts2.Core.GameActions.Multiplayer;
@@ -18,7 +19,8 @@ namespace Reed.Scripts.Resistance;
 /// 形态位借用它的 <c>Amount</c>（1 = 生灵、2 = 死灵）。这么做是为了让形态能进原版的网络校验和 ——
 /// <c>NetFullCombatState.PowerState</c> 只同步能力的 id 与 amount，其它自定义字段两端各有各的、分叉了也查不出来。
 /// 火花只在自己<b>被读的时候</b>问一次“我的 owner 现在是什么形态”，所以切换形态既不遍历也不改写火花；
-/// 唯一要跟着改的是那些<b>把数值写在牌面上</b>的火花（映耀/灿烂，见 <see cref="IFireFlower.ApplyLivingForm"/>）。</para>
+/// 连形态奖励也是**爆发时现读**（映耀/灿烂给抽到的牌减耗能，见 <see cref="DiscountDrawn"/>），
+/// 牌面上只有<b>文案分支</b>要跟着刷（<see cref="ApplyToAllSparksOf"/>）。</para>
 /// </summary>
 public enum WhichLivingForm
 {
@@ -137,6 +139,45 @@ public static class LivingForm
         else if (form == WhichLivingForm.Dead && card.DynamicVars.ContainsKey("VigorPower"))
         {
             await PowerCmd.Apply<VigorPower>(playerChoiceContext, self, card.DynamicVars["VigorPower"].BaseValue, self, card);
+        }
+    }
+
+    /// <summary>
+    /// 「映耀／灿烂」的爆发奖励：<b>现读</b> owner 的形态，给这一趟抽到的牌里对应类型的牌
+    /// 「本回合耗能 -1」—— 生灵 → 技能牌，死灵 → 攻击牌，普通形态不给。
+    ///
+    /// <para>走原版的 <c>AddThisTurnOrUntilPlayed</c>：本回合结束、或那张牌被（任意一次）打出时失效 ——
+    /// 牌面文案只写「本回合耗能-1」，隐含的「或直到打出」正是这个语义。不可打出的牌
+    /// （基础耗能 &lt; 0 的状态／诅咒）跳过，免得挂一个永远不会生效的修正上去。</para>
+    /// </summary>
+    public static void DiscountDrawn(CardModel? spark, IEnumerable<CardModel>? drawn)
+    {
+        if (spark is not { IsMutable: true } card || drawn == null)
+        {
+            return;
+        }
+        CardType? wanted = Of(card.Owner) switch
+        {
+            WhichLivingForm.Alive => CardType.Skill,
+            WhichLivingForm.Dead => CardType.Attack,
+            _ => null
+        };
+        int offset = Of(card.Owner) switch
+        {
+            WhichLivingForm.Alive => -1,
+            WhichLivingForm.Dead => -2,
+            _ => 0  
+        };
+        if (wanted is not { } type)
+        {
+            return;
+        }
+        foreach (CardModel drawnCard in drawn)
+        {
+            if (drawnCard != null && drawnCard.Type == type && drawnCard.EnergyCost.Canonical >= 0)
+            {
+                drawnCard.EnergyCost.AddThisTurnOrUntilPlayed(offset, reduceOnly: true);
+            }
         }
     }
 }

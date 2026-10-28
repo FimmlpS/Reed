@@ -18,7 +18,7 @@ namespace Reed.Scripts.Cards.Attack;
 public class ForeverFlame : AbstractReedCard
 {
     protected override IEnumerable<DynamicVar> CanonicalVars => [
-        new DamageVar(7,ValueProp.Move),
+        new DamageVar(6,ValueProp.Move),
         new BurnVar(1)
     ];
 

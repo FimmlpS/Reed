@@ -1,0 +1,85 @@
+{
+    "REED-LIGHT_POWER.title":"Luminosity",
+    "REED-LIGHT_POWER.description":"Your [gold]Flame Light[/gold] cards deal 1 additional damage.",
+    "REED-LIGHT_POWER.smartDescription":"Your [gold]Flame Light[/gold] cards deal {Amount} additional damage.",
+
+    "REED-AS_TORCH_POWER.title":"Like a Torch",
+    "REED-AS_TORCH_POWER.description":"The next time this creature enters [red]Burning State[/red], its [gold]Spark Cards[/gold] Burst 1 additional time.",
+    "REED-AS_TORCH_POWER.smartDescription":"The next time this creature enters [red]Burning State[/red], its [gold]Spark Cards[/gold] Burst {Amount} additional times.",
+
+    "REED-HER_FLAME_POWER.title":"Her Flame",
+	"REED-HER_FLAME_POWER.description":"Whenever you [gold]Exhaust[/gold] a card, [gold]Burn[/gold] a random enemy 1, prioritizing enemies not in Burning State.",
+    "REED-HER_FLAME_POWER.smartDescription":"Whenever you [gold]Exhaust[/gold] a card, [gold]Burn[/gold] a random enemy {Amount}, prioritizing enemies not in Burning State.",
+
+    "REED-CURSE_HEAL_POWER.title":"Curseheal",
+	"REED-CURSE_HEAL_POWER.description":"Whenever your cards deal damage, gain [gold]Block[/gold] equal to 25% of the damage dealt.",
+    "REED-CURSE_HEAL_POWER.smartDescription":"Whenever your cards deal damage, gain [gold]Block[/gold] equal to {Amount}*25% of the damage dealt.",
+
+    "REED-CHASE_FIRE_POWER.title":"Chase the Flame",
+	"REED-CHASE_FIRE_POWER.description":"Increase the Spark Card limit to 4.\nWhenever you [gold]Burn[/gold] an enemy in [red]Burning State[/red], increase the damage of one of its random Spark Cards by the same amount.",
+    "REED-CHASE_FIRE_POWER.smartDescription":"Increase the Spark Card limit to 4.\nWhenever you [gold]Burn[/gold] an enemy in [red]Burning State[/red], increase the damage of one of its random Spark Cards by {Amount} times that amount.",
+
+	"REED-HEART_KNOT_POWER.title":"Heart Knot",
+	"REED-HEART_KNOT_POWER.description":"Whenever you play a card automatically, gain [gold]Block[/gold].",
+    "REED-HEART_KNOT_POWER.smartDescription":"Whenever you play a card automatically, gain {Amount} [gold]Block[/gold].",
+
+    "REED-FROM_HISTORY_POWER.title":"From History",
+	"REED-FROM_HISTORY_POWER.description":"Whenever you [gold]Recall[/gold], record 1 random card in the [blue]Recalled turn's[/blue] Memory.",
+    "REED-FROM_HISTORY_POWER.smartDescription":"Whenever you [gold]Recall[/gold], record {Amount} random cards in the [blue]Recalled turn's[/blue] Memory.",
+
+    "REED-TURBID_BURN_POWER.title":"Turbid Flames",
+	"REED-TURBID_BURN_POWER.description":"Whenever you play an Attack, [gold]Burn[/gold] all creatures.",
+    "REED-TURBID_BURN_POWER.smartDescription":"Whenever you play an Attack, [gold]Burn[/gold] all creatures {Amount}.",
+
+    "REED-NATURAL_HISTORY_POWER.title":"Curator",
+	"REED-NATURAL_HISTORY_POWER.description":"For every 10 cards you [gold]Recall[/gold] or record, draw 1 card.",
+    "REED-NATURAL_HISTORY_POWER.smartDescription":"For every 10 cards you [gold]Recall[/gold] or record, draw {Amount} cards.",
+
+    "REED-LIGHT_SHADOW_POWER.title":"Light and Shadow",
+	"REED-LIGHT_SHADOW_POWER.description":"Whenever a creature enters or leaves [red]Burning State[/red], add a [gold]Flame Light[/gold] or [gold]Flame Shadow[/gold], respectively, to your hand.",
+    "REED-LIGHT_SHADOW_POWER.smartDescription":"Whenever a creature enters or leaves [red]Burning State[/red], add {Amount} [gold]Flame Light[/gold] or [gold]Flame Shadow[/gold] cards, respectively, to your hand.",
+
+    "REED-UNTIL_DEATH_POWER.title":"Until the Flames Burn Out",
+	"REED-UNTIL_DEATH_POWER.description":"Whenever an enemy leaves [red]Burning State[/red], trigger the Burst effect of one of its random [gold]Spark[/gold] Cards.",
+	"REED-UNTIL_DEATH_POWER.smartDescription":"Whenever an enemy leaves [red]Burning State[/red], trigger the Burst effect of one of its random [gold]Spark[/gold] Cards {Amount} times.",
+
+    "REED-WHICH_LIVING_POWER.title":"Life and Death",
+	"REED-WHICH_LIVING_POWER.description":"Transform the Spark Cards you have attached to other creatures into Living or Dying Form.",
+	"REED-WHICH_LIVING_POWER.smartDescription":"Transform the Spark Cards you have attached to other creatures into {Alive:Living Form, granting you defensive benefits.|Dying Form, granting you offensive benefits.}",
+
+    "REED-STEP_STEP_POWER.title":"Keep Moving Forward",
+	"REED-STEP_STEP_POWER.description":"At the start of your turn, [gold]Recall[/gold] an Attack or Skill from [blue]turn 1[/blue] of Memory, then advance the turn number by 1.",
+    "REED-STEP_STEP_POWER.smartDescription":"At the start of your turn, [gold]Recall[/gold] an Attack or Skill from [blue]turn {Amount}[/blue] of Memory, then advance the turn number by 1.",
+
+    "REED-LIGHT_FLOW_POWER.title":"Flow of Light",
+	"REED-LIGHT_FLOW_POWER.description":"Whenever you play a card, add a [gold]Flame Light[/gold] to your hand.",
+    "REED-LIGHT_FLOW_POWER.smartDescription":"Whenever you play a card, add {Amount} [gold]Flame Light[/gold] cards to your hand.",
+
+    "REED-RECALL_POWER.title":"Pending Recall",
+	"REED-RECALL_POWER.description":"After you manually play your next card, [gold]Recall[/gold] an Attack or Skill costing no more than 1 from [blue]the previous turn's[/blue] Memory.",
+    "REED-RECALL_POWER.smartDescription":"After you manually play your next {Amount} cards, [gold]Recall[/gold] an Attack or Skill costing no more than {Amount} from [blue]the previous turn's[/blue] Memory.",
+
+    "REED-DRAGON_CROWN_POWER.title":"A Wreath for the Red Dragon",
+	"REED-DRAGON_CROWN_POWER.description":"You can play and [gold]Exhaust[/gold] [gold]Status[/gold] cards in your hand and draw a card, even if those Status cards are unplayable.",
+    "REED-DRAGON_CROWN_POWER.smartDescription":"For up to {Amount} cards each turn, you can play and [gold]Exhaust[/gold] [gold]Status[/gold] cards in your hand and draw a card, even if those Status cards are unplayable.",
+
+    "REED-INC_FIRE_POWER.title":"Kindle Anew",
+	"REED-INC_FIRE_POWER.description":"For each point of [gold]Burn[/gold] this creature receives this turn, increase the damage of one of its random Spark Cards by 1.",
+    "REED-INC_FIRE_POWER.smartDescription":"For each point of [gold]Burn[/gold] this creature receives this turn, increase the damage of one of its random Spark Cards by {Amount}.",
+
+    "REED-ELEGY_POWER.title":"Elegy",
+	"REED-ELEGY_POWER.description":"Each turn, the first time you [gold]Attach[/gold] a card to a creature, gain [gold]Block[/gold].",
+    "REED-ELEGY_POWER.smartDescription":"Each turn, the first time you [gold]Attach[/gold] a card to a creature, gain {Amount} [gold]Block[/gold].",
+
+    "REED-ELEGY_ATTACHED_POWER.title":"Elegy Sung",
+	"REED-ELEGY_ATTACHED_POWER.description":"This creature has already triggered your [gold]Elegy[/gold] this turn.",
+    "REED-ELEGY_ATTACHED_POWER.smartDescription":"This creature has already triggered {ApplierName}'s [gold]Elegy[/gold] this turn.",
+
+    "REED-FLAME_SUN_POWER.title":"Flame Sun",
+	"REED-FLAME_SUN_POWER.description":"When you are attacked this turn, [gold]Burn[/gold] the attacker.",
+    "REED-FLAME_SUN_POWER.smartDescription":"When you are attacked this turn, [gold]Burn[/gold] the attacker {Amount}.",
+
+    "REED-HATE_POWER.title":"Red Dragon's Hate",
+	"REED-HATE_POWER.description":"Until it next leaves [red]Burning State[/red], the Resistance it loses and restores is increased.",
+    "REED-HATE_POWER.smartDescription":"Until it next leaves [red]Burning State[/red], the Resistance it loses and restores is increased by {Amount}."
+}

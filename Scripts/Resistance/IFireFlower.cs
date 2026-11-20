@@ -39,9 +39,10 @@ public interface IFireFlower
     }
 
     /// <summary>
-    /// 被从目标上取下时触发（不含被引爆的情况；引爆走 <see cref="OnBurnt"/>）。
-    /// 目前指“合体进阶”：目标上已有 ≥2 张与本卡同 ModelId 的火花，且下一张即将 attach 的上级卡触发了合并，
-    /// 于是这几张旧火花被取下以换成一张进阶卡。默认无行为。
+    /// 被从目标身上<b>取下</b>时触发。所有「移除」都走 <see cref="ReedAttachCmd.Detach"/>
+    /// （合体进阶、原地进阶、引爆后取下、上限腾位、以及各张直接取火花的效果），
+    /// 因此「爆发」与「被移除」是两段独立结算：先 <see cref="OnBurnt"/>，取下时再这里一次。
+    /// 注意：<see cref="ResistanceSystem.RemoveSpark"/> 本身只改数据、不会触发本回调。默认无行为。
     /// </summary>
     public virtual async Task OnRemoved(PlayerChoiceContext playerChoiceContext, Creature target)
     {

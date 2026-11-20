@@ -71,6 +71,11 @@ public static class ReedAttachCmd
             return; // 无卡 / 无目标 / 目标已倒下：不 attach
         }
 
+        if (!ResistanceSystem.CanHostSpark(target))
+        {
+            return; // 宠物不能携带火花（宠物也带 Monster，单判 IsMonster 挡不住）
+        }
+
         Player? owner = ResolveSparkOwner(choiceContext, card, target);
         if (owner == null)
         {
@@ -115,15 +120,11 @@ public static class ReedAttachCmd
                 carried += ExcessDamageOf(existing);
             }
 
-            // 把这 N 张已有火花取下（触发各自的 OnRemoved + RemoveSpark → 卡行消散动画）。
+            // 把这 N 张已有火花取下（Detach：OnRemoved + RemoveSpark → 卡行消散动画）。
             // “即将 attach”的那一张还从未挂上去，无需 RemoveSpark，直接随本次不 attach 而作废。
             foreach (CardModel existing in sameId)
             {
-                if (existing is IFireFlower removed)
-                {
-                    await removed.OnRemoved(choiceContext!, target);
-                }
-                ResistanceSystem.RemoveSpark(target, owner, existing);
+                await Detach(choiceContext, target, owner, existing);
             }
 
             // 【改为】attach 一张进阶后的卡：把上级卡物化为该玩家的一颗全新火花副本，进入下一轮判断
@@ -153,40 +154,135 @@ public static class ReedAttachCmd
             {
                 await Burnt(choiceContext, victim, target);
             }
-            ResistanceSystem.RemoveSpark(target, owner, victim); // 移除事件驱动卡行消散动画
+            await Detach(choiceContext, target, owner, victim); // 移除事件驱动卡行消散动画
         }
 
         // ============ 3) 实际 attach ============
         // GiveSpark 广播 SparkAdded（计数圆闪烁 + Attach 特效）；成功后再通知火花自身。
         if (ResistanceSystem.GiveSpark(target, owner, toAttach))
         {
-            await OnSparkAttached(choiceContext, toAttach, target);
+            await OnSparkAttached(choiceContext, toAttach, target, owner);
         }
     }
 
     /// <summary>
     /// 火花正式挂到目标身上之后的统一收尾（<see cref="Attach"/> 与 <see cref="UpgradeSpark"/> 都走这里）。
-    /// 目前两件事：通知火花自身 <see cref="IFireFlower.OnAttached"/>；让它跟上 owner 当前的「形态」
+    /// 目前三件事：通知火花自身 <see cref="IFireFlower.OnAttached"/>；让它跟上 owner 当前的「形态」
     /// （见 <see cref="IFireFlower.ApplyLivingForm"/> —— 物化出来的新副本带的是 canonical 的基础数值，
     /// 如果将来有花的<b>牌面数值</b>随形态变，玩家在它挂上来之前就处于生灵/死灵时得在这里补一次；
-    /// 幂等，当前没有花用到它，因此是空操作）。
+    /// 幂等，当前没有花用到它，因此是空操作）；最后广播
+    /// <see cref="IFireFlowerSubscriber.AfterAttach"/>（挽歌这类「被附着时触发」的效果据此结算）。
     /// </summary>
-    private static async Task OnSparkAttached(PlayerChoiceContext? choiceContext, CardModel spark, Creature target)
+    private static async Task OnSparkAttached(PlayerChoiceContext? choiceContext, CardModel spark, Creature target, Player owner)
     {
+        if (choiceContext == null)
+        {
+            choiceContext = new ThrowingPlayerChoiceContext();
+        }
         if (spark is IFireFlower attached)
         {
-            await attached.OnAttached(choiceContext!, target);
+            await attached.OnAttached(choiceContext, target);
         }
         LivingForm.ApplyTo(spark);
+
+        foreach (AbstractModel model in target.CombatState?.IterateHookListeners() ?? [])
+        {
+            if (model is not IFireFlowerSubscriber sub)
+            {
+                continue;
+            }
+            try
+            {
+                await sub.AfterAttach(choiceContext, owner, spark, target);
+            }
+            catch (Exception e)
+            {
+                // 订阅者失败不能拖垮附着本身（异常从出牌 await 链抛出去会把后面所有牌卡死）
+                GD.PushWarning($"[ReedAttachCmd] AfterAttach 失败（{model.Id}）：{e.Message}");
+            }
+        }
+    }
+
+    /// <summary>
+    /// 把一张火花从宿主身上取下 —— 「被移除」的唯一入口：先通知火花自身
+    /// <see cref="IFireFlower.OnRemoved"/>（巡标/旗帜的能量与形态奖励就挂在这里），
+    /// 再做 <see cref="ResistanceSystem.RemoveSpark"/>（移除事件驱动卡行消散动画）。
+    ///
+    /// <para>引爆过的火花在引爆之后再取下也走这里：卡面的「爆发」与「被移除」是两段独立结算。
+    /// OnRemoved 抛异常只记警告，不能拖垮调用方的结算链。</para>
+    /// </summary>
+    public static async Task Detach(PlayerChoiceContext? choiceContext, Creature target, Player owner, CardModel spark)
+    {
+        if (spark == null || target == null || owner == null)
+        {
+            return;
+        }
+        if (spark is IFireFlower flower)
+        {
+            try
+            {
+                await flower.OnRemoved(choiceContext ?? new ThrowingPlayerChoiceContext(), target);
+            }
+            catch (Exception e)
+            {
+                GD.PushWarning($"[ReedAttachCmd] OnRemoved 失败（{spark.Id}）：{e.Message}");
+            }
+        }
+        ResistanceSystem.RemoveSpark(target, owner, spark);
+    }
+
+    /// <summary>
+    /// 「转化」一张火花：把目标身上的 <paramref name="spark"/> <b>移除，再附着</b>一张 <paramref name="template"/>。
+    /// 两段都走标准流程：
+    /// <list type="bullet">
+    ///   <item>移除 = <see cref="Detach"/>（触发旧卡的 <see cref="IFireFlower.OnRemoved"/> 与移除动画）；</item>
+    ///   <item>再附着 = <see cref="Attach"/>（上限判断、同名牌合体、<see cref="IFireFlower.OnAttached"/>、
+    ///     <see cref="IFireFlowerSubscriber.AfterAttach"/> 全都照常。</item>
+    /// </list>
+    /// <para>新卡<b>继承被转化那张的额外伤害</b>（<see cref="ExcessDamageOf"/> 那套：比模板基准高出来的部分，
+    /// 与合体进阶/原地进阶同一口径）。</para>
+    /// </summary>
+    /// <returns>新附着的那张（已被合体进阶时返回的是进阶卡材料，未必还挂在目标上）；无法转化时返回 null 且不动旧卡。</returns>
+    public static async Task<CardModel?> TransformSpark(PlayerChoiceContext? choiceContext, Creature target, Player owner, CardModel spark, CardModel template)
+    {
+        if (spark == null || template == null || target == null || owner == null)
+        {
+            return null;
+        }
+        if (!ResistanceSystem.CanHostSpark(target))
+        {
+            return null; // 宠物不收火花
+        }
+        CardModel? attached = ResistanceSystem.SparksOf(target, owner).FirstOrDefault(
+            s => ReferenceEquals(s, spark) || (!spark.IsMutable && s.Id == spark.Id));
+        if (attached == null)
+        {
+            return null; // 这张牌不在目标身上
+        }
+
+        CardModel? replacement = MaterializeSpark(template, owner, target);
+        if (replacement == null)
+        {
+            return null;
+        }
+        AddDamage(replacement, ExcessDamageOf(attached)); // 继承被转化那张被养出来的额外伤害
+
+        await Detach(choiceContext, target, owner, attached); // 先移除
+        await Attach(choiceContext, replacement, target);     // 再附着（标准规则）
+        return replacement;
     }
 
     public static async Task Burnt(PlayerChoiceContext? choiceContext, Creature target, decimal blv = 1m, int times = 1, bool triggerByBurning = false)
     {
+        if(target == null || target.CombatState == null)
+        {
+            return; // 目标已离开战斗（死亡/撤退）：没有火花可爆，也没有订阅者可通知
+        }
         if(choiceContext == null)
         {
             choiceContext = new ThrowingPlayerChoiceContext();
         }
-        foreach(Player owner in target.CombatState?.Players??[])
+        foreach(Player owner in target.CombatState.Players ?? [])
         {
             await Burnt(choiceContext, owner, target, blv, times, triggerByBurning);
         }
@@ -194,18 +290,31 @@ public static class ReedAttachCmd
         {
             if(model is IFireFlowerSubscriber sub)
             {
-                await sub.AfterAllBurnt(choiceContext, target, triggerByBurning);
+                try
+                {
+                    await sub.AfterAllBurnt(choiceContext, target, triggerByBurning);
+                }
+                catch (Exception e)
+                {
+                    // 单个订阅者失败不能拖垮整条结算（异常从出牌 await 链抛出去会把后面所有牌卡死）
+                    GD.PushWarning($"[ReedAttachCmd] AfterAllBurnt 失败（{model.Id}）：{e.Message}");
+                }
             }
         }
     }
 
     public static async Task Burnt(PlayerChoiceContext? choiceContext, Player owner, Creature target, decimal blv = 1m, int times = 1, bool triggerByBurning = false)
     {
+        if(target == null || target.CombatState == null)
+        {
+            return;
+        }
         if(choiceContext == null)
         {
             choiceContext = new ThrowingPlayerChoiceContext();
         }
-        foreach(CardModel card in ResistanceSystem.SparksOf(target, owner))
+        // 快照：爆发过程中火花表可能被别的效果改动，边枚举边删会抛 Collection was modified
+        foreach(CardModel card in ResistanceSystem.SparksOf(target, owner).ToList())
         {
             await Burnt(choiceContext, card, target, blv, times, triggerByBurning);
         }
@@ -213,6 +322,10 @@ public static class ReedAttachCmd
 
     public static async Task Burnt(PlayerChoiceContext? choiceContext, CardModel card, Creature target, decimal blv = 1m, int times = 1, bool triggerByBurning = false)
     {
+        if(card == null || target == null || target.CombatState == null)
+        {
+            return; // 目标已离开战斗：跳过引爆（特效/派发都依赖本场战斗）
+        }
         if(choiceContext == null)
         {
             choiceContext = new ThrowingPlayerChoiceContext();
@@ -226,30 +339,47 @@ public static class ReedAttachCmd
             {
                 if(model is IFireFlowerSubscriber sub)
                 {
-                    FireBurnt tmpBurnt = sub.ModifyBurnt(card, burnt, triggerByBurning);
-                    if(tmpBurnt != burnt)
+                    try
                     {
-                        modifiers.Add(sub);
+                        FireBurnt tmpBurnt = sub.ModifyBurnt(card, burnt, triggerByBurning);
+                        if(tmpBurnt != burnt)
+                        {
+                            modifiers.Add(sub);
+                        }
+                        burnt = tmpBurnt;
                     }
-                    burnt = tmpBurnt;
+                    catch (Exception e)
+                    {
+                        GD.PushWarning($"[ReedAttachCmd] ModifyBurnt 失败（{model.Id}）：{e.Message}");
+                    }
                 }
             }
             foreach(IFireFlowerSubscriber sub in modifiers)
             {
-                await sub.AfterModifyBurnt(choiceContext, card, burnt, triggerByBurning);
+                try
+                {
+                    await sub.AfterModifyBurnt(choiceContext, card, burnt, triggerByBurning);
+                }
+                catch (Exception e)
+                {
+                    GD.PushWarning($"[ReedAttachCmd] AfterModifyBurnt 失败（{sub.GetType().Name}）：{e.Message}");
+                }
             }
             await flower.OnBurnt(choiceContext, burnt); // 引爆：火花自带的“燃烧/迸发”效果
             foreach(AbstractModel model in target.CombatState?.IterateHookListeners() ?? [])
             {
                 if(model is IFireFlowerSubscriber sub)
                 {
-                    await sub.OnBurnt(choiceContext, card, burnt);
+                    try
+                    {
+                        await sub.OnBurnt(choiceContext, card, burnt);
+                    }
+                    catch (Exception e)
+                    {
+                        GD.PushWarning($"[ReedAttachCmd] OnBurnt 订阅者失败（{model.Id}）：{e.Message}");
+                    }
                 }
             }
-        }
-        else
-        {
-            
         }
     }
 
@@ -266,6 +396,11 @@ public static class ReedAttachCmd
         if (spark == null || target == null || target.CurrentHp <= 0)
         {
             return null;
+        }
+
+        if (!ResistanceSystem.CanHostSpark(target))
+        {
+            return null; // 宠物不能携带火花
         }
 
         Player? owner = ResolveSparkOwner(choiceContext, spark, target);
@@ -300,14 +435,13 @@ public static class ReedAttachCmd
         }
         AddDamage(upper, ExcessDamageOf(attached)); // 继承旧卡被养出来的额外伤害
 
-        // 取下旧卡（OnRemoved + RemoveSpark → 卡行消散动画），再挂上新卡（GiveSpark → 计数圆闪烁 + Attach 特效）。
-        await fire.OnRemoved(choiceContext!, target);
-        ResistanceSystem.RemoveSpark(target, owner, attached);
+        // 取下旧卡（Detach：OnRemoved + RemoveSpark → 卡行消散动画），再挂上新卡（GiveSpark → 计数圆闪烁 + Attach 特效）。
+        await Detach(choiceContext, target, owner, attached);
         if (!ResistanceSystem.GiveSpark(target, owner, upper))
         {
             return null;
         }
-        await OnSparkAttached(choiceContext, upper, target);
+        await OnSparkAttached(choiceContext, upper, target, owner);
         return upper;
     }
 

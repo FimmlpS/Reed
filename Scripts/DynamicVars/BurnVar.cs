@@ -23,14 +23,14 @@ public static class BurnExtensions
         return dynamicVars[BurnVar.BurnDynamicName];
     }
 
-    public static CardModel CreateFireFlower<T>(this CardModel cardModel) where T : CardModel
+    public static CardModel CreateFireFlower<T>(this CardModel cardModel, Player? player = null) where T : CardModel
     {
-        return cardModel.CombatState.CreateCard<T>(cardModel.Owner);
+        return cardModel.CombatState.CreateCard<T>(player??cardModel.Owner);
     }
 
-    public static CardModel CreateFireFlower(this CardModel cardModel, CardModel source)
+    public static CardModel CreateFireFlower(this CardModel cardModel, CardModel source, Player? player = null)
     {
-        return cardModel.CombatState.CreateCard(source, cardModel.Owner);
+        return cardModel.CombatState.CreateCard(source, player??cardModel.Owner);
     }
 
     public static async Task<CardModel?> CreateInHand<T>(this CardModel card, Player? creator = null) where T : CardModel

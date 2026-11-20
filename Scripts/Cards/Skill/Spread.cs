@@ -33,11 +33,11 @@ public class Spread : AbstractReedCard
         {
             foreach(Creature target in CombatState.HittableEnemies.Where(c => c.IsAlive))
             {
-                await ReedAttachCmd.Burnt(choiceContext, victim, target, blv:IsUpgraded?1.5m:1m);
+                await ReedAttachCmd.Burnt(choiceContext, victim, target, blv:IsUpgraded?2m:1.5m);
             }
 
         }
-        ResistanceSystem.RemoveSpark(cardPlay.Target, Owner, victim);
+        await ReedAttachCmd.Detach(choiceContext, cardPlay.Target, Owner, victim);
     }
 
     

@@ -35,6 +35,10 @@ public class EndFlower : AbstractReedCard, IFireFlower
     {
         for(int i = 0; i < fireBurnt.Times; i++)
         {
+            if (!ReedHelper.CanStillBurst(fireBurnt.Target))
+            {
+                break; // 目标已倒下/离场：剩余次数不再结算
+            }
             ReedHelper.CreateFireFx(fireBurnt.Target);
             await CreatureCmd.Damage(playerChoiceContext,fireBurnt.Target,DynamicVars.Damage.BaseValue * fireBurnt.Blv,ValueProp.Unpowered,Owner.Creature,this,null);
             // 形态加成按「每次爆发」结算，和这一下的伤害配套（普通形态时不结算）

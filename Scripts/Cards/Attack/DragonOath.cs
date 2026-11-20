@@ -57,7 +57,7 @@ public class DragonOath : AbstractReedCard
             {
                 await ReedAttachCmd.Burnt(choiceContext, victim, cardPlay.Target);
             }
-            ResistanceSystem.RemoveSpark(cardPlay.Target, Owner, victim);
+            await ReedAttachCmd.Detach(choiceContext, cardPlay.Target, Owner, victim);
             CardCmd.Upgrade(this);
             NCard.FindOnTable(this)?.UpdateVisuals(Pile?.Type??PileType.None,CardPreviewMode.None);
         }

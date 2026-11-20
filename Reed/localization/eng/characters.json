@@ -1,0 +1,18 @@
+{
+  "REED-REED.aromaPrinciple": "[sine][blue]todo[/blue][/sine]",
+  "REED-REED.banter.alive.endTurnPing": "……",
+  "REED-REED.banter.dead.endTurnPing": "……",
+  "REED-REED.cardsModifierDescription": "Reed's cards can now appear in card rewards and shops.",
+  "REED-REED.cardsModifierTitle": "Reed Cards",
+  "REED-REED.description": "Raise our banner! Tara will march on.",
+  "REED-REED.eventDeathPrevention": "……",
+  "REED-REED.goldMonologue": "[sine]Gold is but a worldly possession.[/sine]",
+  "REED-REED.possessiveAdjective": "her",
+  "REED-REED.pronounObject": "her",
+  "REED-REED.pronounPossessive": "hers",
+  "REED-REED.pronounSubject": "she",
+  "REED-REED.shortTitle": "Reed",
+  "REED-REED.title": "Reed",
+  "REED-REED.titleObject": "Reed",
+  "REED-REED.unlockText": "Play a game with [pink]{Prerequisite}[/pink] to unlock this character."
+}

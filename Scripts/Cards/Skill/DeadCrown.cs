@@ -7,6 +7,7 @@ using MegaCrit.Sts2.Core.GameActions.Multiplayer;
 using MegaCrit.Sts2.Core.HoverTips;
 using MegaCrit.Sts2.Core.Localization.DynamicVars;
 using MegaCrit.Sts2.Core.Models.Powers;
+using MegaCrit.Sts2.Core.Models;
 
 namespace Reed.Scripts.Cards.Skill;
 
@@ -36,8 +37,7 @@ public class DeadCrown : AbstractReedCard
             DynamicVars["WeakPower"].BaseValue, Owner.Creature, this);
     }
 
-    // 每当有生物死亡：这张牌正躺在消耗牌堆里就放回手牌（消耗牌堆也是战斗牌堆，能收到钩子）
-    public override async Task AfterDeath(PlayerChoiceContext choiceContext, Creature creature, bool wasRemovalPrevented, float deathAnimLength)
+    public override async Task AfterDeath(PlayerChoiceContext choiceContext, Creature creature, CardModel? source, bool wasRemovalPrevented, float deathAnimLength)
     {
         if (wasRemovalPrevented)
         {

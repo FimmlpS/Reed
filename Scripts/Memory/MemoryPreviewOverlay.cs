@@ -446,8 +446,9 @@ internal sealed partial class MemoryPreviewOverlay : CanvasLayer
     /// </summary>
     private static Vector2 ResolveAnchor(NCardHolder holder)
     {
+        // 按钮是圆心；未启用（非苇草且没有追忆内容）时退回被悬浮的卡牌自身，见 MemorySystem.UsesMemoryPile。
         MemoryPileButton? button = MemoryPileButton.Instance;
-        if (button != null && GodotObject.IsInstanceValid(button) && button.IsInsideTree())
+        if (button != null && GodotObject.IsInstanceValid(button) && button.IsInsideTree() && button.Visible)
         {
             // 按钮 80x80，原点在左上角 → 局部中心 (40,40) 换算到画布坐标。
             return button.GetGlobalTransformWithCanvas() * (button.Size * 0.5f);

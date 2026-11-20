@@ -44,7 +44,7 @@ public class SpeakToTerra : AbstractReedCard, IMemorySubscriber
             choiceContext,
             Owner,
             new CardSelectorPrefs(Prompt, 1),
-            null,
+            c=>c is not SpeakToTerra,
             this);
         foreach (CardModel card in picked)
         {

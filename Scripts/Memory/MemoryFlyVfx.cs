@@ -65,9 +65,10 @@ internal static class MemoryFlyVfx
             return;
         }
 
-        // 终点 = 回忆按钮图标中心。按钮不存在（不在战斗界面）就没有「飞向回忆」可言。
+        // 终点 = 回忆按钮图标中心。按钮不存在（不在战斗界面）或未启用（非苇草且没有追忆内容，
+        // 见 MemorySystem.UsesMemoryPile）就没有「飞向回忆」可言。
         MemoryPileButton? button = MemoryPileButton.Instance;
-        if (button == null || !GodotObject.IsInstanceValid(button) || !button.IsInsideTree())
+        if (button == null || !GodotObject.IsInstanceValid(button) || !button.IsInsideTree() || !button.Visible)
         {
             return;
         }

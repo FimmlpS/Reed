@@ -8,6 +8,8 @@ using MegaCrit.Sts2.Core.ValueProps;
 using Reed.Scripts.Enums;
 using Reed.Scripts.Pools;
 using Reed.Scripts.Powers;
+using Reed.Scripts.DynamicVars;
+using Reed.Scripts.Resistance;
 
 namespace Reed.Scripts.Cards.Attack;
 
@@ -16,6 +18,7 @@ public class IncFire : AbstractReedCard
 {
     protected override IEnumerable<DynamicVar> CanonicalVars => [
         new DamageVar(8, ValueProp.Move),
+        new BurnVar(1),
         new PowerVar<IncFirePower>("IncFirePower", 2)
     ];
 
@@ -40,6 +43,11 @@ public class IncFire : AbstractReedCard
             .FromCard(this, cardPlay)
             .Targeting(cardPlay.Target)
             .Execute(choiceContext);
+        
+        await ReedBurnCmd.Burn(DynamicVars.Burn().IntValue)
+        .FromCard(this, cardPlay)
+        .Targeting(cardPlay.Target)
+        .Execute(choiceContext);
     }
 
     protected override void OnUpgrade()

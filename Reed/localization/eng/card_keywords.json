@@ -1,0 +1,34 @@
+{
+    "REED-BURN.title":"Burn",
+    "REED-BURN.description":"Deal damage to a creature's Resistance. When its Resistance reaches 0, the creature enters [red]Burning State[/red].",
+
+    "REED-RESISTANCE.title":"Resistance",
+    "REED-RESISTANCE.description":"When Resistance reaches 0, the creature enters [red]Burning State[/red].",
+
+    "REED-BURNING.title":"Burning State",
+    "REED-BURNING.description":"[red]Burning Continues[/red]\nWhenever you play a card, this creature restores 1 Resistance. It leaves this state when its Resistance is fully restored.",
+
+    "REED-ATTACH.title":"Attach",
+    "REED-ATTACH.description":"Attach a card to a creature. If this would exceed the limit, choose an attached card to [gold]Detonate[/gold] first.",
+
+    "REED-FIRE_FLOWER.title":"Spark",
+    "REED-FIRE_FLOWER.description":"When the creature this card is attached to enters [red]Burning State[/red], trigger this card's [gold]Burst[/gold] effect.",
+
+    "REED-STEP.title":"Evolve",
+    "REED-STEP.description":"Normally, 3 Spark Cards with the [gold]same name[/gold] merge into a higher-tier Spark Card.",
+
+    "REED-UNYIELDING.title":"Everburning",
+    "REED-UNYIELDING.description":"When this card is Exhausted, add a copy of it to your hand.",
+
+    "REED-IGNITE.title":"Detonate",
+    "REED-IGNITE.description":"Trigger a Spark Card's Burst effect, then remove it.",
+
+    "REED-MEMORY.title":"Memory",
+    "REED-MEMORY.description":"Whenever you [gold]manually play[/gold] an Attack, Skill, or Power card, record it in Memory.",
+
+    "REED-RECALL.title":"Recall",
+    "REED-RECALL.description":"Choose a card from Memory, play a copy of it, then remove it from Memory.",
+
+    "REED-FUTURE.title":"Tara Will Have a Future",
+    "REED-FUTURE.description":"But that future will no longer be yours."
+}

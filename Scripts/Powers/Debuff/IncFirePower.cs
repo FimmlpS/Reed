@@ -58,8 +58,10 @@ public class IncFirePower : AbstractReedPower, IFireFlowerSubscriber
         }
     }
 
-    public override async Task AfterSideTurnEnd(PlayerChoiceContext choiceContext, CombatSide side, IEnumerable<Creature> participants)
+    public override async Task AfterSideTurnStart(CombatSide side, IReadOnlyList<Creature> participants, ICombatState combatState)
     {
+        // 与焰阳（FlameSunPower）同一条时间线：打出当回合 + 整个敌方行动回合都保留，
+        // 下一个玩家回合开始时才移除 —— 敌方回合里被焰阳灼烧的敌人同样能吃到这份加成。
         if (side == CombatSide.Player)
         {
             await PowerCmd.Remove(this);

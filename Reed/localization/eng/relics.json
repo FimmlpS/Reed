@@ -1,0 +1,13 @@
+{
+    "REED-FLOWER_OF_DRAGON.title":"Flower of the Dragon",
+    "REED-FLOWER_OF_DRAGON.description":"At the start of combat, all enemies have a [gold]Basic[/gold] Spark [gold]Attached[/gold] to them. The first time you attack each turn, [gold]Burn[/gold] the target {Reed_Burn:diff()}.",
+    "REED-FLOWER_OF_DRAGON.flavor":"",
+
+    "REED-TEAR_OF_DRAGON.title":"Tear of the Dragon",
+    "REED-TEAR_OF_DRAGON.description":"At the start of combat, all enemies have a [gold]Cinder[/gold] Spark [gold]Attached[/gold] to them. The first time you attack each turn, [gold]Burn[/gold] the target {Reed_Burn:diff()}.",
+    "REED-TEAR_OF_DRAGON.flavor":"",
+
+    "REED-NAMELESS_POEM.title":"Nameless Poem",
+    "REED-NAMELESS_POEM.description":"[gold]Memory[/gold] retains the records from the final turn of the previous combat as turn 0. At the start of combat, [gold]Recall[/gold] an Attack or Skill from turn 0's Memory.",
+    "REED-NAMELESS_POEM.flavor":""
+}

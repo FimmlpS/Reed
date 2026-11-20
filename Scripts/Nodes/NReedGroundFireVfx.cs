@@ -515,7 +515,7 @@ public partial class NReedGroundFireVfx : Node2D
         _tween.TweenProperty(_groundGlow, "modulate:a", 0f, 0.5);
         _tween.TweenProperty(_cinders, "modulate:a", 0f, 0.4);
         _tween.TweenProperty(_sparks, "modulate:a", 0f, 0.4);
-        if (await _tween.AwaitFinished(this))
+        if (await _tween.AwaitFinished(this) == TweenOutcome.Finished)
         {
             foreach (Node2D cluster in _clusters)
             {

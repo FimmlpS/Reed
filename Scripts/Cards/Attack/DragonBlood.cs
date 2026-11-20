@@ -54,7 +54,7 @@ public class DragonBlood : AbstractReedCard
                 {
                     await ReedAttachCmd.Burnt(choiceContext, victim, target, times:1+DynamicVars.Repeat.IntValue);
                 }
-                ResistanceSystem.RemoveSpark(target, Owner, victim);
+                await ReedAttachCmd.Detach(choiceContext, target, Owner, victim);
             }
         }
     }

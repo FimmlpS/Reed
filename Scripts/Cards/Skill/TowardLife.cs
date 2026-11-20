@@ -41,7 +41,7 @@ public class TowardLife : AbstractReedCard
         {
             await ReedAttachCmd.Burnt(choiceContext, victim, cardPlay.Target);
         }
-        ResistanceSystem.RemoveSpark(cardPlay.Target, Owner, victim);
+        await ReedAttachCmd.Detach(choiceContext, cardPlay.Target, Owner, victim);
         await PlayerCmd.GainEnergy(DynamicVars.Energy.BaseValue,Owner);
     }
 

@@ -7,9 +7,9 @@ using MegaCrit.Sts2.Core.Nodes.Cards;
 
 namespace Reed.Scripts.Patches;
 
-public interface IFullCardSubscriber
-{
-}
+// public interface IFullCardSubscriber
+// {
+// }
 
 // [HarmonyPatch(typeof(NCard),"UpdatePortrait")]
 // public static class EHUpdatePortraitPatch

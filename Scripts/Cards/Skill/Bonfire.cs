@@ -17,7 +17,7 @@ namespace Reed.Scripts.Cards.Skill;
 public class Bonfire : AbstractReedCard
 {
     protected override IEnumerable<DynamicVar> CanonicalVars => [
-        new BlockVar(7,ValueProp.Move)
+        new BlockVar(8,ValueProp.Move)
     ];
 
     protected override IEnumerable<IHoverTip> ExtraHoverTips => [

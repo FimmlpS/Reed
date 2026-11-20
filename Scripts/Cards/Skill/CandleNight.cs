@@ -22,7 +22,7 @@ public class CandleNight : AbstractReedCard, IMemoryEventSubscriber
     ];
 
     protected override IEnumerable<DynamicVar> CanonicalVars => [
-        new BlockVar(6, ValueProp.Move)
+        new BlockVar(7, ValueProp.Move)
     ];
 
     public CandleNight() : base(1, CardType.Skill, CardRarity.Common, TargetType.Self)

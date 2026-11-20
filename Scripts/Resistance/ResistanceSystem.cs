@@ -68,11 +68,15 @@ public static class ResistanceSystem
         }
         cm.CombatSetUp += HandleCombatSetUp;
         cm.CombatEnded += _ => OnCombatEnded();
+        cm.TurnStarted += HandleTurnStarted;
         _combatHooked = true;
     }
 
     /// <summary>已经跑过 <see cref="OnCombatSetUp"/> 的那场战斗（防重复：CombatSetUp 事件与 Harmony 补丁两条路都可能到）。</summary>
     private static object? _setupHandledFor;
+
+    /// <summary>本场战斗的 state。战斗结束事件只给房间、不给 state，清空宠物火花时要靠它找回那场战斗里的生物。</summary>
+    private static CombatState? _lastCombat;
 
     /// <summary>
     /// 战斗开始的统一入口。由 <c>CombatManager.SetUpCombat</c> 的 Harmony 补丁调用
@@ -94,6 +98,8 @@ public static class ResistanceSystem
             return;
         }
         _setupHandledFor = state;
+        _lastCombat = state;
+        _sparkRemovalsThisTurn.Clear();
         OnCombatSetUp(state);
     }
 
@@ -176,11 +182,68 @@ public static class ResistanceSystem
         SyncVisuals(c, d); // 若本场条已建好：立刻显示满抗性 + 非燃烧
     }
 
+    /// <summary>
+    /// 玩家回合开始：重置「本回合移除过火花牌」的记录（驱策死亡等卡的条件判断按玩家各自计）。
+    /// </summary>
+    private static void HandleTurnStarted(CombatState state)
+    {
+        if (state == null || state.CurrentSide != CombatSide.Player)
+        {
+            return;
+        }
+        _sparkRemovalsThisTurn.Clear();
+    }
+
     private static void OnCombatEnded()
     {
+        // 宠物不能携带火花：正常附着已被 CanHostSpark 挡住，这里做兜底 —— 旧状态/复活路径残留的火花在战斗结束时
+        // 一律清掉，免得宠物被带进下一场。此刻 UI 节点正在回收，只清数据，不广播 SparksChanged、不碰 Bar。
+        ClearPetSparks(_lastCombat);
+        _lastCombat = null;
+
         ForceShowAll = false;
         _sparkDemoSeeded = false;
         _attachedSparkCount = 0;
+    }
+
+    /// <summary>清空本场战斗里所有宠物身上的火花牌与火花上限。</summary>
+    private static void ClearPetSparks(CombatState? combat)
+    {
+        if (combat == null)
+        {
+            return;
+        }
+        HashSet<Creature> seen = new();
+        foreach (Player player in combat.Players)
+        {
+            foreach (Creature pet in player.PlayerCombatState?.Pets ?? [])
+            {
+                if (seen.Add(pet))
+                {
+                    ClearSparksOf(pet);
+                }
+            }
+        }
+        // 已死/已离场的宠物不在 Pets 列表里，补一遍战场快照（同一只只清一次）。
+        foreach (Creature creature in combat.Creatures)
+        {
+            if (creature.IsPet && seen.Add(creature))
+            {
+                ClearSparksOf(creature);
+            }
+        }
+    }
+
+    /// <summary>只清数据、不发事件（见 <see cref="ClearPetSparks"/>）。</summary>
+    private static void ClearSparksOf(Creature creature)
+    {
+        ResistanceData? d = _data[creature];
+        if (d == null)
+        {
+            return;
+        }
+        d.Sparks.Clear();
+        d.SparkMaxes.Clear();
     }
 
     // ============ 数据访问 ============
@@ -195,6 +258,10 @@ public static class ResistanceSystem
         }
         d = new ResistanceData(creature);
         _data[creature] = d;
+        // 死亡/复活订阅绑在数据上，而不是绑在抗性条上：条会随 UI 重建（SL 恢复、死亡藏条），
+        // 复活重置不该因为「此刻没有条」就失效。
+        creature.Died += OnCreatureDied;
+        creature.Revived += OnCreatureRevived;
         return d;
     }
 
@@ -225,6 +292,16 @@ public static class ResistanceSystem
 
     /// <summary>每个（生物 × owner）可绑定的火花牌上限。</summary>
     public const int DefaultSparkMax = 3;
+
+    /// <summary>
+    /// 这只生物能否承载火花牌：<b>玩家与怪物都可以，宠物不行</b>。
+    /// <para>宠物同样带 <c>Monster</c>（<c>IsMonster</c> 为 true），只判 <c>IsMonster</c> 会把火花挂到玩家的宠物身上，
+    /// 因此必须显式排除 <c>IsPet</c>。</para>
+    /// </summary>
+    public static bool CanHostSpark(Creature? c) => c != null && !c.IsPet && (c.IsMonster || c.IsPlayer);
+
+    /// <summary>「敌人」判定（初始遗物的「所有敌人」就按这个）：怪物且不是宠物。</summary>
+    public static bool IsEnemyMonster(Creature? c) => c != null && c.IsMonster && !c.IsPet;
 
     /// <summary>任何火花发生增删变化时广播（参数为该生物）；UI 驱动器据此重建。</summary>
     public static event Action<Creature>? SparksChanged;
@@ -349,6 +426,16 @@ public static class ResistanceSystem
         }
     }
 
+    /// <summary>本回合移除过火花牌的次数（按施予者玩家计；每个玩家回合开始时清零）。</summary>
+    private static readonly Dictionary<ulong, int> _sparkRemovalsThisTurn = new();
+
+    /// <summary>
+    /// 该玩家本回合是否移除过火花牌 —— 「驱策死亡」这类卡的金色高亮与额外效果条件。
+    /// 记录点在 <see cref="RemoveSpark"/>：引爆后取下、进阶、腾位以及各张直接取火花的效果都会计到。
+    /// </summary>
+    public static bool HasRemovedSparkThisTurn(Player? owner)
+        => owner != null && _sparkRemovalsThisTurn.TryGetValue(owner.NetId, out int n) && n > 0;
+
     /// <summary>移除某张火花牌；不存在返回 false。</summary>
     public static bool RemoveSpark(Creature c, Player owner, CardModel spark)
     {
@@ -362,6 +449,7 @@ public static class ResistanceSystem
             return false;
         }
         _attachedSparkCount = Math.Max(0, _attachedSparkCount - 1);
+        _sparkRemovalsThisTurn[owner.NetId] = _sparkRemovalsThisTurn.GetValueOrDefault(owner.NetId) + 1;
         SparksChanged?.Invoke(c);
         SparkRemoved?.Invoke(c, owner, spark);
         return true;
@@ -468,7 +556,7 @@ public static class ResistanceSystem
         }
         _sparkDemoSeeded = true;
         Player? me = LocalContext.GetMe(state);
-        Creature? enemy = state.Creatures.FirstOrDefault(c => c.IsMonster);
+        Creature? enemy = state.Creatures.FirstOrDefault(IsEnemyMonster);
         if (me == null || enemy == null)
         {
             return;
@@ -528,12 +616,50 @@ public static class ResistanceSystem
 
     // ============ 数值修改 API ============
 
-    /// <summary>扣抗性（最低 0）。仅当非灼烧状态才会执行。</summary>
+    /// <summary>
+    /// 把一次抗性变化的最终数值交给场上订阅者修正（<see cref="IFireFlowerSubscriber.ModifyResistanceChange"/>）。
+    ///
+    /// <para>调用点是 <see cref="ReedBurnCmd"/> 的结算入口（灼烧/恢复共用一个 Execute）：
+    /// 修正后的值同时喂给 <see cref="IFireFlowerSubscriber.BeforeBurn"/>、<see cref="IFireFlowerSubscriber.AfterBurn"/>、
+    /// 抗性结算与数值飘字 —— 「灼烧 1」在带修正时对三方而言都是 2。
+    /// <see cref="Reduce"/> / <see cref="Restore"/> 本身<b>不再</b>修正，调用方传入的必须是最终值（防双重加成）。
+    /// 单个订阅者抛异常只记警告，不中断结算。</para>
+    /// </summary>
+    internal static int ModifyChangeAmount(Creature c, int amount, bool isLoss)
+    {
+        if (c.CombatState == null)
+        {
+            return amount;
+        }
+        foreach (AbstractModel model in c.CombatState.IterateHookListeners())
+        {
+            if (model is not IFireFlowerSubscriber sub)
+            {
+                continue;
+            }
+            try
+            {
+                amount = sub.ModifyResistanceChange(c, amount, isLoss);
+            }
+            catch (Exception e)
+            {
+                GD.PushWarning($"[ResistanceSystem] 抗性变化修正失败（{model.Id}）：{e.Message}");
+            }
+        }
+        return Math.Max(0, amount);
+    }
+
+    /// <summary>扣抗性（最低 0）。仅当非灼烧状态才会执行。
+    /// <paramref name="amount"/> 必须是<b>已含订阅者修正</b>的最终值（见 <see cref="ModifyChangeAmount"/>），这里不再二次修正。</summary>
     public static async Task Reduce(Creature c, int amount, PlayerChoiceContext? choiceContext = null)
     {
         if (amount <= 0 || c.IsBurningResistance())
         {
             return;
+        }
+        if (c.CombatState == null)
+        {
+            return; // 已离开战斗：抗性不再结算
         }
         ResistanceData d = GetData(c);
         Node vfxContainer = c.GetVfxContainer();
@@ -546,7 +672,7 @@ public static class ResistanceSystem
             }
             else
             {
-                NRun.Instance.GlobalUi.AddChildSafely(nDamageNumVfx);
+                NRun.Instance?.GlobalUi.AddChildSafely(nDamageNumVfx);
             }
         }
         int nv = Math.Max(0, d.Current - amount);
@@ -562,12 +688,17 @@ public static class ResistanceSystem
         }
     }
 
-    /// <summary>恢复抗性（最高回满 max）。按需调用 ExitBurning。</summary>
+    /// <summary>恢复抗性（最高回满 max）。按需调用 ExitBurning。
+    /// <paramref name="amount"/> 必须是<b>已含订阅者修正</b>的最终值（见 <see cref="ModifyChangeAmount"/>），这里不再二次修正。</summary>
     public static async Task Restore(Creature c, int amount, PlayerChoiceContext? choiceContext = null)
     {
         if (amount <= 0)
         {
             return;
+        }
+        if (c.CombatState == null)
+        {
+            return; // 已离开战斗：抗性不再结算
         }
         ResistanceData d = GetData(c);
         Node vfxContainer = c.GetVfxContainer();
@@ -580,7 +711,7 @@ public static class ResistanceSystem
             }
             else
             {
-                NRun.Instance.GlobalUi.AddChildSafely(nDamageNumVfx);
+                NRun.Instance?.GlobalUi.AddChildSafely(nDamageNumVfx);
             }
         }
         int nv = Math.Min(d.Max, d.Current + amount);
@@ -650,6 +781,10 @@ public static class ResistanceSystem
         if (d.Burning)
         {
             return;
+        }
+        if (c.CombatState == null || c.IsDead)
+        {
+            return; // 已离场/已倒下：不进入燃烧（否则会去引爆一个已回收的生物）
         }
         choiceContext ??= new ThrowingPlayerChoiceContext();
         d.Burning = true;
@@ -722,9 +857,21 @@ public static class ResistanceSystem
             return;
         }
         d.Fire?.Stop();
+        d.Fire = null; // 驱动器随死亡作废；复活时 SyncVisuals 会按 Burning 重建
         d.Bar?.SetShown(false);
     }
 
+    /// <summary>
+    /// 复活（统一入口 = <see cref="Creature.Revived"/>，在 <c>Creature.HealInternal</c> 里「死者被治活」时触发）：
+    /// 抗性回到初始状态 —— <b>不燃烧、条回满</b>，火焰驱动器作废。
+    ///
+    /// <para>实验体、幻影这类「死亡后不离开战斗、下一回合原地重生」的敌人全部走
+    /// <c>CreatureCmd.Heal</c> 复活，因此这里一处理就覆盖了二阶段/三阶段切换。</para>
+    ///
+    /// <para>与 <see cref="ExitBurning"/> 不同，这里<b>直接写状态、不广播</b>
+    /// <see cref="IFireFlowerSubscriber.AfterExitBurning"/>：死亡期间被打空不是一次正常的「离开燃烧」，
+    /// 不该触发花/能力的离开燃烧结算（同 <see cref="ResetForNewCombat"/> 的处理）。</para>
+    /// </summary>
     private static void OnCreatureRevived(Creature c)
     {
         ResistanceData? d = _data[c];
@@ -732,7 +879,11 @@ public static class ResistanceSystem
         {
             return;
         }
-        SyncVisuals(c, d);
+        d.Burning = false;
+        d.Current = d.Max;
+        d.Fire?.Stop();
+        d.Fire = null;
+        SyncVisuals(c, d); // 条恢复显示（死亡时被 SetShown(false) 藏起来了）
     }
 
     // ============ UI 建条 / 布局钩子（由 Harmony Patch 调用）============
@@ -815,15 +966,11 @@ public static class ResistanceSystem
     internal static void RegisterBar(ResistanceBarVisual bar, Creature creature)
     {
         _visualsByRoot.Add(bar.Root, bar);
-        creature.Died += OnCreatureDied;
-        creature.Revived += OnCreatureRevived;
 
-        // 条离开场景（生物死亡/战斗结束移除节点）时解绑，避免长期持有。
+        // 条离开场景（生物死亡/战斗结束移除节点）时解绑视觉映射；Died/Revived 由 GetData 统一订阅，不在这里动。
         bar.Root.TreeExited += () =>
         {
             bar.Spark?.Detach();
-            creature.Died -= OnCreatureDied;
-            creature.Revived -= OnCreatureRevived;
             _visualsByRoot.Remove(bar.Root);
         };
     }

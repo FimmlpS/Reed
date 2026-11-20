@@ -1,0 +1,35 @@
+{
+    "REED-RECALL.select.title":"Recall a Card",
+    "REED-RECALL.select.round.title":"Recall a card from [blue]turn {Round}[/blue]'s Memory",
+    "REED-RECALL.pile.title":"Memory",
+    "REED-RECALL.pile.description":"Cards you have [gold]manually played[/gold] during this combat.",
+    "REED-RECALL.pile.hotkey":"Shortcut: {Hotkey}",
+    "REED-RECALL.pile.empty":"No memories have been recorded this combat.",
+    "REED-RECALL.pile.info":"Memory: Cards you have [gold]manually played[/gold] this combat, organized by turn.\n[gold](Click a card to enlarge it. Click a turn marker on the right to jump to that turn.)[/gold]",
+    "REED-RECALL.round.header":"Turn {Round}",
+    "REED-RECALL.round.carried.header":"Turn 0 (Before Combat)",
+    "REED-RECALL.sort.desc":"Newest First",
+    "REED-RECALL.sort.asc":"Oldest First",
+
+    "REED-RECORD.select.title":"Record a Card",
+    "REED-RECORD.select.round.title":"Record a card in [blue]turn {Round}[/blue]'s Memory",
+
+    "REED-SPEAK_TO_TERRA.select.title":"Choose a card from your hand to record in [blue]turn 0[/blue]'s Memory (it will be available in every subsequent combat)",
+
+    "REED-HERO_EPIC.select.title":"Relive a Moment from the Past",
+    "REED-HERO_EPIC.select.empty":"No memories are available to replay.\n(The Confirm button is disabled. You can only cancel.)",
+    "REED-HERO_EPIC.select.preview.empty":"Hover over a turn on the left to see all cards recorded during that turn.",
+    "REED-HERO_EPIC.select.preview.header":"Turn {Round} · {Count} Cards · Replay in Play Order",
+    "REED-HERO_EPIC.row.count":"{Count} Cards",
+    "REED-HERO_EPIC.type.attack":"Attack",
+    "REED-HERO_EPIC.type.skill":"Skill",
+    "REED-HERO_EPIC.type.power":"Power",
+
+    "REED-WHICH_LIVING.select.title":"Enter Living or Dying Form",
+
+    "REED-SPARK.title":"Spark Cards",
+    "REED-SPARK.description":"This creature has {SparkCount} Spark Cards attached (maximum: {SparkMax}). While it is in [red]Burning State[/red], it restores 1 Resistance whenever you play a card.",
+    "REED-SPARK.burst-select.title":"Detonate a Spark Card",
+    "REED-SPARK.step-select.title":"Evolve a Spark Card",
+    "REED-SPARK.transform-select.title":"Transform a Spark Card"
+}

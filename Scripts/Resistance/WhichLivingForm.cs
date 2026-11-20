@@ -143,6 +143,34 @@ public static class LivingForm
     }
 
     /// <summary>
+    /// 「巡标／旗帜」被从宿主身上<b>移除</b>时的奖励：来源获得固定能量，
+    /// 生灵形态再给格挡、死灵形态再给活力（普通形态只有能量）。
+    /// 能量、格挡、活力三个动态变量由卡面自己声明，缺哪个就跳过哪个。
+    /// </summary>
+    public static async Task GrantRemovalReward(PlayerChoiceContext playerChoiceContext, CardModel spark)
+    {
+        if (spark is not { IsMutable: true } card)
+        {
+            return;
+        }
+        Player owner = card.Owner;
+        if (card.DynamicVars.ContainsKey("Energy"))
+        {
+            await PlayerCmd.GainEnergy(card.DynamicVars.Energy.BaseValue, owner);
+        }
+        WhichLivingForm form = Of(owner);
+        if (form == WhichLivingForm.Alive && card.DynamicVars.ContainsKey("Block"))
+        {
+            await CreatureCmd.GainBlock(owner.Creature, card.DynamicVars.Block, null);
+        }
+        else if (form == WhichLivingForm.Dead && card.DynamicVars.ContainsKey("VigorPower"))
+        {
+            await PowerCmd.Apply<VigorPower>(playerChoiceContext, owner.Creature,
+                card.DynamicVars["VigorPower"].BaseValue, owner.Creature, card);
+        }
+    }
+
+    /// <summary>
     /// 「映耀／灿烂」的爆发奖励：<b>现读</b> owner 的形态，给这一趟抽到的牌里对应类型的牌
     /// 「本回合耗能 -1」—— 生灵 → 技能牌，死灵 → 攻击牌，普通形态不给。
     ///

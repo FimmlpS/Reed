@@ -12,6 +12,7 @@ using MegaCrit.Sts2.Core.GameActions.Multiplayer;
 using MegaCrit.Sts2.Core.Models;
 using MegaCrit.Sts2.Core.Runs;
 using MegaCrit.Sts2.Core.Saves.Runs;
+using ReedCharacter = Reed.Scripts.Characters.Reed;
 
 namespace Reed.Scripts.Memory;
 
@@ -36,6 +37,12 @@ public static class MemorySystem
 {
     /// <summary>每场战斗一份回忆总表（内部再按 <see cref="Player.NetId"/> 区分玩家）。</summary>
     private static readonly SpireField<ICombatState, MemoryStore> _store = new(() => null);
+
+    /// <summary>标记「这是回忆里的快照牌」，供 <c>CombatState</c> 补丁识别（快照不在任何牌堆里）。</summary>
+    private static readonly SpireField<CardModel, bool> _snapshot = new(() => false);
+
+    /// <summary>这张牌是不是回忆里的记录（由 <see cref="MakeEntry"/> 打标）。</summary>
+    internal static bool IsRememberedSnapshot(CardModel? card) => card != null && _snapshot[card];
 
     /// <summary>已挂钩的事件源；换局后 <see cref="CombatManager.Instance"/> 会换新，需要重新挂。</summary>
     private static CombatManager? _hookedTo;
@@ -164,6 +171,53 @@ public static class MemorySystem
         return fallback;
     }
 
+    // ============ UI 开关：这名玩家用得上回忆牌堆吗 ============
+
+    /// <summary>战斗牌堆（抽牌堆在开战时就有整副牌，所以「卡组里带着追忆牌」也会被算到）。</summary>
+    private static readonly PileType[] CombatPiles =
+        [PileType.Draw, PileType.Hand, PileType.Discard, PileType.Exhaust, PileType.Play];
+
+    /// <summary>
+    /// 这名玩家此刻是否「用得上」回忆牌堆 —— 决定战斗界面左侧的回忆牌堆按钮与飞卡动画显不显示。
+    ///
+    /// <para>与原版愚者 <c>NFoolCombatUi.RefreshVisibility</c> 同一思路：本命角色常驻显示，
+    /// 其他角色只在身上真的带着<b>会用回忆的东西</b>时才显示：</para>
+    /// <list type="bullet">
+    ///   <item><see cref="IMemorySubscriber"/>：能发起追忆的牌（悬浮它要预览回忆里的候选牌）；</item>
+    ///   <item><see cref="IMemoryEventSubscriber"/>：靠「牌进出回忆」结算的能力 / 遗物 / 附魔（如博物、逐光）。</item>
+    /// </list>
+    /// </summary>
+    public static bool UsesMemoryPile(Player? player)
+    {
+        if (player == null)
+        {
+            return false;
+        }
+        if (player.Character is ReedCharacter)
+        {
+            return true; // 苇草：本命角色，常驻
+        }
+        foreach (PileType pileType in CombatPiles)
+        {
+            // CardPile.Get 出战斗返回 null（不要在 UI 轮询里用 GetPile，那条会抛）。
+            foreach (CardModel card in CardPile.Get(pileType, player)?.Cards ?? [])
+            {
+                if (UsesMemory(card) || UsesMemory(card.Enchantment))
+                {
+                    return true;
+                }
+            }
+        }
+        if (player.Creature?.Powers.Any(UsesMemory) == true)
+        {
+            return true;
+        }
+        return player.Relics.Any(UsesMemory);
+    }
+
+    private static bool UsesMemory(AbstractModel? model)
+        => model is IMemorySubscriber || model is IMemoryEventSubscriber;
+
     // ============ 快捷查询 ============
 
     /// <summary>
@@ -238,6 +292,7 @@ public static class MemorySystem
     private static RememberedCard MakeEntry(CardModel snapshot, int round)
     {
         snapshot.MarkPlayedRound(round);
+        _snapshot[snapshot] = true; // 让它的 CombatState 在战斗中非空（见 MemoryCombatStatePatch）
         return new RememberedCard { RoundNumber = round, Card = snapshot };
     }
 

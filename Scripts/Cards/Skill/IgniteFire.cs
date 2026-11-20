@@ -10,6 +10,7 @@ using MegaCrit.Sts2.Core.HoverTips;
 using Reed.Scripts.Enums;
 using BaseLib.Abstracts;
 using MegaCrit.Sts2.Core.Models;
+using Reed.Scripts.Cards.Status;
 
 namespace Reed.Scripts.Cards.Skill;
 
@@ -17,11 +18,12 @@ namespace Reed.Scripts.Cards.Skill;
 public class IgniteFire : AbstractReedCard,ITranscendenceCard
 {
     protected override IEnumerable<DynamicVar> CanonicalVars => [
-       
+       new CardsVar(1)
     ];
 
     protected override IEnumerable<IHoverTip> ExtraHoverTips => [
         HoverTipFactory.FromCard<NormalFlower>(),
+        HoverTipFactory.FromCard<FlameShadow>(),
         HoverTipFactory.FromKeyword(ReedKeywords.Attach),
         HoverTipFactory.FromKeyword(ReedKeywords.FireFlower)
     ];
@@ -34,6 +36,7 @@ public class IgniteFire : AbstractReedCard,ITranscendenceCard
     protected override async Task OnPlay(PlayerChoiceContext choiceContext, CardPlay cardPlay)
     {
         await ReedAttachCmd.Attach(choiceContext, this.CreateFireFlower<NormalFlower>(), cardPlay.Target);
+        await this.CreateInHand<FlameShadow>(DynamicVars.Cards.IntValue);
     }
 
     protected override void OnUpgrade()

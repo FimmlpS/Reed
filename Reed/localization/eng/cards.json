@@ -1,0 +1,313 @@
+{
+	"REED-STRIKE.title":"Strike",
+	"REED-STRIKE.description":"Deal {Damage:diff()} damage.",
+
+	"REED-DEFEND.title":"Defend",
+	"REED-DEFEND.description":"Gain {Block:diff()} [gold]Block[/gold].",
+
+	"REED-SCORCH.title":"Scorch",
+	"REED-SCORCH.description":"Deal {Damage:diff()} damage {Repeat:diff()} times.\n[gold]Burn[/gold] {Reed_Burn:diff()}.",
+
+	"REED-IGNITE_FIRE.title":"Kindling",
+	"REED-IGNITE_FIRE.description":"[gold]Attach[/gold] a [gold]Basic[/gold] Spark.\nAdd a [gold]Flame Shadow[/gold] to your hand.",
+
+	"BASIC-COMMON":"",
+
+	"REED-TODO.title":"",
+	"REED-TODO.description":"",
+
+	"REED-BONFIRE.title":"Bonfire",
+	"REED-BONFIRE.description":"Gain {Block:diff()} [gold]Block[/gold].\n[gold]Attach[/gold] a [gold]Shine[/gold] Spark.",
+
+	"REED-POEM.title":"Poem",
+	"REED-POEM.description":"[gold]Exhaust[/gold] a card from your hand. Gain [gold]Block[/gold] equal to {Block:diff()} times its Energy cost.",
+
+	"REED-PATROL.title":"Trace",
+	"REED-PATROL.description":"Gain {Block:diff()} [gold]Block[/gold].\n[gold]Attach[/gold] X [gold]Basic[/gold] Sparks.",
+
+	"REED-THORN.title":"Sting",
+	"REED-THORN.description":"Deal {CalculatedDamage:diff()} damage.\nDeal {ExtraDamage:diff()} additional damage to the target in [red]Burning State[/red].",
+
+	"REED-ASHES.title":"Ember",
+	"REED-ASHES.description":"Deal {Damage:diff()} damage.\n[gold]Burn[/gold] {Reed_Burn:diff()}.",
+
+	"REED-FORGE.title":"Forge",
+	"REED-FORGE.description":"Deal {Damage:diff()} damage.\n[gold]Attach[/gold] a [gold]Basic[/gold] Spark.\nIncrease this card's cost by 1.",
+
+	"REED-WAY_BACK.title":"The Way Back",
+	"REED-WAY_BACK.description":"[gold]Attach[/gold] a [gold]Patrol[/gold] Spark.\nWhenever a Spark Card Bursts, this card costs 1 less {energyPrefix:energyIcons(1)} the next time you play.",
+
+	"REED-OVERLOOK.title":"Overlook",
+	"REED-OVERLOOK.description":"Record {Cards:diff()} [gold]Defend+[/gold] cards in [blue]next turn's[/blue] Memory, then [gold]Recall[/gold] a card from it.",
+
+	"REED-REGRET.title":"Regret",
+	"REED-REGRET.description":"Gain {Block:diff()} [gold]Block[/gold].\nWhenever you play a card that can initiate [gold]Recall[/gold], return this card from your discard pile to your hand.",
+
+	"REED-TIME_FIRE.title":"Flame of Time",
+	"REED-TIME_FIRE.description":"Deal {Damage:diff()} damage.\nIncrease the damage of all Attacks in [gold]Memory[/gold] by {Increase:diff()}.",
+
+	"REED-CANDLE_NIGHT.title":"Candlelit Night",
+	"REED-CANDLE_NIGHT.description":"Gain {Block:diff()} [gold]Block[/gold].\nWhen this card is recorded in [gold]Memory[/gold], add a [gold]Flame Light[/gold] to your hand.",
+
+	"REED-SQUAMA.title":"Dragon Scale",
+	"REED-SQUAMA.description":"Deal {Damage:diff()} damage.\nAdd {Cards:diff()} [gold]Flame Light[/gold] cards to your hand.",
+
+	"REED-LIVING_ELEGY.title":"Elegy for the Living",
+	"REED-LIVING_ELEGY.description":"Gain [gold]Curseheal[/gold] while playing this card.\n[gold]Burn[/gold] {Reed_Burn:diff()}.",
+
+	"REED-TOWARD_LIFE.title":"Toward the Firelight",
+	"REED-TOWARD_LIFE.description":"Draw {Cards:diff()} cards.\nTarget yourself or an enemy. [gold]Detonate[/gold] one of the target's Spark Cards to gain {Energy:energyIcons()}.",
+
+	"REED-AS_SHADOW.title":"Like a Shadow",
+	"REED-AS_SHADOW.description":"Apply to all enemies.\n[red]Burning State[/red]: Restore {Repeat:diff()} Resistance.\nOtherwise, [gold]Burn[/gold] {Reed_Burn:diff()}.",
+
+	"REED-DRAGON_OATH.title":"Oath of the Red Dragon",
+	"REED-DRAGON_OATH.description":"Deal {Damage:diff()} damage.{IfUpgraded:show:\n[gold]Attach[/gold] a [gold]Cinder[/gold] Spark.\n[blue]Downgrade[/blue] this card.|\n[gold]Detonate[/gold] a Spark Card.\n[gold]Upgrade[/gold] this card.}",
+
+	"REED-LAST_PAGE.title":"Final Page",
+	"REED-LAST_PAGE.description":"Gain {Block:diff()} [gold]Block[/gold].\nGain {Energy:energyIcons()}.\nIncrease this card's cost by 1 and the amount of {energyPrefix:energyIcons(1)} it grants by 1.",
+
+	"REED-LATENT_DETECTION.title":"Latent Awareness",
+	"REED-LATENT_DETECTION.description":"Deal {Damage:diff()} damage.\nIf not played by Recall, record this card in [gold]Memory[/gold] for each of the next {Repeat:diff()} turns. At the start of each corresponding turn, [gold]Recall[/gold] that record.",
+
+	"REED-HATE.title":"Red Dragon's Hate",
+	"REED-HATE.description":"Until it next leaves [red]Burning State[/red], the Resistance it loses and restores is increased by {HatePower:diff()}.\nDeal {Damage:diff()} damage.",
+
+	"COMMON-UNCOMMON":"",
+
+	"REED-BACKGROUND.title":"Origins",
+	"REED-BACKGROUND.description":"Draw {Cards:diff()} cards.\nIncrease this card's cost by 1.\n[gold]Recall[/gold] a card that can initiate Recall from [blue]the previous turn's[/blue] Memory.",
+
+	"REED-HER_SHADOW.title":"Her Shadow",
+	"REED-HER_SHADOW.description":"[gold]Burn[/gold] all enemies {Reed_Burn:diff()}.\nAdd {Cards:diff()} [gold]Flame Shadow[/gold] cards to your hand.",
+
+	"REED-BRAVE_SHINE.title":"Everlasting Radiance",
+	"REED-BRAVE_SHINE.description":"Add {Cards:diff()} [gold]Flame Light[/gold] cards to your hand.\nYour [gold]Flame Light[/gold] cards deal {LightPower:diff()} additional damage.",
+
+	"REED-AS_TORCH.title":"Like a Torch",
+	"REED-AS_TORCH.description":"The next time an enemy enters [red]Burning State[/red], its [gold]Spark Cards[/gold] Burst {AsTorchPower:diff()} additional times.",
+
+	"REED-HER_FLAME.title":"Her Flame",
+	"REED-HER_FLAME.description":"Whenever you [gold]Exhaust[/gold] a card, [gold]Burn[/gold] a random enemy {HerFlamePower:diff()}, prioritizing enemies not in Burning State.",
+
+	"REED-CURSE_HEAL.title":"Curseheal",
+	"REED-CURSE_HEAL.description":"Whenever your cards deal damage, gain [gold]Block[/gold] equal to 25% of the damage dealt.",
+	
+	"REED-SPREAD.title":"Spread",
+	"REED-SPREAD.description":"[gold]Detonate[/gold] a Spark Card.\n{IfUpgraded:show:With 150% damage, }apply its effect to all enemies.",
+
+	"REED-BURN_ME.title":"What the Firelight Casts",
+	"REED-BURN_ME.description":"Deal {Damage:diff()} damage.\n[gold]Recall[/gold] an Attack from [blue]the previous turn's[/blue] Memory.",
+
+	"REED-BORN_FLOWER.title":"Flowers from Withered Flames",
+	"REED-BORN_FLOWER.description":"Gain {Block:diff()} [gold]Block[/gold].\n[gold]Recall[/gold] a Skill from [blue]the previous turn's[/blue] Memory.",
+
+	"REED-HEART_KNOT.title":"Heart Knot",
+	"REED-HEART_KNOT.description":"Whenever you play a card automatically, gain {HeartKnotPower:diff()} [gold]Block[/gold].",
+
+	"REED-TO_DUST.title":"Return to Dust",
+	"REED-TO_DUST.description":"Record a random card from each turn in [gold]Memory[/gold] into [blue]the current turn[/blue], then [gold]Recall[/gold] a {IfUpgraded:show:Attack or }Skill from those records.",
+
+	"REED-CONSCIOUS.title":"Insight",
+	"REED-CONSCIOUS.description":"If an enemy intends to attack, reduce its [gold]Strength[/gold] by {StrengthPower:diff()}.\nWhen played automatically, affect all enemies instead.",
+
+	"REED-WITH_YOU.title":"Together with You",
+	"REED-WITH_YOU.description":"Gain {CalculatedBlock:diff()} [gold]Block[/gold].\nGain {ExtraBlock:diff()} additional [gold]Block[/gold] for each card recorded in [blue]the current turn's[/blue] [gold]Memory[/gold].",
+
+	"REED-ASHLESS.title":"Unspent",
+	"REED-ASHLESS.description":"Deal {Damage:diff()} damage {Repeat:diff()} times.\nWhen played automatically, target random enemies and deal damage {Repeat:diff()} additional times.",
+
+	"REED-EMPEROR_TRAVEL.title":"Footsteps of Kings",
+	"REED-EMPEROR_TRAVEL.description":"[gold]Recall[/gold] an Attack from [blue]the previous turn's[/blue] Memory. Whenever you play an Attack, Recall this card (treating it as the previous turn).",
+
+	"REED-CRACK.title":"Disintegrate",
+	"REED-CRACK.description":"Deal {Damage:diff()} damage.\nDraw {Cards:diff()} cards.\nRecord this card in [gold]Memory[/gold] for each of the next {Repeat:diff()} turns.",
+
+	"REED-RUINS.title":"Ruins",
+	"REED-RUINS.description":"Gain {Energy:energyIcons()}.\nRecord this card in [gold]Memory[/gold] for each of the next {Repeat:diff()} turns.",
+
+	"REED-WRITE_HISTORY.title":"Write History",
+	"REED-WRITE_HISTORY.description":"Discard any number of cards from your hand and record them in [blue]the current turn's[/blue] [gold]Memory[/gold].\nGain {Block:diff()} [gold]Block[/gold] for each card discarded.",
+
+	"REED-FROM_HISTORY.title":"From History",
+	"REED-FROM_HISTORY.description":"Whenever you [gold]Recall[/gold], record {FromHistoryPower:diff()} random cards in the [blue]Recalled turn's[/blue] Memory.",
+
+	"REED-FOREVER_HEART.title":"Flameheart",
+	"REED-FOREVER_HEART.description":"Deal {Damage:diff()} damage.\nIf the target has 2 Spark Cards of the same name, attach another Spark Card of that name to it.",
+	"REED-FOREVER_HEART.selectionScreenPrompt":"Choose {Cards:diff()} cards to attach to enemies",
+
+	"REED-TO_THE_DEATH.title":"For the Departed",
+	"REED-TO_THE_DEATH.description":"[gold]Recall[/gold] an {IfUpgraded:show:Attack or }Skill from [blue]the previous turn's[/blue] Memory, then record it in the current turn.",
+
+	"REED-NATURAL_HISTORY.title":"Curator",
+	"REED-NATURAL_HISTORY.description":"For every 10 cards you [gold]Recall[/gold] or record, draw {NaturalHistoryPower:diff()} cards.",
+
+	"REED-ALIVE_DRAW.title":"Vivid Scenes",
+	"REED-ALIVE_DRAW.description":"[gold]Attach[/gold] a [gold]Shine[/gold] Spark.\nNext turn, draw {Cards:diff()} cards.",
+
+	"REED-HEART_CLEAR.title":"Heart Clear",
+	"REED-HEART_CLEAR.description":"Deal {Damage:diff()} damage.\nIf this card is in Memory, whenever you [gold]Recall[/gold] another card from [blue]the current turn[/blue], Recall this card as well.",
+
+	"REED-DEAD_CROWN.title":"Withered Branches and Laurels",
+	"REED-DEAD_CROWN.description":"Apply {WeakPower:diff()} [gold]Weak[/gold] to all enemies.\nWhenever a creature dies, return this card from your exhaust pile to your hand.",
+
+	"REED-MELT_CALAMITY.title":"Molten Calamity",
+	"REED-MELT_CALAMITY.description":"Deal {Damage:diff()} damage for each [gold]Spark[/gold] Card attached to the target.\n[gold]Evolved[/gold] Spark Cards count as 2.{InCombat:\n(Attack {CalculatedCards:diff()} times)|}",
+
+	"REED-LIGHT_FLOW.title":"Flow of Light",
+	"REED-LIGHT_FLOW.description":"[gold]Recall[/gold] a Skill from [blue]the previous turn's[/blue] Memory. Whenever another card is played during this card's resolution, add a [gold]Flame Light[/gold] to your hand.",
+
+	"REED-A_CORNER.title":"A Corner",
+	"REED-A_CORNER.description":"Reveal {Cards:diff()} random cards each from your draw pile and discard pile. Choose any number to put on top of your draw pile; record the rest in [blue]the current turn's[/blue] Memory.",
+	"REED-A_CORNER.selectionScreenPrompt":"Choose any number of cards to put on top of your draw pile. Record the rest in [blue]the current turn's[/blue] Memory.",
+
+	"REED-OLD_FIRE.title":"Flame of Yore",
+	"REED-OLD_FIRE.description":"[gold]Attach[/gold] a [gold]Basic[/gold] Spark.\nIncrease the damage of all its Spark Cards by {Increase:diff()}. [gold]Evolved[/gold] Spark Cards gain an additional {Increase:diff()} damage.",
+
+	"REED-THE_CHASER.title":"The Lightseeker's Dawn",
+	"REED-THE_CHASER.description":"Enchant a card in your hand with [purple]Chasing Light[/purple].\nYour [gold]Flame Light[/gold] cards deal {LightPower:diff()} additional damage.",
+
+	"REED-THE_DUBLIN.title":"What Is Dublinn?",
+	"REED-THE_DUBLIN.description":"Gain {RecallPower:diff()} [gold]Pending Recall[/gold].\nWhen this card is [gold]Recalled[/gold], add a copy of it to your discard pile.",
+
+	"REED-FOREVER_FLAME.title":"Drowning in Flames",
+	"REED-FOREVER_FLAME.description":"Deal {Damage:diff()} damage and [gold]Burn[/gold] {Reed_Burn:diff()}.\nIf the target is still not in [red]Burning State[/red], repeat against a random enemy, up to 2 additional times.",
+
+	"REED-DRAGON_CROWN.title":"A Wreath for the Red Dragon",
+	"REED-DRAGON_CROWN.description":"For up to {DragonCrownPower:diff()} cards each turn, you can play and [gold]Exhaust[/gold] [gold]Status[/gold] cards in your hand and draw a card, even if those Status cards are unplayable.",
+
+	"REED-WISH_AND_CURSE.title":"Blessing and Curse",
+	"REED-WISH_AND_CURSE.description":"Discard any number of cards from your hand and draw that many cards. If all discarded cards are of different types, [gold]Exhaust[/gold] them instead.",
+
+	"REED-ENDER_WALKER.title":"The Final Road",
+	"REED-ENDER_WALKER.description":"Gain {Block:diff()} [gold]Block[/gold].\nIf not played by Recall, record this card in [gold]Memory[/gold] for each of the next {Repeat:diff()} turns. At the start of each corresponding turn, [gold]Recall[/gold] that record.",
+
+	"REED-INC_FIRE.title":"Kindle Anew",
+	"REED-INC_FIRE.description":"For each point of [gold]Burn[/gold] the target receives this turn, increase the damage of one of its random Spark Cards by {IncFirePower:diff()}.\nDeal {Damage:diff()} [gold]damage[/gold] and [gold]Burn[/gold] {Reed_Burn:diff()}.",
+
+	"REED-ELEGY.title":"Elegy",
+	"REED-ELEGY.description":"Each turn, the first time you [gold]Attach[/gold] a card to a creature, gain {ElegyPower:diff()} [gold]Block[/gold].",
+
+	"REED-FLAME_SUN.title":"Flame Sun",
+	"REED-FLAME_SUN.description":"Gain {Block:diff()} [gold]Block[/gold].\nWhen you are attacked this turn, [gold]Burn[/gold] the attacker {FlameSunPower:diff()}.",
+
+	"REED-FLAME_MOON.title":"Flame Moon",
+	"REED-FLAME_MOON.description":"Deal {Damage:diff()} damage to all enemies.\nIf its Spark Card count is below the limit or it can [gold]Evolve[/gold], [gold]Attach[/gold] a [gold]Shine[/gold] Spark.",
+
+	"REED-INVITATION_TO_DANCE.title":"Invitation to Dance",
+	"REED-INVITATION_TO_DANCE.description":"[gold]Attach[/gold] a [gold]Patrol[/gold] Spark.\nTransform one of the target's {IfUpgraded:show:non-Patrol|[gold]Basic[/gold]} Sparks into a [gold]Patrol[/gold] Spark.",
+
+	"REED-DRIVE_DEATH.title":"Drive Death",
+	"REED-DRIVE_DEATH.description":"Apply {VulnerablePower:diff()} [gold]Vulnerable[/gold].\nIf you have not removed a Spark Card this turn, [gold]Attach[/gold] a [gold]Patrol[/gold] Spark.",
+
+	"REED-MULTI_ONE.title":"",
+	"REED-MULTI_ONE.description":"Choose an ally. They [gold]Recall[/gold] an {IfUpgraded:show:any card|Attack or Skill} from [blue]the previous turn's[/blue] Memory.",
+
+	"UNCOMMON-RARE":"",
+
+	"REED-DYING_FIRE.title":"Dying Flame",
+	"REED-DYING_FIRE.description":"Deal {Damage:diff()} damage.\nReduce the target's maximum [gold]Resistance[/gold] by {Repeat:diff()}.",
+
+	"REED-SAME_BREATH.title":"Wither and Thrive",
+	"REED-SAME_BREATH.description":"Add {Cards:diff()} [gold]Flame Light[/gold] cards to your hand and give them [gold]Everburning[/gold].",
+
+	"REED-CHASE_FIRE.title":"Chase the Flame",
+	"REED-CHASE_FIRE.description":"Increase the Spark Card limit to 4.\nWhenever you [gold]Burn[/gold] an enemy in [red]Burning State[/red], increase the damage of one of its random Spark Cards by the same amount.",
+
+	"REED-LIVING_FIRE.title":"Living Spark",
+	"REED-LIVING_FIRE.description":"Gain [gold]Curseheal[/gold] while playing this card.\nAttach a [gold]Cinder[/gold] Spark to all enemies and [gold]Burn[/gold] them {Reed_Burn:diff()}.",
+
+	"REED-IRELAND.title":"“Tara”",
+	"REED-IRELAND.description":"Choose a [gold]Spark Card[/gold] attached to an enemy and [gold]Evolve[/gold] it immediately.",
+
+	"REED-DRAGON_BLOOD.title":"Dragon Blood",
+	"REED-DRAGON_BLOOD.description":"Deal {Damage:diff()} damage to all enemies.\n[gold]Detonate[/gold] the first Spark Card attached to each enemy, making it Burst {Repeat:diff()} additional times.",
+
+	"REED-TURBID_BURN.title":"Turbid Flames",
+	"REED-TURBID_BURN.description":"[gold]Attach[/gold] a [gold]Shine[/gold] Spark to yourself.\nWhenever you play an Attack, [gold]Burn[/gold] all creatures {TurbidBurnPower:diff()}.",
+
+	"REED-HERO_EPIC.title":"Heroic Epic",
+	"REED-HERO_EPIC.description":"If played by [gold]Recall[/gold], choose a turn in Memory and [gold]Recall[/gold] all cards in it that cannot initiate Recall.",
+
+	"REED-CLASH.title":"Last Vestiges",
+	"REED-CLASH.description":"For each different card type among the other cards in your hand, deal {Damage:diff()} damage and [gold]Burn[/gold] {Reed_Burn:diff()}.{InCombat:\n(Attack {CalculatedCards:diff()} times)|}",
+
+	"REED-SPEAK_TO_TERRA.title":"Speak to the Earth",
+	"REED-SPEAK_TO_TERRA.description":"Record a card from your hand in the Memory of [blue]turn 0[/blue] of every combat, then [gold]Recall[/gold] an {IfUpgraded:show:Attack or }Skill from it.",
+
+	"REED-AS_NIGHT_ENDS.title":"As Night Falls Away",
+	"REED-AS_NIGHT_ENDS.description":"The next time an enemy enters [red]Burning State[/red], its [gold]Spark Cards[/gold] Burst X additional times.\nAdd {IfUpgraded:show:X+2|X} [gold]Flame Shadow[/gold] cards to your hand.",
+
+	"REED-OVER_COLD_NIGHT.title":"Through the Cold Night",
+	"REED-OVER_COLD_NIGHT.description":"Gain {Block:diff()} [gold]Block[/gold].\nRecord this card in [gold]Memory[/gold] for the previous turn and each of the next {Repeat:diff()} turns.",
+
+	"REED-FACE_PAST.title":"Face the Past",
+	"REED-FACE_PAST.description":"Gain [gold]Curseheal[/gold] while playing this card.\n[gold]Recall[/gold] a non-Power card from each of the previous {IfUpgraded:show:X+1|X} turns, in order.",
+
+	"REED-LIGHT_SHADOW.title":"Light and Shadow",
+	"REED-LIGHT_SHADOW.description":"Whenever a creature enters or leaves [red]Burning State[/red], add a [gold]Flame Light[/gold] or [gold]Flame Shadow[/gold], respectively, to your hand.",
+
+	"REED-DEAD_FIRE.title":"Dead Fire",
+	"REED-DEAD_FIRE.description":"{IfUpgraded:show:At 150% damage, }[gold]Detonate[/gold] all enemies' Spark Cards. Combine the removed Spark Cards, then randomly [gold]Attach[/gold] them to enemies.",
+
+	"REED-WHICH_LIVING.title":"Life and Death",
+	"REED-WHICH_LIVING.description":"Choose to enter [green]Living[/green] or [purple]Dying[/purple].\n[gold]Burn[/gold] away all enemies' Resistance.",
+
+	"REED-STEP_AND_STEP.title":"Keep Moving Forward",
+	"REED-STEP_AND_STEP.description":"At the start of your turn, [gold]Recall[/gold] an Attack or Skill from [blue]turn 1[/blue] of Memory, then advance the turn number by 1.",
+
+	"REED-REKINDLE.title":"Rekindle",
+	"REED-REKINDLE.description":"Deal {Damage:diff()} damage.\n[gold]Recall[/gold] an Attack from the earliest turn in Memory that has an Attack recorded.",
+
+	"REED-WHERE_SPIRITS_GO.title":"Where Spirits Go",
+	"REED-WHERE_SPIRITS_GO.description":"Choose an enemy. You and all allies, in sequence, each [gold]Attach[/gold] a [gold]Cinder[/gold] Spark to that enemy and [gold]Burn[/gold] it {Reed_Burn:diff()}.",
+
+	"REED-PROLONG_DAYS.title":"Prolong the Day",
+	"REED-PROLONG_DAYS.description":"[gold]Detonate[/gold] all Spark Cards on the target.\n[gold]Attach[/gold] an equal number of [gold]Patrol[/gold] Sparks; Evolved cards instead attach a [gold]Flag[/gold] Spark.",
+
+	"RARE-ANCIENT":"",
+
+	"REED-IGNITE_LIFE.title":"Spark of Life",
+	"REED-IGNITE_LIFE.description":"[gold]Attach[/gold] a [gold]Cinder[/gold] Spark.\nAdd {Cards:diff()} [gold]Flame Shadow[/gold] cards to your hand.",
+
+	"REED-UNTIL_DEATH.title":"Until the Flames Burn Out",
+	"REED-UNTIL_DEATH.description":"Whenever an enemy leaves [red]Burning State[/red], trigger the Burst effect of one of its random [gold]Spark[/gold] Cards.",
+
+	"ANCIENT-SPECIAL":"",
+
+	"REED-LIVING_ALIVE.title":"Living",
+	"REED-LIVING_ALIVE.description":"Transform the Spark Cards you have attached to other creatures into [green]Living Form[/green]. They grant you defensive benefits.",
+
+	"REED-LIVING_DEAD.title":"Dying",
+	"REED-LIVING_DEAD.description":"Transform the Spark Cards you have attached to other creatures into [purple]Dying Form[/purple]. They grant you offensive benefits.",
+
+	"REED-FLAME_SHADOW.title":"Flame Shadow",
+	"REED-FLAME_SHADOW.description":"[gold]Burn[/gold] {Reed_Burn:diff()}.\nWhen this card leaves your hand, [gold]Exhaust[/gold] it.",
+
+	"REED-FLAME_LIGHT.title":"Flame Light",
+	"REED-FLAME_LIGHT.description":"When this card leaves your hand, [gold]Exhaust[/gold] it. When Exhausted, deal {Damage:diff()} damage to all enemies.",
+
+	"REED-NORMAL_FLOWER.title":"[Spark] Basic",
+	"REED-NORMAL_FLOWER.description":"[gold]Burst[/gold]: Take {Damage:diff()} damage{Alive:, grant the source {Block:diff()} [gold]Block[/gold]|}{Dead:, grant the source {VigorPower:diff()} [gold]Vigor[/gold]|}.",
+
+	"REED-END_FLOWER.title":"[Spark] End",
+	"REED-END_FLOWER.description":"[gold]Burst[/gold]: Take {Damage:diff()} damage{Alive:, grant the source {Block:diff()} [gold]Block[/gold]|}{Dead:, grant the source {VigorPower:diff()} [gold]Vigor[/gold]|}.",
+
+	"REED-SHINE_FLOWER.title":"[Spark] Shine",
+	"REED-SHINE_FLOWER.description":"[gold]Burst[/gold]: Take {Damage:diff()} damage and make the source draw {Cards:diff()} cards{Alive:, reducing the cost of Skills drawn by 1 this turn|}{Dead:, reducing the cost of Attacks drawn by 2 this turn|}.",
+
+	"REED-SPLENDID_FLOWER.title":"[Spark] Splendid",
+	"REED-SPLENDID_FLOWER.description":"[gold]Burst[/gold]: Take {Damage:diff()} damage, make the source draw {Cards:diff()} cards and gain {Energy:energyIcons()}{Alive:, reducing the cost of Skills drawn by 1 this turn|}{Dead:, reducing the cost of Attacks drawn by 2 this turn|}.",
+
+	"REED-BURN_MARK_FLOWER.title":"[Spark] Cinder",
+	"REED-BURN_MARK_FLOWER.description":"[gold]Burst[/gold]: Take {Damage:diff()} damage.\n[gold]Continuous[/gold]: Deal {Alive:40|25}% less Attack damage and take {Dead:40|25}% more Attack damage.",
+
+	"REED-BLAZE_FLOWER.title":"[Spark] Blaze",
+	"REED-BLAZE_FLOWER.description":"[gold]Burst[/gold]: Take {Damage:diff()} damage.\n[gold]Continuous[/gold]: Deal {Alive:60|40}% less Attack damage and take {Dead:60|40}% more Attack damage.",
+
+	"REED-PATROL_FLOWER.title":"[Spark] Patrol",
+	"REED-PATROL_FLOWER.description":"[gold]Burst[/gold]: Take {Damage:diff()} damage.\nWhen this card is removed, grant the source {Energy:energyIcons()}{Alive: and {Block:diff()} [gold]Block[/gold]|}{Dead: and {VigorPower:diff()} [gold]Vigor[/gold]|}.",
+
+	"REED-FLAG_FLOWER.title":"[Spark] Flag",
+	"REED-FLAG_FLOWER.description":"[gold]Burst[/gold]: Take {Damage:diff()} damage.\nWhen this card is removed, grant the source {Energy:energyIcons()}{Alive: and {Block:diff()} [gold]Block[/gold]|}{Dead: and {VigorPower:diff()} [gold]Vigor[/gold]|}."
+}

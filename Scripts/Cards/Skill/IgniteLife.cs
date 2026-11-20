@@ -14,10 +14,10 @@ using Reed.Scripts.Patches;
 namespace Reed.Scripts.Cards.Skill;
 
 [Pool(typeof(ReedCardPool))]
-public class IgniteLife : AbstractReedCard, IFullCardSubscriber
+public class IgniteLife : AbstractReedCard
 {
     protected override IEnumerable<DynamicVar> CanonicalVars => [
-       new CardsVar(1)
+       new CardsVar(2)
     ];
 
     protected override IEnumerable<IHoverTip> ExtraHoverTips => [
@@ -41,6 +41,6 @@ public class IgniteLife : AbstractReedCard, IFullCardSubscriber
     protected override void OnUpgrade()
     {
         EnergyCost.UpgradeBy(-1);
-        DynamicVars.Cards.UpgradeValueBy(1);
+        //DynamicVars.Cards.UpgradeValueBy(1);
     }
 }

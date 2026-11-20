@@ -9,7 +9,7 @@
 	"REED-SCORCH.description":"造成{Damage:diff()}点伤害{Repeat:diff()}次。\n[gold]灼烧[/gold]{Reed_Burn:diff()}。",
 
 	"REED-IGNITE_FIRE.title":"火种",
-	"REED-IGNITE_FIRE.description":"[gold]附着[/gold]一张[gold]基础[/gold]火花。",
+	"REED-IGNITE_FIRE.description":"[gold]附着[/gold]一张[gold]基础[/gold]火花。\n将一张[gold]焰影[/gold]加入手牌。",
 
 	"BASIC-COMMON":"",
 
@@ -35,10 +35,10 @@
 	"REED-FORGE.description":"造成{Damage:diff()}点伤害。\n[gold]附着[/gold]一张[gold]基础[/gold]火花。\n增加此牌1点耗能。",
 
 	"REED-WAY_BACK.title":"归处",
-	"REED-WAY_BACK.description":"[gold]附着[/gold]一张[gold]映耀[/gold]火花。\n每当有一张火花牌爆发，下次打出的耗能减1。",
+	"REED-WAY_BACK.description":"[gold]附着[/gold]一张[gold]巡标[/gold]火花。\n每当有一张火花牌爆发，下次打出的耗能减1。",
 
 	"REED-OVERLOOK.title":"远眺",
-	"REED-OVERLOOK.description":"将{Cards:diff()}张[gold]防御+[/gold]记录到[blue]下一回合[/blue]的回忆，并从中[gold]追忆[/gold]一张牌。",
+	"REED-OVERLOOK.description":"{IfUpgraded:show:分别|}将{IfUpgraded:show:[gold]打击+[/gold]和|一张}[gold]防御+[/gold]记录到[blue]下一回合[/blue]的回忆，并从中[gold]追忆[/gold]一张牌。",
 
 	"REED-REGRET.title":"缺憾",
 	"REED-REGRET.description":"获得{Block:diff()}点[gold]格挡[/gold]。\n打出可以发起[gold]追忆[/gold]的牌后，从弃牌堆返回你的手牌。",
@@ -70,6 +70,12 @@
 	"REED-LATENT_DETECTION.title":"潜意",
 	"REED-LATENT_DETECTION.description":"造成{Damage:diff()}点伤害。\n非追忆打出时，在接下来{Repeat:diff()}个回合的[gold]回忆[/gold]中记录此牌。对应回合开始时[gold]追忆[/gold]此记录。",
 
+	"REED-HATE.title":"红龙的恨意",
+	"REED-HATE.description":"直到其下一次离开[red]燃烧状态[/red]，恢复和失去的抗性增加{HatePower:diff()}。\n造成{Damage:diff()}点伤害。",
+
+	"REED-THINK1.title":"红龙的恨意",
+	"REED-THINK1.description":"直到其下一次离开[red]燃烧状态[/red]，恢复和失去的抗性增加{HatePower:diff()}。\n造成{Damage:diff()}点伤害。",
+
 	"COMMON-UNCOMMON":"",
 
 	"REED-BACKGROUND.title":"身世",
@@ -91,7 +97,7 @@
 	"REED-CURSE_HEAL.description":"当你的牌造成伤害时，获得伤害量25％的[gold]格挡[/gold]。",
 	
 	"REED-SPREAD.title":"蔓延",
-	"REED-SPREAD.description":"[gold]引爆[/gold]一张火花牌。\n{IfUpgraded:show:以150％伤害量}作用于所有敌人。",
+	"REED-SPREAD.description":"[gold]引爆[/gold]一张火花牌。\n以{IfUpgraded:show:200％|150％}伤害量作用于所有敌人。",
 
 	"REED-BURN_ME.title":"照我以火",
 	"REED-BURN_ME.description":"造成{Damage:diff()}点伤害。\n从[blue]上一回合[/blue]的回忆中[gold]追忆[/gold]一张攻击牌。",
@@ -180,7 +186,25 @@
 	"REED-ENDER_WALKER.description":"获得{Block:diff()}点[gold]格挡[/gold]。\n非追忆打出时，在接下来{Repeat:diff()}个回合的[gold]回忆[/gold]中记录此牌。对应回合开始时[gold]追忆[/gold]此记录。",
 
 	"REED-INC_FIRE.title":"薪燃",
-	"REED-INC_FIRE.description":"造成{Damage:diff()}点[gold]伤害[/gold]。\n目标在本回合每受到1点[gold]灼烧[/gold]，使其随机火花牌提升{IncFirePower:diff()}点伤害。",
+	"REED-INC_FIRE.description":"目标在本回合每受到1点[gold]灼烧[/gold]，使其随机火花牌提升{IncFirePower:diff()}点伤害。\n造成{Damage:diff()}点[gold]伤害[/gold]并[gold]灼烧[/gold]{Reed_Burn:diff()}。",
+
+	"REED-ELEGY.title":"挽歌",
+	"REED-ELEGY.description":"每名生物在每回合首次被你[gold]附着[/gold]一张牌时，你获得{ElegyPower:diff()}点[gold]格挡[/gold]。",
+
+	"REED-FLAME_SUN.title":"焰阳",
+	"REED-FLAME_SUN.description":"获得{Block:diff()}点[gold]格挡[/gold]。\n你在本回合受到攻击时，对来源[gold]灼烧[/gold]{FlameSunPower:diff()}。",
+
+	"REED-FLAME_MOON.title":"焰月",
+	"REED-FLAME_MOON.description":"对所有敌人造成{Damage:diff()}点伤害。\n如果其火花牌数量低于上限或可以[gold]进阶[/gold]，[gold]附着[/gold]一张[gold]映耀[/gold]火花。",
+
+	"REED-INVITATION_TO_DANCE.title":"邀舞",
+	"REED-INVITATION_TO_DANCE.description":"[gold]附着[/gold]一张[gold]巡标[/gold]火花。\n将目标的一张{IfUpgraded:show:非巡标|[gold]普通[/gold]}火花转化为[gold]巡标[/gold]火花。",
+
+	"REED-DRIVE_DEATH.title":"驱策死亡",
+	"REED-DRIVE_DEATH.description":"给予{VulnerablePower:diff()}层[gold]易伤[/gold]。\n如果你在本回合没有移除过火花牌，[gold]附着[/gold]一张[gold]巡标[/gold]火花。",
+
+	"REED-MULTI_ONE.title":"",
+	"REED-MULTI_ONE.description":"选择一名盟友，使其从[blue]上一回合[/blue]的回忆中[gold]追忆[/gold]一张{IfUpgraded:show:任意牌|攻击牌或技能牌}。",
 
 	"UNCOMMON-RARE":"",
 
@@ -235,6 +259,15 @@
 	"REED-STEP_AND_STEP.title":"向前走吧",
 	"REED-STEP_AND_STEP.description":"在你回合开始时，从[blue]第1回合[/blue]的回忆中[gold]追忆[/gold]一张攻击牌或技能牌，然后回合数加1。",
 
+	"REED-REKINDLE.title":"复燃",
+	"REED-REKINDLE.description":"造成{Damage:diff()}点伤害。\n从最早的有攻击牌记录的回忆中[gold]追忆[/gold]一张攻击牌。",
+
+	"REED-WHERE_SPIRITS_GO.title":"众灵所往",
+	"REED-WHERE_SPIRITS_GO.description":"选择一名敌人，使自身与所有盟友依次向其[gold]附着[/gold]一张[gold]灼痕[/gold]火花并[gold]灼烧[/gold]{Reed_Burn:diff()}。",
+
+	"REED-PROLONG_DAYS.title":"续昼",
+	"REED-PROLONG_DAYS.description":"引爆目标所有火花牌。\n向其[gold]附着[/gold]等量张[gold]巡标[/gold]火花，已进阶的牌则对应附着[gold]旗帜[/gold]火花。",
+
 	"RARE-ANCIENT":"",
 
 	"REED-IGNITE_LIFE.title":"生命火种",
@@ -273,5 +306,11 @@
 	"REED-BURN_MARK_FLOWER.description":"[gold]爆发[/gold]：受到{Damage:diff()}点伤害。\n[gold]持续[/gold]：造成的攻击伤害降低{Alive:40|25}％，受到的攻击伤害提升{Dead:40|25}％。",
 
 	"REED-BLAZE_FLOWER.title":"[火花]烈焰",
-	"REED-BLAZE_FLOWER.description":"[gold]爆发[/gold]：受到{Damage:diff()}点伤害。\n[gold]持续[/gold]：造成的攻击伤害降低{Alive:60|40}％，受到的攻击伤害提升{Dead:60|40}％。"
+	"REED-BLAZE_FLOWER.description":"[gold]爆发[/gold]：受到{Damage:diff()}点伤害。\n[gold]持续[/gold]：造成的攻击伤害降低{Alive:60|40}％，受到的攻击伤害提升{Dead:60|40}％。",
+
+	"REED-PATROL_FLOWER.title":"[火花]巡标",
+	"REED-PATROL_FLOWER.description":"[gold]爆发[/gold]：受到{Damage:diff()}点伤害。\n这张牌被移除时，令来源获得{Energy:energyIcons()}{Alive:以及{Block:diff()}点[gold]格挡[/gold]|}{Dead:以及{VigorPower:diff()}点[gold]活力[/gold]|}。",
+
+	"REED-FLAG_FLOWER.title":"[火花]旗帜",
+	"REED-FLAG_FLOWER.description":"[gold]爆发[/gold]：受到{Damage:diff()}点伤害。\n这张牌被移除时，令来源获得{Energy:energyIcons()}{Alive:以及{Block:diff()}点[gold]格挡[/gold]|}{Dead:以及{VigorPower:diff()}点[gold]活力[/gold]|}。"
 }

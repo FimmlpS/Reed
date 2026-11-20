@@ -1,4 +1,5 @@
 using System.Threading.Tasks;
+using Godot;
 using MegaCrit.Sts2.Core.Entities.Cards;
 using MegaCrit.Sts2.Core.Entities.Creatures;
 using MegaCrit.Sts2.Core.GameActions.Multiplayer;
@@ -88,12 +89,21 @@ public sealed class ReedBurnBuilder
         {
             // 灼烧「全部抗性」时，每个目标用自己的当前抗性，逐个单独结算。
             int amount = _useTargetResistance ? ResistanceSystem.GetCurrent(creature) : _amount;
+            // 恨意一类的修正在这里落地：后续 BeforeBurn / AfterBurn 与抗性结算看到的是同一个最终值
+            // （薪燃按修正后的灼烧量加火花伤害，抗性也按它扣）。
+            amount = ResistanceSystem.ModifyChangeAmount(creature, amount, _isBurn);
             foreach(AbstractModel model in creature.CombatState?.IterateHookListeners() ?? [])
             {
-                if(model is IFireFlowerSubscriber sub)
+                if(model is IFireFlowerSubscriber sub && _isBurn)
                 {
-                    if(_isBurn)
+                    try
+                    {
                         await sub.BeforeBurn(choiceContext, creature, _source, amount);
+                    }
+                    catch (Exception e)
+                    {
+                        GD.PushWarning($"[ReedBurnCmd] BeforeBurn 失败（{model.Id}）：{e.Message}");
+                    }
                 }
             }
             if (creature.IsAlive)
@@ -111,10 +121,16 @@ public sealed class ReedBurnBuilder
             }
             foreach(AbstractModel model in creature.CombatState?.IterateHookListeners() ?? [])
             {
-                if(model is IFireFlowerSubscriber sub)
+                if(model is IFireFlowerSubscriber sub && _isBurn)
                 {
-                    if(_isBurn)
+                    try
+                    {
                         await sub.AfterBurn(choiceContext, creature, _source, amount);
+                    }
+                    catch (Exception e)
+                    {
+                        GD.PushWarning($"[ReedBurnCmd] AfterBurn 失败（{model.Id}）：{e.Message}");
+                    }
                 }
             }
         }

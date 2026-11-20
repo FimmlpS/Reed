@@ -8,6 +8,7 @@ using MegaCrit.Sts2.Core.GameActions.Multiplayer;
 using MegaCrit.Sts2.Core.HoverTips;
 using MegaCrit.Sts2.Core.Localization.DynamicVars;
 using MegaCrit.Sts2.Core.Models;
+using Reed.Scripts.Cards.Attack;
 
 namespace Reed.Scripts.Cards.Skill;
 
@@ -18,7 +19,12 @@ public class Overlook : AbstractReedCard, IMemorySubscriber
         new CardsVar(1)
     ];
 
-    protected override IEnumerable<IHoverTip> ExtraHoverTips => [
+    protected override IEnumerable<IHoverTip> ExtraHoverTips => IsUpgraded ? [
+        HoverTipFactory.FromCard<Strike>(true),
+        HoverTipFactory.FromCard<Defend>(true),
+        HoverTipFactory.FromKeyword(ReedKeywords.Recall),
+        HoverTipFactory.FromKeyword(ReedKeywords.Memory)
+    ] :[
         HoverTipFactory.FromCard<Defend>(true),
         HoverTipFactory.FromKeyword(ReedKeywords.Recall),
         HoverTipFactory.FromKeyword(ReedKeywords.Memory)
@@ -43,10 +49,18 @@ public class Overlook : AbstractReedCard, IMemorySubscriber
         await RecordCmd.Record(choiceContext, Owner)
             .FromPlay(cardPlay)
             .Offset(1)
-            .Card(ModelDb.Card<Defend>())
+            .Card(ModelDb.Card<Strike>())
             .Upgraded()
-            .Count(DynamicVars.Cards.IntValue)
             .Execute(choiceContext);
+
+        if(IsUpgraded){
+            await RecordCmd.Record(choiceContext, Owner)
+                .FromPlay(cardPlay)
+                .Offset(1)
+                .Card(ModelDb.Card<Defend>())
+                .Upgraded()
+                .Execute(choiceContext);
+        }
 
         // 追忆：不加筛选 = 任意牌（正常就是刚记进去的那些防御+）。
         await RecallCmd.Recall(choiceContext, Owner)

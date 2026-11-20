@@ -62,8 +62,7 @@ public class LatentDetection : AbstractReedCard, IMemoryEventSubscriber
     async Task IMemoryEventSubscriber.AfterRoundStarted(
         PlayerChoiceContext choiceContext, Player player, RememberedCard entry)
     {
-        // 不能用 this.CombatState：回忆里的快照不进任何牌堆，CardModel.CombatState 对它恒为 null
-        // （只有「牌在战斗牌堆里」才返回），只能从玩家身上问。
+        // 快照的 CombatState 由补丁补齐，但直接从玩家身上问少一层 owner 依赖。
         ICombatState? combat = player.Creature?.CombatState;
         if (combat == null || player != Owner || !ReferenceEquals(entry.Card, this))
         {

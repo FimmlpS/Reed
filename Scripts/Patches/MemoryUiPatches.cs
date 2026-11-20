@@ -102,6 +102,14 @@ internal sealed partial class MemoryPileButton : Control
     private Player? _player;
     private int _shownCount = -1;
 
+    /// <summary>这个角色是否启用了回忆牌堆（见 <see cref="MemorySystem.UsesMemoryPile"/>）。一旦为真，本场战斗内保持。</summary>
+    private bool _active;
+
+    /// <summary>显示开关的轮询间隔：手牌/牌堆里何时多出追忆牌没有现成信号，低频重查比到处挂点更稳。</summary>
+    private const double VisibilityPollInterval = 0.25;
+
+    private double _visibilityPollAccum;
+
     /// <summary>
     /// 当前战斗界面上的回忆按钮。追忆预览（<see cref="Memory.MemoryPreviewOverlay"/>）拿它定位
     /// 「扇形环绕的圆心」——按钮不在场（不在战斗界面）时预览会退回被悬浮卡牌自身的位置。
@@ -119,10 +127,12 @@ internal sealed partial class MemoryPileButton : Control
     {
         // 刻意不设 MouseDefaultCursorShape：回忆牌堆不是「可点选的牌」，悬停时保持默认箭头，
         // 与原版抽牌堆/弃牌堆按钮（同样是纯查看入口）的观感区分开。
+        // 默认隐藏：只有苇草（或随身带着追忆牌/博物那类东西的其他角色）才启用，见 RefreshVisibility。
         MemoryPileButton button = new()
         {
             Name = NodeName,
             MouseFilter = MouseFilterEnum.Stop,
+            Visible = false,
             // 回忆界面打开时战斗被 CombatManager 暂停；挂 Always 保证快捷键在界面里也能收得到，
             // 于是同一个键可以「开 → 关」。
             ProcessMode = ProcessModeEnum.Always,
@@ -182,7 +192,44 @@ internal sealed partial class MemoryPileButton : Control
         MouseEntered += OnHoverStart;
         MouseExited += OnHoverEnd;
 
+        SetProcess(true); // 未启用时靠 _Process 低频轮询「是不是该显示了」
+        RefreshVisibility();
+    }
+
+    /// <summary>
+    /// 显示开关，对齐原版愚者左侧箭矢/旋律面板（<c>NFoolCombatUi.RefreshVisibility</c>）：
+    /// 本命角色（苇草）常驻显示；其他角色只在真的带着「会用回忆的牌 / 能力 / 遗物」时才显示。
+    /// 和愚者一样只翻一次 —— 显示后本场战斗内不再收起。
+    /// </summary>
+    private void RefreshVisibility()
+    {
+        if (_active)
+        {
+            return;
+        }
+        if (!MemorySystem.UsesMemoryPile(ResolvePlayer()))
+        {
+            return;
+        }
+        _active = true;
+        Visible = true;
+        SetProcess(false); // 决定了就不再轮询
         RefreshCount();
+    }
+
+    public override void _Process(double delta)
+    {
+        if (_active)
+        {
+            return;
+        }
+        _visibilityPollAccum += delta;
+        if (_visibilityPollAccum < VisibilityPollInterval)
+        {
+            return;
+        }
+        _visibilityPollAccum = 0;
+        RefreshVisibility();
     }
 
     public override void _ExitTree()
@@ -257,6 +304,7 @@ internal sealed partial class MemoryPileButton : Control
     {
         _player = player;
         RefreshCount();
+        RefreshVisibility();
     }
 
     // ============ 计数 ============
@@ -281,6 +329,10 @@ internal sealed partial class MemoryPileButton : Control
     /// </summary>
     private void OnRemembered(Player player, RememberedCard entry)
     {
+        if (!_active)
+        {
+            return; // 这个角色没启用回忆牌堆：按钮不在屏幕上，飞卡没有终点
+        }
         // 按钮显示的是本地玩家的回忆，飞卡也只飞本地玩家的：联机时队友打出的牌不该飞向我的图标。
         Player? owner = ResolvePlayer();
         if (owner != null && owner.NetId != player.NetId)
@@ -302,9 +354,9 @@ internal sealed partial class MemoryPileButton : Control
 
     private void RefreshCount()
     {
-        if (_countLabel == null)
+        if (_countLabel == null || !_active)
         {
-            return;
+            return; // 未启用（非苇草且没有追忆内容）：按钮不在场，不必维护计数
         }
         int count = ResolvePlayer() is { } owner ? MemorySystem.Of(owner).TotalCount : 0;
         if (count == _shownCount)
@@ -340,6 +392,10 @@ internal sealed partial class MemoryPileButton : Control
     /// </summary>
     public override void _UnhandledKeyInput(InputEvent @event)
     {
+        if (!_active)
+        {
+            return; // 没启用回忆牌堆的角色：快捷键也不该翻开它
+        }
         if (@event is not InputEventKey { Pressed: true, Echo: false } key)
         {
             return;
@@ -355,6 +411,10 @@ internal sealed partial class MemoryPileButton : Control
 
     public override void _GuiInput(InputEvent @event)
     {
+        if (!_active)
+        {
+            return;
+        }
         if (@event is not InputEventMouseButton { ButtonIndex: MouseButton.Left } button)
         {
             return;
@@ -381,6 +441,10 @@ internal sealed partial class MemoryPileButton : Control
 
     private void OnHoverStart()
     {
+        if (!_active)
+        {
+            return;
+        }
         ShowTip();
         if (_icon == null)
         {

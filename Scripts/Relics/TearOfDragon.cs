@@ -50,7 +50,8 @@ public class TearOfDragon : AbstractReedRelic
     {
         foreach(Creature creature in Owner.Creature.CombatState?.Creatures ?? [])
         {
-            if (creature.IsMonster)
+            // 只给怪物附着；宠物也带 Monster，必须靠 IsPet 排除
+            if (ResistanceSystem.IsEnemyMonster(creature))
             {
                 await ReedAttachCmd.Attach(new ThrowingPlayerChoiceContext(), Owner.Creature.CombatState.CreateCard<BurnMarkFlower>(Owner), creature);
             }
@@ -59,7 +60,7 @@ public class TearOfDragon : AbstractReedRelic
 
     public override async Task AfterCreatureAddedToCombat(Creature creature)
     {
-        if (creature.IsMonster)
+        if (ResistanceSystem.IsEnemyMonster(creature))
         {
             await ReedAttachCmd.Attach(new ThrowingPlayerChoiceContext(), Owner.Creature.CombatState.CreateCard<BurnMarkFlower>(Owner), creature);
         }
@@ -72,7 +73,7 @@ public class TearOfDragon : AbstractReedRelic
             return;
         }
 
-        if (!target.IsMonster)
+        if (!ResistanceSystem.IsEnemyMonster(target))
         {
             return;
         }

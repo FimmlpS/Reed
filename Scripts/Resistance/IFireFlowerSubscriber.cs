@@ -27,9 +27,36 @@ public interface IFireFlowerSubscriber
         return amount;
     }
 
+    /// <summary>
+    /// 修改一次抗性变化的<b>最终数值</b>：可以是灼烧扣减，也可以是恢复。
+    /// 例：返回 <c>amount + 1</c> 时，「灼烧 1」实际扣 2 点抗性。
+    ///
+    /// <para>调用点在 <see cref="ReedBurnCmd"/> 结算一次灼烧/恢复之前（见 <c>ResistanceSystem.ModifyChangeAmount</c>），
+    /// 且<b>先于</b> <see cref="BeforeBurn"/> —— 因此修正后的值既是最终抗性变化量，
+    /// 也是 BeforeBurn / AfterBurn 收到的数值（薪燃按它加火花伤害）。</para>
+    /// </summary>
+    /// <param name="target">抗性发生变化的那只生物（不一定是本订阅者的主人）。</param>
+    /// <param name="amount">原始数值（&gt; 0）。</param>
+    /// <param name="isLoss">true = 扣减（灼烧）；false = 恢复。</param>
+    public virtual int ModifyResistanceChange(Creature target, int amount, bool isLoss)
+    {
+        return amount;
+    }
+
     public virtual async Task AfterAllBurnt(PlayerChoiceContext playerChoiceContext, Creature c, bool triggerByBurning)
     {
-        
+
+    }
+
+    /// <summary>
+    /// 一张火花牌刚被 <paramref name="owner"/> 成功附着到 <paramref name="target"/> 身上。
+    /// 广播点在 <see cref="ReedAttachCmd"/> 的附着收尾（<see cref="ReedAttachCmd.Attach"/> 与
+    /// <see cref="ReedAttachCmd.UpgradeSpark"/> 都走这里）：此时火花已进目标名单，火花自身的
+    /// <see cref="IFireFlower.OnAttached"/> 也已结算完。
+    /// </summary>
+    public virtual async Task AfterAttach(PlayerChoiceContext playerChoiceContext, Player owner, CardModel card, Creature target)
+    {
+
     }
 
     public virtual async Task BeforeBurn(PlayerChoiceContext playerChoiceContext, Creature target, Creature source, int amount)

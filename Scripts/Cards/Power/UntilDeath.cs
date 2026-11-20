@@ -12,7 +12,7 @@ using Reed.Scripts.Patches;
 namespace Reed.Scripts.Cards.Power;
 
 [Pool(typeof(ReedCardPool))]
-public class UntilDeath : AbstractReedCard, IFullCardSubscriber
+public class UntilDeath : AbstractReedCard
 {
     protected override IEnumerable<DynamicVar> CanonicalVars => [
         new PowerVar<UntilDeathPower>("UntilDeathPower", 1)

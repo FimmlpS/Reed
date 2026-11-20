@@ -40,7 +40,7 @@ public class DeadFire : AbstractReedCard
                 {
                     await ReedAttachCmd.Burnt(choiceContext, spark, enemy, blv: this.IsUpgraded?1.5m:1m);
                 }
-                ResistanceSystem.RemoveSpark(enemy, Owner, spark);
+                await ReedAttachCmd.Detach(choiceContext, enemy, Owner, spark);
                 detonated.Add(spark);
             }
         }

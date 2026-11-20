@@ -15,7 +15,7 @@ namespace Reed.Scripts.Cards.Skill;
 public class WayBack : AbstractReedCard, IFireFlowerSubscriber
 {
     protected override IEnumerable<IHoverTip> ExtraHoverTips => [
-        HoverTipFactory.FromCard<ShineFlower>(),
+        HoverTipFactory.FromCard<PatrolFlower>(),
         HoverTipFactory.FromKeyword(ReedKeywords.Attach)
     ];
 
@@ -26,7 +26,7 @@ public class WayBack : AbstractReedCard, IFireFlowerSubscriber
 
     protected override async Task OnPlay(PlayerChoiceContext choiceContext, CardPlay cardPlay)
     {
-        await ReedAttachCmd.Attach(choiceContext, this.CreateFireFlower<ShineFlower>(), cardPlay.Target);
+        await ReedAttachCmd.Attach(choiceContext, this.CreateFireFlower<PatrolFlower>(), cardPlay.Target);
     }
 
     protected override void OnUpgrade()

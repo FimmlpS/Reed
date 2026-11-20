@@ -54,9 +54,9 @@ public interface IMemoryEventSubscriber
     /// 只能靠这一拨广播自证 —— <c>ReferenceEquals(entry.Card, this)</c> 认领自己那一份，
     /// 再看 <c>entry.RoundNumber ==</c> 当前回合。别人的、还没到期的记录直接忽略。</para>
     ///
-    /// <para><b>拿当前回合不要用 <c>this.CombatState</c></b>：回忆快照不进任何牌堆，
-    /// <c>CardModel.CombatState</c> 只对「在战斗牌堆里」的牌返回非 null，对快照恒为 null ——
-    /// 要用 <c>player.Creature.CombatState</c>（广播参数里的 <paramref name="player"/> 就是回忆的主人）。</para>
+    /// <para>回忆快照不在任何牌堆里，原版 <c>CardModel.CombatState</c> 对它恒为 null；mod 用
+    /// <c>MemoryCombatStatePatch</c> 把它补成 owner 的战斗状态。要拿当前回合仍推荐
+    /// <c>player.Creature.CombatState</c>（广播参数里的 <paramref name="player"/> 就是回忆的主人）。</para>
     ///
     /// <para>和其他事件一样会被 <c>await</c>，里面可以放心追忆（<see cref="RecallCmd"/>）、自动出牌。
     /// 写进**未来回合**的记录也会收到广播（那几份就是「还没到期」的）。</para>

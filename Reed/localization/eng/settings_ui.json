@@ -1,0 +1,8 @@
+{
+    "REED.mod_title":"[Arknights] Reed",
+    "REED-CURRENT_SKIN.title":"Select Current Skin",
+
+    "REED-MEMORY_TOGGLE_KEY.title":"Memory Pile Shortcut",
+    "REED-MEMORY_TOGGLE_KEY.hover.title":"Memory Pile Shortcut",
+    "REED-MEMORY_TOGGLE_KEY.hover.desc":"Press this key during combat to show or hide the Memory pile interface. Default: R.\nEnter a Godot key name: R / M / F1 / Space … (choose a key that isn't already in use)."
+}

@@ -65,5 +65,21 @@
 
     "REED-INC_FIRE_POWER.title":"薪燃",
 	"REED-INC_FIRE_POWER.description":"本回合每受到1点[gold]灼烧[/gold]，使其随机火花牌提升1点伤害。",
-    "REED-INC_FIRE_POWER.smartDescription":"本回合每受到1点[gold]灼烧[/gold]，使其随机火花牌提升{Amount}点伤害。"
+    "REED-INC_FIRE_POWER.smartDescription":"本回合每受到1点[gold]灼烧[/gold]，使其随机火花牌提升{Amount}点伤害。",
+
+    "REED-ELEGY_POWER.title":"挽歌",
+	"REED-ELEGY_POWER.description":"每名生物在每回合首次被你[gold]附着[/gold]一张牌时，你获得[gold]格挡[/gold]。",
+    "REED-ELEGY_POWER.smartDescription":"每名生物在每回合首次被你[gold]附着[/gold]一张牌时，你获得{Amount}点[gold]格挡[/gold]。",
+
+    "REED-ELEGY_ATTACHED_POWER.title":"奏响挽歌",
+	"REED-ELEGY_ATTACHED_POWER.description":"这名生物在本回合已经触发过你的[gold]挽歌[/gold]。",
+    "REED-ELEGY_ATTACHED_POWER.smartDescription":"这名生物在本回合已经触发过{ApplierName}的[gold]挽歌[/gold]。",
+
+    "REED-FLAME_SUN_POWER.title":"焰阳",
+	"REED-FLAME_SUN_POWER.description":"你在本回合受到攻击时，对来源[gold]灼烧[/gold]。",
+    "REED-FLAME_SUN_POWER.smartDescription":"你在本回合受到攻击时，对来源[gold]灼烧[/gold]{Amount}。",
+
+    "REED-HATE_POWER.title":"红龙的恨意",
+	"REED-HATE_POWER.description":"直到其下一次离开[red]燃烧状态[/red]，恢复和失去的抗性增加。",
+    "REED-HATE_POWER.smartDescription":"直到其下一次离开[red]燃烧状态[/red]，恢复和失去的抗性增加{Amount}。"
 }

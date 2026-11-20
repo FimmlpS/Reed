@@ -18,7 +18,7 @@ namespace Reed.Scripts.Cards.Skill;
 public class Poem : AbstractReedCard
 {
     protected override IEnumerable<DynamicVar> CanonicalVars => [
-        new BlockVar(6,ValueProp.Move)
+        new BlockVar(7,ValueProp.Move)
     ];
 
     protected override IEnumerable<IHoverTip> ExtraHoverTips => [

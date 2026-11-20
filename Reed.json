@@ -3,11 +3,11 @@
     "name": "苇草Reed",
     "author": "FimmlpS",
     "description": "A character mod from Arknights",
-    "version": "0.6.9",
+    "version": "0.7.4",
     "has_pck": true,
     "has_dll": true,
     "dependencies": [
-        {"id":"BaseLib","min_version":"3.4.1"}
+        {"id":"BaseLib","min_version":"3.4.7"}
     ],
     "affects_gameplay": true
 }

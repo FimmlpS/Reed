@@ -49,15 +49,14 @@ public class DragonOath : AbstractReedCard
         else
         {
             CardModel? victim = await ReedAttachCmd.PickOneToBurst(choiceContext, cardPlay.Target, Owner);
-            if (victim == null)
+            if (victim != null)
             {
-                return;
+                if (victim is IFireFlower flower)
+                {
+                    await ReedAttachCmd.Burnt(choiceContext, victim, cardPlay.Target);
+                }
+                await ReedAttachCmd.Detach(choiceContext, cardPlay.Target, Owner, victim);
             }
-            if (victim is IFireFlower flower)
-            {
-                await ReedAttachCmd.Burnt(choiceContext, victim, cardPlay.Target);
-            }
-            await ReedAttachCmd.Detach(choiceContext, cardPlay.Target, Owner, victim);
             CardCmd.Upgrade(this);
             NCard.FindOnTable(this)?.UpdateVisuals(Pile?.Type??PileType.None,CardPreviewMode.None);
         }

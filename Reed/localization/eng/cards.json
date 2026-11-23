@@ -73,6 +73,9 @@
 	"REED-HATE.title":"Red Dragon's Hate",
 	"REED-HATE.description":"Until it next leaves [red]Burning State[/red], the Resistance it loses and restores is increased by {HatePower:diff()}.\nDeal {Damage:diff()} damage.",
 
+	"REED-OLD_SKELETONS.title":"Old Skeletons",
+	"REED-OLD_SKELETONS.description":"Choose a Spark Card and increase its damage by {Increase:diff()}.",
+
 	"COMMON-UNCOMMON":"",
 
 	"REED-BACKGROUND.title":"Origins",
@@ -115,7 +118,7 @@
 	"REED-WITH_YOU.description":"Gain {CalculatedBlock:diff()} [gold]Block[/gold].\nGain {ExtraBlock:diff()} additional [gold]Block[/gold] for each card recorded in [blue]the current turn's[/blue] [gold]Memory[/gold].",
 
 	"REED-ASHLESS.title":"Unspent",
-	"REED-ASHLESS.description":"Deal {Damage:diff()} damage {Repeat:diff()} times.\nWhen played automatically, target random enemies and deal damage {Repeat:diff()} additional times.",
+	"REED-ASHLESS.description":"Deal {CalculatedDamage:diff()} damage {Repeat:diff()} times.\nWhen played automatically, target random enemies and deal {ExtraDamage:diff()} additional damage.",
 
 	"REED-EMPEROR_TRAVEL.title":"Footsteps of Kings",
 	"REED-EMPEROR_TRAVEL.description":"[gold]Recall[/gold] an Attack from [blue]the previous turn's[/blue] Memory. Whenever you play an Attack, Recall this card (treating it as the previous turn).",
@@ -146,7 +149,7 @@
 	"REED-ALIVE_DRAW.description":"[gold]Attach[/gold] a [gold]Shine[/gold] Spark.\nNext turn, draw {Cards:diff()} cards.",
 
 	"REED-HEART_CLEAR.title":"Heart Clear",
-	"REED-HEART_CLEAR.description":"Deal {Damage:diff()} damage.\nIf this card is in Memory, whenever you [gold]Recall[/gold] another card from [blue]the current turn[/blue], Recall this card as well.",
+	"REED-HEART_CLEAR.description":"Deal {Damage:diff()} damage.\nIf this card is in Memory, whenever you [gold]Recall[/gold] another card, Recall this card as well.",
 
 	"REED-DEAD_CROWN.title":"Withered Branches and Laurels",
 	"REED-DEAD_CROWN.description":"Apply {WeakPower:diff()} [gold]Weak[/gold] to all enemies.\nWhenever a creature dies, return this card from your exhaust pile to your hand.",
@@ -202,6 +205,9 @@
 
 	"REED-MULTI_ONE.title":"",
 	"REED-MULTI_ONE.description":"Choose an ally. They [gold]Recall[/gold] an {IfUpgraded:show:any card|Attack or Skill} from [blue]the previous turn's[/blue] Memory.",
+
+	"REED-TO_BE_CONTINUED.title":"To be continued",
+	"REED-TO_BE_CONTINUED.description":"Additionally receive 1 group of [gold]Card Selection Rewards[/gold].\nRemove from your [gold]Deck[/gold] after {Combats:diff()} battles.",
 
 	"UNCOMMON-RARE":"",
 

@@ -46,21 +46,21 @@ public class Overlook : AbstractReedCard, IMemorySubscriber
     protected override async Task OnPlay(PlayerChoiceContext choiceContext, CardPlay cardPlay)
     {
         // 记录：ModelDb.Card<Defend>() 取的是 Reed 自己的「防御」（同命名空间），Upgraded() 让它成为防御+。
-        await RecordCmd.Record(choiceContext, Owner)
+        
+        if(IsUpgraded){
+            await RecordCmd.Record(choiceContext, Owner)
             .FromPlay(cardPlay)
             .Offset(1)
             .Card(ModelDb.Card<Strike>())
             .Upgraded()
             .Execute(choiceContext);
-
-        if(IsUpgraded){
-            await RecordCmd.Record(choiceContext, Owner)
-                .FromPlay(cardPlay)
-                .Offset(1)
-                .Card(ModelDb.Card<Defend>())
-                .Upgraded()
-                .Execute(choiceContext);
         }
+        await RecordCmd.Record(choiceContext, Owner)
+        .FromPlay(cardPlay)
+        .Offset(1)
+        .Card(ModelDb.Card<Defend>())
+        .Upgraded()
+        .Execute(choiceContext);
 
         // 追忆：不加筛选 = 任意牌（正常就是刚记进去的那些防御+）。
         await RecallCmd.Recall(choiceContext, Owner)

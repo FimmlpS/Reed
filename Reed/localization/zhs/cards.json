@@ -73,8 +73,8 @@
 	"REED-HATE.title":"红龙的恨意",
 	"REED-HATE.description":"直到其下一次离开[red]燃烧状态[/red]，恢复和失去的抗性增加{HatePower:diff()}。\n造成{Damage:diff()}点伤害。",
 
-	"REED-THINK1.title":"红龙的恨意",
-	"REED-THINK1.description":"直到其下一次离开[red]燃烧状态[/red]，恢复和失去的抗性增加{HatePower:diff()}。\n造成{Damage:diff()}点伤害。",
+	"REED-OLD_SKELETONS.title":"旧日残骸",
+	"REED-OLD_SKELETONS.description":"选择一张火花牌，使其伤害量提升{Increase:diff()}点。",
 
 	"COMMON-UNCOMMON":"",
 
@@ -118,7 +118,7 @@
 	"REED-WITH_YOU.description":"获得{CalculatedBlock:diff()}点[gold]格挡[/gold]。\n[gold]回忆[/gold]中[blue]当前回合[/blue]每有一张牌，额外获得{ExtraBlock:diff()}点[gold]格挡[/gold]。",
 
 	"REED-ASHLESS.title":"不烬",
-	"REED-ASHLESS.description":"造成{Damage:diff()}点伤害{Repeat:diff()}次。\n自动打出时随机攻击敌人，并额外造成{Repeat:diff()}次伤害。",
+	"REED-ASHLESS.description":"造成{CalculatedDamage:diff()}点伤害{Repeat:diff()}次。\n自动打出时随机攻击敌人，并额外造成{ExtraDamage:diff()}点伤害。",
 
 	"REED-EMPEROR_TRAVEL.title":"列王行迹",
 	"REED-EMPEROR_TRAVEL.description":"从[blue]上一回合[/blue]的回忆中[gold]追忆[/gold]一张攻击牌。若打出攻击牌，追忆此牌（视为上一回合）。",
@@ -149,7 +149,7 @@
 	"REED-ALIVE_DRAW.description":"[gold]附着[/gold]一张[gold]映耀[/gold]火花。\n在下一回合抽{Cards:diff()}张牌。",
 
 	"REED-HEART_CLEAR.title":"心焯",
-	"REED-HEART_CLEAR.description":"造成{Damage:diff()}点伤害。\n如果此牌在回忆中，当你[gold]追忆[/gold]打出[blue]当前回合[/blue]的其他牌时，一并追忆此牌。",
+	"REED-HEART_CLEAR.description":"造成{Damage:diff()}点伤害。\n如果此牌在回忆中，当你[gold]追忆[/gold]打出其他牌时，一并追忆此牌。",
 
 	"REED-DEAD_CROWN.title":"枯枝与桂冠",
 	"REED-DEAD_CROWN.description":"给予所有敌人{WeakPower:diff()}层[gold]虚弱[/gold]。\n每当有生物死亡，将这张牌从消耗牌堆放回你的手牌。",
@@ -205,6 +205,9 @@
 
 	"REED-MULTI_ONE.title":"",
 	"REED-MULTI_ONE.description":"选择一名盟友，使其从[blue]上一回合[/blue]的回忆中[gold]追忆[/gold]一张{IfUpgraded:show:任意牌|攻击牌或技能牌}。",
+
+	"REED-TO_BE_CONTINUED.title":"待续",
+	"REED-TO_BE_CONTINUED.description":"额外获得一组[gold]选牌奖励[/gold]。\n在{Combats:diff()}场战斗后从你的[gold]牌组[/gold]中移除。",
 
 	"UNCOMMON-RARE":"",
 

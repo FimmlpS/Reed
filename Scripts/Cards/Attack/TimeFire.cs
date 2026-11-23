@@ -22,7 +22,7 @@ public class TimeFire : AbstractReedCard
 {
     protected override IEnumerable<DynamicVar> CanonicalVars => [
         new DamageVar(5,ValueProp.Move),
-        new DynamicVar("Increase",1)
+        new DynamicVar("Increase",2)
     ];
 
     protected override IEnumerable<IHoverTip> ExtraHoverTips => [
@@ -85,6 +85,6 @@ public class TimeFire : AbstractReedCard
     protected override void OnUpgrade()
     {
         DynamicVars.Damage.UpgradeValueBy(2);
-        DynamicVars["Increase"].UpgradeValueBy(1);
+        DynamicVars["Increase"].UpgradeValueBy(2);
     }
 }

@@ -81,5 +81,9 @@
 
     "REED-HATE_POWER.title":"Red Dragon's Hate",
 	"REED-HATE_POWER.description":"Until it next leaves [red]Burning State[/red], the Resistance it loses and restores is increased.",
-    "REED-HATE_POWER.smartDescription":"Until it next leaves [red]Burning State[/red], the Resistance it loses and restores is increased by {Amount}."
+    "REED-HATE_POWER.smartDescription":"Until it next leaves [red]Burning State[/red], the Resistance it loses and restores is increased by {Amount}.",
+
+    "REED-CONTINUED_POWER.title":"To be continued",
+	"REED-CONTINUED_POWER.description":"Gain an additional card reward at the end of this combat.",
+    "REED-CONTINUED_POWER.smartDescription":"Gain {Amount} additional card {Amount:plural:reward|rewards} at the end of this combat."
 }

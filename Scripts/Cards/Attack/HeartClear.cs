@@ -18,7 +18,7 @@ namespace Reed.Scripts.Cards.Skill;
 public class HeartClear : AbstractReedCard, IMemoryEventSubscriber
 {
     protected override IEnumerable<DynamicVar> CanonicalVars => [
-        new DamageVar(11,ValueProp.Move)
+        new DamageVar(10,ValueProp.Move)
     ];
 
     protected override IEnumerable<IHoverTip> ExtraHoverTips => [
@@ -58,11 +58,6 @@ public class HeartClear : AbstractReedCard, IMemoryEventSubscriber
         }
         // 「其他牌」
         if (ReferenceEquals(card, this))
-        {
-            return;
-        }
-        // 「当前回合」= 被追忆的那张牌所在的回合，要和自己在同一个回合桶里
-        if (card.PlayedRound(combat) != round)
         {
             return;
         }

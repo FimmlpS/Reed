@@ -81,5 +81,9 @@
 
     "REED-HATE_POWER.title":"红龙的恨意",
 	"REED-HATE_POWER.description":"直到其下一次离开[red]燃烧状态[/red]，恢复和失去的抗性增加。",
-    "REED-HATE_POWER.smartDescription":"直到其下一次离开[red]燃烧状态[/red]，恢复和失去的抗性增加{Amount}。"
+    "REED-HATE_POWER.smartDescription":"直到其下一次离开[red]燃烧状态[/red]，恢复和失去的抗性增加{Amount}。",
+
+    "REED-CONTINUED_POWER.title":"待续",
+	"REED-CONTINUED_POWER.description":"本场战斗额外获得一组选牌奖励。",
+    "REED-CONTINUED_POWER.smartDescription":"本场战斗额外获得{Amount}组选牌奖励。"
 }

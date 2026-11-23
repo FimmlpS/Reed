@@ -31,5 +31,6 @@
     "REED-SPARK.description":"This creature has {SparkCount} Spark Cards attached (maximum: {SparkMax}). While it is in [red]Burning State[/red], it restores 1 Resistance whenever you play a card.",
     "REED-SPARK.burst-select.title":"Detonate a Spark Card",
     "REED-SPARK.step-select.title":"Evolve a Spark Card",
-    "REED-SPARK.transform-select.title":"Transform a Spark Card"
+    "REED-SPARK.transform-select.title":"Transform a Spark Card",
+    "REED-SPARK.increase-select.title":"Choose a Spark Card"
 }
